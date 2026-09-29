@@ -1,0 +1,27 @@
+[project]
+name = "team-wtm"
+version = "0.1.0"
+description = "Predicting Tanzanian water pump functionality and deriving maintenance insights | ReDI School Data Circle 2026"
+readme = "README.md"
+authors = [
+    { name = "Goodfriend Whyte", email = "goodfriend.whyte@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "folium>=0.20.0",
+    "geopandas>=1.2.0",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.3",
+    "pandas>=3.0.6",
+    "plotly>=7.1.0",
+    "scikit-learn>=1.9.1",
+    "seaborn>=0.13.2",
+    "streamlit>=1.64.0",
+]
+
+[project.scripts]
+team-wtm = "team_wtm:main"
+
+[build-system]
+requires = ["uv_build>=0.12.18,<0.13.0"]
+build-backend = "uv_build"

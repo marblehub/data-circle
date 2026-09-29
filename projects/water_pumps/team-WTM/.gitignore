@@ -1,0 +1,93 @@
+# --------------------------------------------------
+# Python
+# --------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# --------------------------------------------------
+# uv / Python packaging
+# --------------------------------------------------
+# Keep uv.lock under version control
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --------------------------------------------------
+# Jupyter
+# --------------------------------------------------
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# --------------------------------------------------
+# Project data
+# Do not commit raw or generated datasets
+# --------------------------------------------------
+data/**/*.csv
+data/**/*.zip
+data/**/*.parquet
+data/**/*.feather
+data/**/*.pkl
+data/**/*.pickle
+data/**/*.joblib
+data/**/*.xlsx
+data/**/*.xls
+
+# Keep documentation in data/
+!data/**/*.md
+!data/**/.gitkeep
+
+# --------------------------------------------------
+# Trained models / large generated artifacts
+# --------------------------------------------------
+models/**/*.pkl
+models/**/*.pickle
+models/**/*.joblib
+models/**/*.onnx
+
+# --------------------------------------------------
+# Environment variables and secrets
+# --------------------------------------------------
+.env
+.env.*
+!.env.example
+
+.streamlit/secrets.toml
+
+# --------------------------------------------------
+# Testing / coverage / linting
+# --------------------------------------------------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# --------------------------------------------------
+# IDEs / editors
+# --------------------------------------------------
+.vscode/
+.idea/
+
+# --------------------------------------------------
+# Operating system files
+# --------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --------------------------------------------------
+# Temporary files
+# --------------------------------------------------
+*.tmp
+*.temp
+*.log
+*~
