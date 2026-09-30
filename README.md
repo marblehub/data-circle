@@ -1,4 +1,4 @@
-# 💧 Team WTM — Water Pump Functionality Prediction
+# 💧 Team WTM - Water Pump Functionality Prediction
 
 **ReDI School Data Circle 2026**
 
@@ -36,13 +36,13 @@ Technical responsibilities may rotate between sprints so that all team members g
 
 ## Project Status
 
-**Current phase:** Sprint 1 — Exploratory Data Analysis
+**Current phase:** Sprint 1: Exploratory Data Analysis
 
 The project follows three main stages:
 
-1. **Sprint 1 — Exploratory Data Analysis**
-2. **Sprint 2 — Model Development**
-3. **Sprint 3 — Insights and Deployment**
+1. **Sprint 1: Exploratory Data Analysis**
+2. **Sprint 2: Model Development**
+3. **Sprint 3: Insights and Deployment**
 
 ## Technology
 
