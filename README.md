@@ -1,32 +1,71 @@
-# ReDI School Data Circle
+# 💧 Team WTM — Water Pump Functionality Prediction
 
-## Overview
-The Data Circle is a project-based learning program for data science and analytics students. Students work in small teams to complete real-world data projects over the course of a semester.
+**ReDI School Data Circle 2026**
 
-## Program Structure
-- **Duration**: One semester (approx. 3 months)
-- **Team Size**: 2-3 students per team
-- **Session Format**: Two weekly meetings with guides
-- **Project Timeline**: Projects are divided into 3-week sprints with regular check-ins
+This repository is our team fork of the [ReDI School Data Circle](https://github.com/ReDI-School/data-circle) repository.
 
-## For Students
-- Come prepared to collaborate and learn together
-- Each team will have dedicated mentors to provide guidance
-- Projects are designed to build your portfolio and practical skills
+Our team project investigates the functionality of water pumps across Tanzania using exploratory data analysis, geospatial analysis, and machine learning, with a focus on generating insights that may support water-pump maintenance prioritisation.
 
-## For Volunteers
-- Provide consistent feedback and support to the teams
-- Attend weekly sessions and be available for questions
+## 🚀 Team WTM Project
 
-## Current Projects
-- Project documentation and requirements are available in the project folders
-- Each project includes clear scope and expectations
+Our active project is located here:
 
-## Getting Started
-1. Review your assigned project requirements
-2. Set up your development environment
-3. Connect with your team members and mentors
-4. Begin working on your project plan
+### ➡️ [Open the Team WTM Water Pump Project](./projects/water_pumps/team-WTM/)
 
-## Contact
-For questions, reach out to the Data Circle coordinator or your assigned mentor.
+The project contains:
+
+- exploratory data analysis;
+- data-quality assessment;
+- geospatial analysis;
+- feature engineering;
+- machine-learning classification;
+- model interpretation;
+- maintenance-oriented insights;
+- an optional interactive Streamlit dashboard.
+
+## Team
+
+| Role | Responsibility |
+|---|---|
+| **PM-1** | Project coordination, integration, shared technical work |
+| **PM-2** | Data quality and preprocessing |
+| **PM-3** | Exploratory and geospatial analysis |
+| **PM-4** | Modelling, evaluation, and deployment |
+
+Technical responsibilities may rotate between sprints so that all team members gain experience across the complete data-science workflow.
+
+## Project Status
+
+**Current phase:** Sprint 1 — Exploratory Data Analysis
+
+The project follows three main stages:
+
+1. **Sprint 1 — Exploratory Data Analysis**
+2. **Sprint 2 — Model Development**
+3. **Sprint 3 — Insights and Deployment**
+
+## Technology
+
+`Python` | `uv` | `pandas` | `NumPy` | `GeoPandas` | `scikit-learn` | `Matplotlib` | `Plotly` | `Streamlit`
+
+## Repository Structure
+
+The broader repository contains the original ReDI School Data Circle project materials.
+
+Our team's work is contained primarily within:
+
+```text
+projects/water_pumps/team-WTM/
+```
+
+Please see the [Team WTM project README](./projects/water_pumps/team-WTM/README.md) for the full problem statement, research questions, setup instructions, project structure, and development workflow.
+
+---
+
+## About ReDI School Data Circle
+
+The Data Circle is a project-based learning programme in which students work in small teams on real-world data projects using collaborative development, data analysis, machine learning, and project-based workflows.
+
+Original repository:
+
+[ReDI-School/data-circle](https://github.com/ReDI-School/data-circle)
