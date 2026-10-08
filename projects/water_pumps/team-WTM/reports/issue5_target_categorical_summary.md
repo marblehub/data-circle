@@ -25,7 +25,7 @@ quantity 0.31 · waterpoint_type 0.25 · extraction_type 0.25 · funder 0.20 · 
 - **Source:** lakes 77% and dams 58% non functional; springs and rainwater harvesting best. Surface sources have ~2× the needs-repair share of groundwater.
 - **Payment:** never pay 48% non functional vs annually 18% (direction unclear).
 - **Management:** VWC (68% of points) 43% non functional vs water board / WUA / private operator ~17–23%.
-- **Installer / funder:** 2,000+ messy names; large installers range ~25% to ~70% non functional.
+- **Installer / funder:** 2,000+ messy names; large installers range ~25% to ~70% non functional, large funders ~30% to ~52%. Government names still split across spellings.
 - **Needs repair** is highest (12–21%) for salty-abandoned water, surface sources, water authority / WUG / parastatal management.
 
 ## Hypotheses
@@ -42,8 +42,8 @@ quantity 0.31 · waterpoint_type 0.25 · extraction_type 0.25 · funder 0.20 · 
 ## For Sprint 2 (modelling)
 
 1. Per-class precision/recall/F1, stratified CV, class weights for "needs repair".
-2. Test models with and without `quantity` and "unknown" categories (leakage risk).
-3. Keep one column per redundant group; drop `quantity_group`, `recorded_by`.
+2. Test models with and without `quantity`, "unknown" categories, extraction / water-point type "other" and `payment_type` (leakage risk).
+3. Keep one column per redundant group; drop `quantity_group`, `recorded_by`. Prefer `source`, `water_quality`, `management` over their grouped versions; use either `management` or `scheme_management`.
 4. Clean + group `installer`, `funder`, `lga` (top-N + "other"); drop `wpt_name`, `subvillage`, `scheme_name`, `ward`.
 
 ---
