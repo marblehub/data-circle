@@ -26,7 +26,7 @@ installer - Organization that installed the well
 longitude - GPS coordinate
 latitude - GPS coordinate
 wpt_name - Name of the waterpoint if there is one
-num_private -
+num_private - (this was not defined) and it provides no information
 basin - Geographic water basin
 subvillage - Geographic location
 region - Geographic location
