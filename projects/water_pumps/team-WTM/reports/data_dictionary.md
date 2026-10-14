@@ -19,13 +19,13 @@ The dataset contains both numerical and categorical variables, with 40 input col
 | `id` | Identifier connecting each waterpoint to its functionality label. |
 | `amount_tsh` | Total static head (amount of water available to the waterpoint). |
 | `date_recorded` | Date the row was entered. |
-| `funder` | Who funded the well. |
-| `gps_height` | Altitude of the well. |
-| `installer` | Organization that installed the well. |
-| `longitude` | GPS longitude coordinate. |
-| `latitude` | GPS latitude coordinate. |
+| `funder` | Who funded the well; literal `"0"` values are suspected unknown-value placeholders. |
+| `gps_height` | Altitude of the well; frequent zeros may be placeholders, while negative elevations can be valid. |
+| `installer` | Organization that installed the well; check placeholder values and inconsistent spellings. |
+| `longitude` | GPS longitude coordinate in degrees; zero paired with near-zero latitude is a suspicious location. |
+| `latitude` | GPS latitude coordinate in degrees; negative values indicate locations south of the equator. |
 | `wpt_name` | Name of the waterpoint, if available. |
-| `num_private` | Not defined in the source description; provides no information. |
+| `num_private` | Meaning is not established in this project. Has 65 distinct values, including 58,643 zeros; dropped by the current cleaning rule, with an option to retain it. |
 | `basin` | Geographic water basin. |
 | `subvillage` | Geographic location. |
 | `region` | Geographic location. |
@@ -33,13 +33,13 @@ The dataset contains both numerical and categorical variables, with 40 input col
 | `district_code` | Geographic location (coded). |
 | `lga` | Geographic location. |
 | `ward` | Geographic location. |
-| `population` | Population around the well. |
+| `population` | Population around the well; zeros are treated as unknown in the default cleaner. |
 | `public_meeting` | True/false indicator. |
 | `recorded_by` | Group entering the row of data. |
 | `scheme_management` | Who operates the waterpoint. |
-| `scheme_name` | Who operates the waterpoint. |
+| `scheme_name` | Name of the water scheme associated with the waterpoint. |
 | `permit` | Whether the waterpoint is permitted. |
-| `construction_year` | Year the waterpoint was constructed. |
+| `construction_year` | Year the waterpoint was constructed; zero indicates an unknown year under the project convention. Nonzero years after recording are flagged for review. |
 | `extraction_type` | Kind of extraction the waterpoint uses. |
 | `extraction_type_group` | Kind of extraction the waterpoint uses (group). |
 | `extraction_type_class` | Kind of extraction the waterpoint uses (class). |
@@ -57,6 +57,22 @@ The dataset contains both numerical and categorical variables, with 40 input col
 | `waterpoint_type` | Kind of waterpoint. |
 | `waterpoint_type_group` | Kind of waterpoint (group). |
 | `status_group` | **Target variable:** functionality status of the water pump. |
+
+## Target Variable
+
+`status_group` has three classes in the training labels:
+
+| Class | Rows | Meaning |
+| --- | ---: | --- |
+| `functional` | 32,259 | Operational pump. |
+| `functional needs repair` | 4,317 | Operational pump requiring repair. |
+| `non functional` | 22,824 | Pump is not operational. |
+
+`id` is an identifier, so the 40 input columns comprise 39 potential predictors
+and one identifier. Raw column types, missing counts, and cardinalities are
+shown in [the audit notebook](../notebooks/data_audit.ipynb). Counts and cleaning
+decisions refer to the training dataset and are documented in
+[the data quality findings](data_quality_findings.md).
 
 ## Raw Data Overview
 

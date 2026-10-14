@@ -4,11 +4,14 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 
-from cleaning_code import (
+from team_wtm.cleaning import (
     build_data_dictionary,
     check_data_quality,
+    check_suspicious_values,
     clean_data,
+    inspect_categorical_variants,
     inspect_columns,
+    investigate_duplicates,
     load_data,
     merge_data,
     run_pipeline,
@@ -161,6 +164,114 @@ def test_inspection_accepts_frames_without_numeric_or_categorical_columns():
     assert text_only["numeric_summary"].empty
     assert numeric_only["categorical_columns"] == []
     assert numeric_only["cardinality_summary"].empty
+
+
+def test_duplicate_investigation_distinguishes_label_conflicts_and_missing_features():
+    raw = pd.DataFrame(
+        {
+            "id": [1, 2, 3, 4, 5],
+            "population": [10, 10, 10, None, None],
+            "status_group": ["a", "a", "b", None, None],
+        },
+        index=[10, 20, 30, 40, 50],
+    )
+    original = raw.copy(deep=True)
+
+    report = investigate_duplicates(raw)
+
+    assert report["summary"].to_dict() == {
+        "Repeated observations excluding id": 2,
+        "Repeated feature rows excluding id and target": 3,
+        "Feature duplicate groups": 2,
+        "Rows in feature duplicate groups": 5,
+        "Feature duplicate groups with conflicting labels": 1,
+    }
+    assert sorted(report["groups"]["Rows"]) == [2, 3]
+    assert_frame_equal(raw, original)
+    assert (
+        investigate_duplicates(raw.drop(columns="status_group"))["groups"][
+            "Distinct labels"
+        ]
+        .isna()
+        .all()
+    )
+    with pytest.raises(ValueError, match="at least one feature"):
+        investigate_duplicates(raw[["id", "status_group"]])
+
+
+def test_suspicious_screening_counts_placeholders_without_reclassifying_valid_values():
+    raw = pd.DataFrame(
+        {
+            "population": [0, -1, None],
+            "construction_year": [0, 1899, 2014],
+            "gps_height": [0, -1, None],
+            "longitude": [0, 35, 181],
+            "latitude": [-2e-8, -6, 91],
+            "date_recorded": ["2013-01-01", "bad-date", "2013-01-01"],
+            "funder": ["0", "Local", "unknown"],
+            "installer": [" 0 ", "DWE", None],
+            "status_group": ["functional", "non functional", "other"],
+        }
+    )
+    original = raw.copy(deep=True)
+
+    report = check_suspicious_values(raw)
+
+    for check in (
+        "population: zero",
+        "population: negative",
+        "gps_height: zero",
+        "gps_height: negative",
+        "construction_year: positive year before 1900",
+        "construction_year: after recording year",
+        "date_recorded: unparseable non-missing value",
+        "coordinates: longitude zero and latitude near zero",
+        "coordinates: outside global bounds",
+        "funder: literal zero",
+        "funder: blank or unknown token",
+        "installer: literal zero",
+        "status_group: unexpected non-missing label",
+    ):
+        assert report.loc[check, "Rows"] == 1
+        assert report.loc[check, "Percent of rows"] == pytest.approx(100 / 3)
+    assert report.loc["coordinates: outside broad Tanzania envelope", "Rows"] == 2
+    assert report.loc["construction_year: fractional year", "Rows"] == 0
+    assert_frame_equal(raw, original)
+
+
+def test_suspicious_screening_handles_missing_columns_and_malformed_numeric_values():
+    assert check_suspicious_values(pd.DataFrame({"id": [1]})).empty
+    empty = check_suspicious_values(pd.DataFrame({"population": []}))
+    assert empty["Rows"].eq(0).all()
+    assert empty["Percent of rows"].eq(0).all()
+    report = check_suspicious_values(
+        pd.DataFrame({"construction_year": ["unknown", "2000.5", None]})
+    )
+    assert report.loc["construction_year: non-numeric value", "Rows"] == 1
+    assert report.loc["construction_year: fractional year", "Rows"] == 1
+
+
+def test_categorical_variants_report_case_and_spacing_but_preserve_distinct_entities():
+    raw = pd.DataFrame(
+        {
+            "installer": pd.Series([" DWE ", "dwe", "Dwe", "DW", None], dtype="string"),
+            "funder": pd.Categorical(
+                ["World  Bank", "world bank", "Other", "Other", None]
+            ),
+            "date_recorded": ["BAD", "bad", "bad", "bad", None],
+        }
+    )
+    original = raw.copy(deep=True)
+
+    variants = inspect_categorical_variants(raw).set_index("Column")
+
+    assert variants.index.tolist() == ["installer", "funder"]
+    assert variants.loc["installer", "Normalized"] == "dwe"
+    assert variants.loc["installer", "Rows"] == 3
+    assert variants.loc["installer", "Variants"] == (" DWE ", "Dwe", "dwe")
+    assert variants.loc["funder", "Rows"] == 2
+    assert inspect_categorical_variants(raw[["date_recorded"]]).empty
+    assert_frame_equal(raw, original)
 
 
 @pytest.mark.parametrize("run_inspection", [True, False])

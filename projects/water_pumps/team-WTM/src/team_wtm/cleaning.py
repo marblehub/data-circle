@@ -4,9 +4,10 @@ Expected raw files:
     data/raw/Training_set_values.csv
     data/raw/Training_set_labels.csv
 
-Run this module directly to execute the default pipeline, or import its functions
-from another script or notebook. ``notebooks/data_audit.ipynb`` uses these same
-functions to explain the audit findings and compare raw and cleaned data.
+Run ``python -m team_wtm.cleaning`` to execute the default pipeline, or import
+its functions from another script or notebook. ``notebooks/data_audit.ipynb``
+uses these same functions to explain the audit findings and compare raw and
+cleaned data.
 """
 
 from collections.abc import Iterable
@@ -15,7 +16,7 @@ from pathlib import Path
 import pandas as pd
 
 # Resolve paths from this file, not from the current working directory.
-PROJECT_DIR = Path(__file__).resolve().parents[1]
+PROJECT_DIR = Path(__file__).resolve().parents[2]
 RAW_DATA_DIR = PROJECT_DIR / "data" / "raw"
 DEFAULT_VALUES_PATH = RAW_DATA_DIR / "Training_set_values.csv"
 DEFAULT_LABELS_PATH = RAW_DATA_DIR / "Training_set_labels.csv"
@@ -167,6 +168,173 @@ def inspect_columns(
     }
 
 
+def investigate_duplicates(
+    data: pd.DataFrame, target_column: str = "status_group"
+) -> dict[str, pd.Series | pd.DataFrame]:
+    """Compare complete observations and feature matches, keeping missing values.
+
+    IDs identify records, not duplicate content. Feature matches exclude both
+    ID and target so conflicting labels are visible. Group numbers are local
+    to this report; no records are removed or declared to be the same pump.
+    """
+    observations = data.drop(columns=["id"], errors="ignore")
+    features = observations.drop(columns=[target_column], errors="ignore")
+    if features.shape[1] == 0:
+        raise ValueError("Duplicate investigation requires at least one feature.")
+
+    group_ids = features.groupby(
+        features.columns.tolist(), dropna=False, sort=False, observed=True
+    ).ngroup()
+    members = pd.DataFrame({"Group": group_ids, "Rows": 1}, index=data.index)
+    groups = members.groupby("Group", sort=False)["Rows"].sum().to_frame()
+    if target_column in data:
+        members["Target"] = data[target_column]
+        groups["Distinct labels"] = members.groupby("Group")["Target"].nunique(
+            dropna=False
+        )
+    else:
+        groups["Distinct labels"] = pd.NA
+    groups = groups.loc[groups["Rows"].gt(1)].copy()
+    groups["Conflicting labels"] = groups["Distinct labels"].gt(1)
+    summary = pd.Series(
+        {
+            "Repeated observations excluding id": int(observations.duplicated().sum()),
+            "Repeated feature rows excluding id and target": int(
+                features.duplicated().sum()
+            ),
+            "Feature duplicate groups": len(groups),
+            "Rows in feature duplicate groups": int(groups["Rows"].sum()),
+            "Feature duplicate groups with conflicting labels": int(
+                groups["Conflicting labels"].sum()
+            ),
+        },
+        name="Count",
+    )
+    return {"summary": summary, "groups": groups}
+
+
+def check_suspicious_values(data: pd.DataFrame) -> pd.DataFrame:
+    """Count screening flags without changing data or asserting their cause.
+
+    Near-zero latitude uses an absolute tolerance of 1e-6 degrees. The broad
+    Tanzania coordinate envelope (29..41 longitude, -12.5..-0.9 latitude) is
+    a screening rule, not a country-boundary test. Years before 1900 are flagged
+    for review, not automatically invalidated. Missing values are separate
+    from these flags and percentages use all input rows as their denominator.
+    """
+    records = []
+
+    def add(check: str, mask: pd.Series) -> None:
+        count = int(mask.fillna(False).sum())
+        records.append(
+            {
+                "Check": check,
+                "Rows": count,
+                "Percent of rows": 100 * count / len(data) if len(data) else 0.0,
+            }
+        )
+
+    numeric = {}
+    for column in (
+        "population",
+        "construction_year",
+        "gps_height",
+        "longitude",
+        "latitude",
+    ):
+        if column in data:
+            numeric[column] = pd.to_numeric(data[column], errors="coerce")
+            add(
+                f"{column}: non-numeric value",
+                data[column].notna() & numeric[column].isna(),
+            )
+    for column in ("population", "construction_year", "gps_height"):
+        if column in numeric:
+            add(f"{column}: zero", numeric[column].eq(0))
+            add(f"{column}: negative", numeric[column].lt(0))
+    if "construction_year" in numeric:
+        year = numeric["construction_year"]
+        add("construction_year: positive year before 1900", year.gt(0) & year.lt(1900))
+        add("construction_year: fractional year", year.mod(1).ne(0) & year.notna())
+    if "date_recorded" in data:
+        dates = pd.to_datetime(data["date_recorded"], errors="coerce")
+        add(
+            "date_recorded: unparseable non-missing value",
+            data["date_recorded"].notna() & dates.isna(),
+        )
+        if "construction_year" in numeric:
+            add(
+                "construction_year: after recording year",
+                numeric["construction_year"].gt(dates.dt.year),
+            )
+    if "longitude" in numeric and "latitude" in numeric:
+        longitude, latitude = numeric["longitude"], numeric["latitude"]
+        present = longitude.notna() & latitude.notna()
+        add(
+            "coordinates: longitude zero and latitude near zero",
+            longitude.eq(0) & latitude.abs().le(1e-6),
+        )
+        add(
+            "coordinates: outside global bounds",
+            present & (~longitude.between(-180, 180) | ~latitude.between(-90, 90)),
+        )
+        add(
+            "coordinates: outside broad Tanzania envelope",
+            present & (~longitude.between(29, 41) | ~latitude.between(-12.5, -0.9)),
+        )
+    for column in ("funder", "installer"):
+        if column in data:
+            text = data[column].astype("string").str.strip().str.casefold()
+            add(f"{column}: literal zero", text.eq("0"))
+            add(
+                f"{column}: blank or unknown token",
+                text.isin(["", "unknown", "none", "n/a", "na"]),
+            )
+    if "status_group" in data:
+        add(
+            "status_group: unexpected non-missing label",
+            data["status_group"].notna()
+            & ~data["status_group"].isin(
+                ["functional", "functional needs repair", "non functional"]
+            ),
+        )
+    return pd.DataFrame.from_records(
+        records, columns=["Check", "Rows", "Percent of rows"]
+    ).set_index("Check")
+
+
+def inspect_categorical_variants(data: pd.DataFrame) -> pd.DataFrame:
+    """Find candidate aliases differing only in case or whitespace.
+
+    Report counts and distinct spellings; keep raw values unchanged. Normalized
+    matches are candidates for source review, not proof of identical entities.
+    Abbreviations, spelling differences and semantic aliases require separate
+    investigation and are not merged by this function.
+    """
+    records = []
+    columns = data.select_dtypes(include=["object", "category", "string"]).columns
+    for column in columns:
+        if column == "date_recorded":
+            continue
+        raw = data[column].dropna().astype("string")
+        normalized = raw.str.strip().str.replace(r"\s+", " ", regex=True).str.casefold()
+        pairs = pd.DataFrame({"Raw": raw, "Normalized": normalized})
+        for name, group in pairs.groupby("Normalized", sort=True):
+            variants = tuple(sorted(group["Raw"].unique()))
+            if len(variants) > 1:
+                records.append(
+                    {
+                        "Column": column,
+                        "Normalized": name,
+                        "Variants": variants,
+                        "Rows": len(group),
+                    }
+                )
+    return pd.DataFrame.from_records(
+        records, columns=["Column", "Normalized", "Variants", "Rows"]
+    )
+
+
 def clean_data(
     data: pd.DataFrame,
     zero_to_missing: Iterable[str] = ("population", "construction_year"),
@@ -213,8 +381,14 @@ def run_pipeline(
     data = merge_data(values, labels, how=merge_how)
 
     check_data_quality(data)
+    print("\nDuplicate investigation:")
+    print(investigate_duplicates(data)["summary"])
+    print("\nSuspicious-value screening (flags may overlap):")
+    print(check_suspicious_values(data))
     if run_inspection:
         inspect_columns(data)
+        print("\nCandidate categorical variants (first 20 groups):")
+        print(inspect_categorical_variants(data).head(20).to_string(index=False))
 
     cleaned = clean_data(data)
     print("\nCleaning complete.")
