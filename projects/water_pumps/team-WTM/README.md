@@ -253,7 +253,7 @@ team-WTM/
 │
 ├── data/
 │   ├── raw/
-│   │   └── data_dictionary.md
+│   │   └── .gitkeep
 │   ├── processed/
 │   │   └── processed_data_dictionary.md
 │
@@ -261,12 +261,15 @@ team-WTM/
 │   └── ...
 │
 ├── reports/
+│   ├── data_dictionary.md
+│   ├── data_quality_findings.md
 │   ├── figures/
 │   └── ...
 │
 ├── src/
 │   └── team_wtm/
 │       ├── __init__.py
+│       ├── cleaning.py
 │       ├── data.py
 │       ├── features.py
 │       ├── modeling.py
@@ -333,6 +336,76 @@ Reserved for the optional Streamlit application.
 ### `tests/`
 
 Contains tests for reusable project code.
+
+## Data Audit and Cleaning Workflow
+
+[`notebooks/data_audit.ipynb`](notebooks/data_audit.ipynb) presents the audit and
+explains cleaning decisions. It imports its reusable logic from
+[`src/team_wtm/cleaning.py`](src/team_wtm/cleaning.py), which also provides a standalone
+pipeline. Update shared rules in the script so both entry points stay consistent.
+
+| Function | Responsibility |
+|---|---|
+| `load_data()` | Read the training CSVs and reject absent, missing or duplicate IDs. |
+| `merge_data()` | Join on validated IDs; use an outer join by default to expose unmatched records. |
+| `build_data_dictionary()` | Report column types, missing counts and unique non-missing values. |
+| `check_data_quality()` | Report missing values, duplicate rows excluding IDs, and target counts including missing labels. |
+| `inspect_columns()` | Report categorical cardinality and numeric summaries; exclude the recording date from categorical inspection. |
+| `investigate_duplicates()` | Compare complete observations and feature matches, including groups with conflicting labels. |
+| `check_suspicious_values()` | Count zero placeholders, suspicious coordinates, construction-year inconsistencies, malformed values and unexpected labels. |
+| `inspect_categorical_variants()` | Identify candidate aliases differing only in case or whitespace without changing values. |
+| `clean_data()` | Apply the documented cleaning rules while preserving the input by default. |
+| `run_pipeline()` | Load, merge, audit, optionally inspect, clean and return the result. |
+
+The default cleaning rules replace zero `population` and `construction_year`
+values with missing values, parse `date_recorded` (invalid dates become `NaT`),
+and drop `num_private` according to the current project decision. Other zeros,
+including `gps_height`, are preserved. Pass `drop_columns=()` to `clean_data()`
+to retain `num_private`, or supply `zero_to_missing` to change the placeholder
+columns. Missing optional columns are ignored. No rows or labels are removed or
+imputed, and related categorical features are retained for later investigation.
+
+The notebook keeps `train_data` as the raw merged data and creates a separate
+`cleaned_data` result. It displays merge coverage before removing the diagnostic
+`_merge` column, audits duplicates and missing labels, and compares data types
+and missing counts before and after cleaning. Investigate unmatched IDs before
+modelling. The script and notebook return data in memory; neither saves a
+processed dataset automatically.
+
+The audit also investigates duplicate feature records with conflicting labels,
+zero coordinates, frequent zero elevations, categorical placeholders and spelling
+variants, and construction years after recording. Screening flags are reported
+without adding automatic corrections to the default cleaner. The verified
+counts, screening thresholds, and treatment or deferral decisions are in
+[`reports/data_quality_findings.md`](reports/data_quality_findings.md).
+The raw feature descriptions and target classes are in
+[`reports/data_dictionary.md`](reports/data_dictionary.md).
+
+From the project root, with the raw training CSVs under `data/raw/`:
+
+```bash
+uv run python -m team_wtm.cleaning
+uv run jupyter lab notebooks/data_audit.ipynb
+```
+
+The expected filenames are `Training_set_values.csv` and
+`Training_set_labels.csv`. To reproduce all notebook outputs from a fresh kernel:
+
+```bash
+uv run jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.timeout=300 notebooks/data_audit.ipynb
+```
+
+For a quieter programmatic inspection, import from `team_wtm.cleaning` and use
+`run_pipeline(run_inspection=False)`. Notebook displays use `verbose=False` on
+the audit functions to avoid duplicating their console output. The notebook can
+run with either the project root or `notebooks/` as its working directory.
+
+Run the regression checks with:
+
+```bash
+uv run pytest
+uv run ruff check src/team_wtm/cleaning.py tests notebooks/data_audit.ipynb
+```
 
 ---
 
