@@ -5,14 +5,14 @@ Expected raw files:
     data/raw/Training_set_labels.csv
 
 Run this module directly to execute the default pipeline, or import its functions
-from another script or notebook.
+from another script or notebook. ``notebooks/data_audit.ipynb`` uses these same
+functions to explain the audit findings and compare raw and cleaned data.
 """
 
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 import pandas as pd
-
 
 # Resolve paths from this file, not from the current working directory.
 PROJECT_DIR = Path(__file__).resolve().parents[1]
@@ -21,21 +21,30 @@ DEFAULT_VALUES_PATH = RAW_DATA_DIR / "Training_set_values.csv"
 DEFAULT_LABELS_PATH = RAW_DATA_DIR / "Training_set_labels.csv"
 
 
+def _validate_ids(data: pd.DataFrame, name: str) -> None:
+    """Require an ID for every row and a one-to-one values/labels relationship."""
+    if "id" not in data.columns:
+        raise ValueError(f"The {name} dataset must contain an 'id' column.")
+    if data["id"].isna().any():
+        raise ValueError(f"The {name} dataset contains missing IDs.")
+    if data["id"].duplicated().any():
+        raise ValueError(f"The {name} dataset contains duplicate IDs.")
+
+
 def load_data(
     values_path: str | Path = DEFAULT_VALUES_PATH,
     labels_path: str | Path = DEFAULT_LABELS_PATH,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Load the feature and target CSV files and return them separately."""
+    """Load the feature and target CSVs, rejecting absent, missing or duplicate IDs.
+
+    Default paths are relative to the project, so callers can run from either
+    the repository root or the notebooks directory.
+    """
     values = pd.read_csv(values_path)
     labels = pd.read_csv(labels_path)
 
     for name, frame in (("values", values), ("labels", labels)):
-        if "id" not in frame.columns:
-            raise ValueError(f"The {name} dataset must contain an 'id' column.")
-        if frame["id"].isna().any():
-            raise ValueError(f"The {name} dataset contains missing IDs.")
-        if frame["id"].duplicated().any():
-            raise ValueError(f"The {name} dataset contains duplicate IDs.")
+        _validate_ids(frame, name)
 
     return values, labels
 
@@ -46,7 +55,14 @@ def merge_data(
     how: str = "outer",
     keep_merge_indicator: bool = False,
 ) -> pd.DataFrame:
-    """Merge feature and label data on id, optionally retaining the merge indicator."""
+    """Join validated IDs, retaining unmatched rows by default for auditing.
+
+    Set keep_merge_indicator=True to inspect ``left_only``, ``right_only`` and
+    ``both`` counts. Remove that audit-only column before inspecting or cleaning
+    features. Unmatched IDs are reported, not silently removed or imputed.
+    """
+    _validate_ids(values, "values")
+    _validate_ids(labels, "labels")
     merged = values.merge(
         labels,
         how=how,
@@ -61,19 +77,38 @@ def merge_data(
     return merged.drop(columns="_merge")
 
 
+def build_data_dictionary(data: pd.DataFrame) -> pd.DataFrame:
+    """Describe each column without modifying data; unique counts exclude nulls."""
+    return pd.DataFrame(
+        {
+            "Column": data.columns,
+            "Data Type": data.dtypes.astype(str).to_numpy(),
+            "Missing Values": data.isna().sum().to_numpy(),
+            "Unique Values": data.nunique().to_numpy(),
+        }
+    )
+
+
 def check_data_quality(
     data: pd.DataFrame,
     target_column: str = "status_group",
     exclude_from_duplicate_check: Iterable[str] = ("id",),
+    verbose: bool = True,
 ) -> dict[str, pd.Series | int]:
-    """Print and return key data-quality summaries without changing the DataFrame."""
+    """Return null counts, duplicate counts and the available target distribution.
+
+    Duplicates exclude IDs by default but include all other columns, including
+    the target. Use verbose=False when displaying the returned values in a
+    notebook. Missing targets remain visible in the distribution.
+    """
     missing = data.isna().sum().sort_values(ascending=False)
     excluded = [col for col in exclude_from_duplicate_check if col in data.columns]
     duplicate_count = data.drop(columns=excluded).duplicated().sum()
 
-    print("Missing values by column:")
-    print(missing)
-    print(f"Duplicate rows (excluding {excluded}): {duplicate_count}")
+    if verbose:
+        print("Missing values by column:")
+        print(missing)
+        print(f"Duplicate rows (excluding {excluded}): {duplicate_count}")
 
     summary: dict[str, pd.Series | int] = {
         "missing_values": missing,
@@ -82,38 +117,52 @@ def check_data_quality(
 
     if target_column in data.columns:
         target_distribution = data[target_column].value_counts(dropna=False)
-        print(f"\nTarget distribution ({target_column}):")
-        print(target_distribution)
+        if verbose:
+            print(f"\nTarget distribution ({target_column}):")
+            print(target_distribution)
         summary["target_distribution"] = target_distribution
 
     return summary
 
 
-def inspect_columns(data: pd.DataFrame) -> dict[str, pd.DataFrame | list[str]]:
-    """Print categorical unique values and return categorical/numeric summaries."""
+def inspect_columns(
+    data: pd.DataFrame, verbose: bool = True
+) -> dict[str, pd.DataFrame | list[str]]:
+    """Return categorical cardinality and numeric summaries without changing data.
+
+    Handle object, string and category dtypes; date_recorded is excluded from
+    categorical inspection because it represents a date. Set verbose=False to
+    display the returned summaries separately in a notebook.
+    """
     categorical_columns = data.select_dtypes(
         include=["object", "category", "string"]
     ).columns.tolist()
-    categorical_columns = [
-        col for col in categorical_columns if col != "date_recorded"
-    ]
+    categorical_columns = [col for col in categorical_columns if col != "date_recorded"]
     numeric_columns = data.select_dtypes(include="number").columns.tolist()
 
-    print("Categorical columns:")
-    print(categorical_columns)
-    for column in categorical_columns:
-        print(f"\n{column}:")
-        print(data[column].dropna().unique())
+    cardinality_summary = pd.DataFrame(
+        {
+            "Unique Values": data[categorical_columns].nunique(),
+            "Missing Values": data[categorical_columns].isna().sum(),
+        }
+    ).sort_values("Unique Values", ascending=False)
 
     numeric_summary = (
         data[numeric_columns].describe() if numeric_columns else pd.DataFrame()
     )
-    print("\nNumerical summary:")
-    print(numeric_summary)
+    if verbose:
+        print("Categorical columns:")
+        print(categorical_columns)
+        for column in categorical_columns:
+            print(f"\n{column}:")
+            print(data[column].dropna().unique())
+        print("\nNumerical summary:")
+        print(numeric_summary)
 
     return {
         "categorical_columns": categorical_columns,
         "numeric_columns": numeric_columns,
+        "cardinality_summary": cardinality_summary,
         "numeric_summary": numeric_summary,
     }
 
@@ -128,8 +177,14 @@ def clean_data(
     """Apply agreed cleaning rules and return the cleaned DataFrame.
 
     Zero values are replaced with missing values only in the columns listed in
-    zero_to_missing. Invalid dates are converted to NaT rather than raising an
-    error. Columns absent from drop_columns or zero_to_missing are ignored.
+    zero_to_missing: population and construction_year by default, following the
+    audit's unknown-value convention. Other zeros (including gps_height) remain.
+    Invalid dates are converted to NaT rather than raising an error. num_private
+    is dropped by default as the project's current feature-selection decision,
+    not because all its values are invalid. Pass drop_columns=() to retain it.
+
+    Absent optional columns are ignored. No rows, IDs or labels are removed or
+    imputed. The input is preserved unless copy=False, which permits mutation.
     """
     cleaned = data.copy() if copy else data
 
@@ -138,9 +193,7 @@ def clean_data(
             cleaned[column] = cleaned[column].replace(0, float("nan"))
 
     if date_column in cleaned.columns:
-        cleaned[date_column] = pd.to_datetime(
-            cleaned[date_column], errors="coerce"
-        )
+        cleaned[date_column] = pd.to_datetime(cleaned[date_column], errors="coerce")
 
     columns_to_drop = [col for col in drop_columns if col in cleaned.columns]
     if columns_to_drop:
