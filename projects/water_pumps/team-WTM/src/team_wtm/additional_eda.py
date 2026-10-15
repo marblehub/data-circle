@@ -22,6 +22,7 @@ from team_wtm.cleaning import (
     DEFAULT_VALUES_PATH,
     PROJECT_DIR,
     clean_data,
+    derive_pump_age,
     load_data,
     merge_data,
 )
@@ -80,8 +81,7 @@ def prepare_eda(raw: pd.DataFrame) -> pd.DataFrame:
     data = clean_data(raw)
     for column in ("population", "amount_tsh", "gps_height", "construction_year"):
         data[column] = pd.to_numeric(data[column], errors="coerce")
-    age = data["date_recorded"].dt.year - data["construction_year"]
-    data["pump_age"] = age.where(data["construction_year"].gt(0) & age.ge(0))
+    data["pump_age"] = derive_pump_age(data)
     data["age_group"] = pd.cut(
         data["pump_age"],
         bins=[-1, 5, 10, 20, 30, np.inf],

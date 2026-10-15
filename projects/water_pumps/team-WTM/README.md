@@ -800,6 +800,24 @@ The project therefore distinguishes between:
 
 ---
 
+# Local cleaned training snapshot
+
+Generate a cleaned working copy and provenance metadata with:
+
+```bash
+uv run python -m team_wtm.export_cleaned
+```
+
+The local files are `data/processed/training_cleaned.parquet` and
+`data/processed/training_cleaned.metadata.json`. Both are ignored by Git.
+Use `--overwrite` to regenerate an existing snapshot.
+
+The export retains all records, IDs and labels, reuses the shared cleaner,
+and adds pump age and quality flags. See the
+[export documentation](reports/cleaned_data_export.md) and
+[processed data dictionary](data/processed/processed_data_dictionary.md).
+Learned preprocessing remains part of the modelling pipeline.
+
 # Additional Sprint 1 Analysis
 
 The [additional EDA report](reports/sprint1_additional_eda.md) documents numeric

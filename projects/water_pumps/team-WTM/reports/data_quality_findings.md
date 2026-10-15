@@ -269,3 +269,7 @@ is committed.
 | Proposed cleaning decisions documented | Cleaning decisions table, notebook and shared cleaner. |
 | Analysis reproducible | Fresh-kernel execution instructions, shared functions and regression tests. |
 | No raw dataset committed | Ignored local CSVs; no raw dataset files in the changes. |
+
+## Local cleaned snapshot export
+
+The optional [snapshot exporter](cleaned_data_export.md) now saves a local Parquet copy and provenance metadata while reusing the cleaning rules documented here. It retains rows, IDs and labels, and adds deterministic pump-age and quality flags. The original audit notebook and cleaning pipeline continue returning in-memory data. Both generated snapshot files are ignored by Git.
