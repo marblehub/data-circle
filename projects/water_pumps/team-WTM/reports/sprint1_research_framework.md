@@ -1,350 +1,148 @@
-## 1. Identify the Problem
-
-Access to clean and reliable water depends not only on installing waterpoints but also on keeping them operational. In Tanzania, some recorded waterpoints are fully functional, some are still operating but require repair, and others are completely non-functional.
-
-The practical problem is therefore to identify characteristics associated with waterpoint condition and determine whether those characteristics can be used to predict which waterpoints are likely to be faulty.
-
-DrivenData frames the task as predicting the operating condition of each waterpoint using information about the type of waterpoint, when it was installed, how it is managed, and other geographical, technical, and operational characteristics. Better identification of faulty waterpoints could support maintenance planning and help improve access to clean, potable water.
-
-The prediction target, `status_group`, contains three classes:
-
-- `functional` — operational and does not require repair
-- `functional needs repair` — operational but requires repair
-- `non functional` — not operational
-
-The central project problem can therefore be expressed as:
-
-> **Can the available characteristics of Tanzanian waterpoints be used to understand differences in their operating condition and accurately predict whether a waterpoint is functional, needs repair, or is non-functional?**
-
----
-
-## 2. Review Existing Knowledge
-
-The dataset comes from the Taarifa waterpoints dashboard, which aggregates information from the Tanzanian Ministry of Water. Taarifa was designed as a platform for reporting and managing infrastructure-related issues.
-
-The official dataset already provides several groups of information that may help explain or predict waterpoint condition.
-
-**Geographical information** includes:
-
-- `longitude`
-- `latitude`
-- `gps_height`
-- `basin`
-- `region`
-- `region_code`
-- `district_code`
-- `lga`
-- `ward`
-- `subvillage`
-
-**Construction and organisational information** includes:
-
-- `construction_year`
-- `funder`
-- `installer`
-- `scheme_management`
-- `scheme_name`
-- `management`
-- `management_group`
-- `permit`
-- `public_meeting`
-
-**Water and infrastructure characteristics** include:
-
-- `extraction_type`
-- `extraction_type_group`
-- `extraction_type_class`
-- `water_quality`
-- `quality_group`
-- `quantity`
-- `quantity_group`
-- `source`
-- `source_type`
-- `source_class`
-- `waterpoint_type`
-- `waterpoint_type_group`
-
-Other variables include `population`, `payment`, `payment_type`, `date_recorded`, `amount_tsh`, `wpt_name`, and `recorded_by`.
-
-What is **already known** is therefore the type of information available and the prediction target.
-
-What is **not yet known from the dataset description** is:
-
-- which characteristics are most strongly associated with waterpoint condition;
-- whether failures are geographically concentrated;
-- whether older waterpoints have poorer operating conditions;
-- whether particular extraction technologies or waterpoint types perform differently;
-- whether water availability, quality, management, payment arrangements, or population are associated with functionality;
-- which variables contain genuinely useful predictive information;
-- how well the three classes, particularly `functional needs repair`, can be distinguished.
-
-These unanswered questions motivate the exploratory analysis and later modelling.
-
----
-
-## 3. Define Research Questions and Hypotheses
-
-### Main research question
-
-> **Which geographical, technical, environmental, and management characteristics are associated with the operating condition of Tanzanian waterpoints, and how effectively can these characteristics predict waterpoint status?**
-
-### Supporting research questions
-
-1. What is the distribution of the three waterpoint-status classes?
-2. How does waterpoint functionality vary geographically across regions, basins, districts, and other locations?
-3. Is waterpoint age associated with operating condition?
-4. Does water availability, represented by variables such as `quantity` and `quantity_group`, differ between functional and non-functional waterpoints?
-5. Are some extraction technologies or waterpoint types associated with better or worse operating conditions?
-6. Do management arrangements, payment systems, installers, or funders show differences in waterpoint functionality?
-7. Which variables provide the strongest predictive information after accounting for related or redundant features?
-8. How accurately can machine-learning models distinguish among the three operating conditions?
-9. How well can the models identify the particularly important `functional needs repair` class?
-
-### Initial hypotheses
-
-**H1:** Older waterpoints are more likely to be non-functional or require repair than newer waterpoints.
-
-**H2:** Waterpoint functionality varies geographically across Tanzania.
-
-**H3:** Waterpoints recorded as having enough water are more likely to be functional than those recorded as insufficient or dry.
-
-**H4:** Waterpoint condition differs among extraction technologies and waterpoint types.
-
-**H5:** Management and payment arrangements are associated with differences in waterpoint functionality.
-
-**H6:** A combination of geographical, technical, water-related, and management variables will provide better prediction of waterpoint status than any single characteristic.
-
-These hypotheses describe relationships to investigate. Because the dataset is observational rather than a controlled experiment, an observed relationship should not automatically be interpreted as causal.
-
----
-
-## 4. Choose a Methodology
-
-The project uses an **observational, exploratory, and predictive data-science methodology**.
-
-It is not an experimental study because the team does not manipulate waterpoint conditions. Instead, existing waterpoint records are analysed to identify patterns and build predictive models.
-
-The methodology consists of four main stages.
-
-**Exploratory Data Analysis**
-
-EDA will be used to understand:
-
-- target-class distribution;
-- missing and unusual values;
-- distributions of numerical and categorical variables;
-- geographical patterns;
-- relationships between individual features and `status_group`.
-
-**Feature preparation and engineering**
-
-Some variables represent different levels of the same underlying concept. For example, the official data contain:
-
-```text
-extraction_type
-extraction_type_group
-extraction_type_class
-```
-
-and similarly:
-
-```text
-source
-source_type
-source_class
-```
-
-as well as pairs such as:
-
-```text
-quantity / quantity_group
-water_quality / quality_group
-payment / payment_type
-waterpoint_type / waterpoint_type_group
-management / management_group
-```
-
-These relationships should be examined carefully to avoid unnecessary redundancy in later models.
-
-Derived variables can also be created where meaningful. One important example is:
-
-```text
-pump_age = year(date_recorded) - construction_year
-```
-
-provided invalid or unknown construction years are handled appropriately.
-
-**Predictive modelling**
-
-The task is a supervised **multiclass classification** problem.
-
-Candidate models include:
-
-- Logistic Regression as a baseline;
-- Random Forest;
-- Gradient Boosting;
-- additional classifiers if they provide a meaningful comparison.
-
-Preprocessing and modelling should be implemented through reproducible scikit-learn pipelines where possible.
-
-**Evaluation**
-
-Models should be evaluated using:
-
-- accuracy;
-- precision;
-- recall;
-- F1-score;
-- confusion matrix;
-- ROC-AUC where appropriate.
-
-Class-specific metrics are important because overall accuracy alone may hide poor performance for a less common class such as `functional needs repair`.
-
----
-
-## 5. Collect and Prepare the Data
-
-The project uses the data supplied for DrivenData's **Pump it Up: Data Mining the Water Table** challenge. The features describe Tanzanian waterpoints, while the target identifies their operating condition. The competition data originate from the Taarifa waterpoints dashboard and Tanzania Ministry of Water information.
-
-The preparation stage should first establish the basic structure of the dataset:
-
-- number of observations and features;
-- target distribution;
-- numerical, categorical, boolean, date, and identifier variables;
-- duplicated records;
-- missing values;
-- invalid or suspicious values;
-- categorical cardinality;
-- relationships among duplicated or hierarchical feature representations.
-
-Particular attention should be paid to variables that can contain values requiring interpretation, such as:
-
-```text
-construction_year
-population
-longitude
-latitude
-gps_height
-amount_tsh
-```
-
-For example, a zero `construction_year` should not automatically be interpreted as a waterpoint constructed in year zero. It should first be investigated as a possible missing or unknown value.
-
-Categorical variables such as `installer`, `funder`, `wpt_name`, `scheme_name`, `subvillage`, and `ward` may also contain many unique values and therefore require careful treatment before modelling.
-
-The preparation process should preserve the original raw data and document all cleaning and transformation decisions so that the analysis remains reproducible.
-
----
-
-## 6. Analyze the Data
-
-The analysis should move from **general understanding → individual relationships → combined predictive signals**.
-
-### Target analysis
-
-First examine the distribution of:
-
-```text
-functional
-functional needs repair
-non functional
-```
-
-using counts and percentages.
-
-This establishes whether the target is imbalanced and provides the baseline against which later model performance should be interpreted.
-
-### Geographical analysis
-
-Use variables such as:
-
-```text
-latitude
-longitude
-region
-basin
-lga
-district_code
-ward
-```
-
-to investigate whether functionality varies spatially.
-
-Questions include:
-
-- Are non-functional waterpoints concentrated in particular regions?
-- Are some basins associated with higher proportions of failed waterpoints?
-- Are there areas with unusually high proportions of waterpoints needing repair?
-
-### Infrastructure and technology analysis
-
-Compare `status_group` with:
-
-```text
-extraction_type
-extraction_type_group
-extraction_type_class
-waterpoint_type
-waterpoint_type_group
-construction_year
-```
-
-to investigate whether particular technologies, waterpoint designs, or ages show different functionality patterns.
-
-### Water-resource analysis
-
-Investigate:
-
-```text
-quantity
-quantity_group
-water_quality
-quality_group
-source
-source_type
-source_class
-```
-
-to determine whether water availability, quality, or source characteristics differ among the three operating conditions.
-
-### Management and financial analysis
-
-Examine:
-
-```text
-management
-management_group
-scheme_management
-payment
-payment_type
-permit
-public_meeting
-```
-
-to determine whether organisational or payment characteristics are associated with functionality.
-
-### Installer and funder analysis
-
-Investigate whether functionality differs among `installer` and `funder` categories while taking their potentially high cardinality and uneven sample sizes into account.
-
-### Temporal and derived-feature analysis
-
-Use `construction_year` together with `date_recorded` to investigate waterpoint age.
-
-Rather than considering construction year alone, a derived age variable may provide a more interpretable measure of how long a waterpoint had existed when its condition was recorded.
-
-### From EDA to predictive modelling
-
-The final purpose of Sprint 1 analysis is not merely to produce plots. It should identify:
-
-- reliable patterns;
-- questionable data;
-- potentially useful features;
-- redundant features;
-- features requiring transformation;
-- hypotheses worth testing further;
-- potential predictive signals.
-
-These findings then provide the evidence for deciding what should enter the modelling pipeline in Sprint 2.
-
-The analytical interpretation should remain careful: **EDA can establish associations and patterns, while the later classification models test predictive usefulness. Neither by itself proves that a particular feature causes a waterpoint to fail.**
+# Sprint 1 research framework
+
+Team WTM, ReDI School Data Circle 2026. Updated 15 October 2026 for Issue #3.
+
+This document defines the questions and hypotheses used to organise Sprint 1.
+The [integration summary](sprint1_integration.md) records the findings.
+The [decision log](sprint1_decisions.md) records the choices made during analysis.
+The [completion review](sprint1_completion_review.md) maps the deliverables to the issue.
+
+## Problem and scope
+
+We want to understand differences in the recorded condition of Tanzanian
+waterpoints and later test whether the available fields can predict that condition.
+
+The training data contain 59,400 waterpoints and 40 input columns, including
+the record ID. Labels are stored separately and give three states:
+
+- `functional`: working;
+- `functional needs repair`: working but needs repair;
+- `non functional`: not working.
+
+The records date from 2002 to 2013. They are observations of condition at the
+recording date. They are not a repeated history of each waterpoint or a current
+inventory. Predicting this recorded label differs from forecasting a future failure.
+
+Sprint 1 covers data quality, descriptive analysis, candidate features and the
+presentation of findings. Model training and predictive evaluation belong to
+Sprint 2. A relationship in this data does not establish a cause.
+
+## Main question
+
+Which location, construction, water-supply and management characteristics are
+associated with recorded waterpoint condition?
+
+The later modelling question is: how well can these characteristics distinguish
+the three states on records held out from training?
+
+## Supporting questions and available fields
+
+| Question | Fields or evidence |
+| --- | --- |
+| How common is each pump state? | `status_group` counts and percentages |
+| Does condition vary by location? | `region`, `basin`, `lga`, coordinates |
+| How does condition differ with age? | `construction_year`, `date_recorded`, derived `pump_age` |
+| How does water availability relate to condition? | `quantity`, `quantity_group` |
+| Do extraction technologies and outlet types differ? | `extraction_type` and its groups, `waterpoint_type` and its group |
+| Do sources and recorded quality differ? | `source` and its groups, `water_quality`, `quality_group` |
+| Do management and payment groups differ? | `management`, `scheme_management`, `payment_type`, related fields |
+| What information is missing or uncertain? | Shared audit, missingness by state and region, source-value screens |
+| Which fields help a model predict new cases? | Sprint 2 validation, including class-specific results |
+
+## Consolidated hypotheses
+
+These six identifiers preserve the original framework. They provide one common
+reference for the different analyses. Their descriptive outcomes and limits are
+in the [hypothesis results](sprint1_integration.md#hypothesis-results).
+
+| ID | Hypothesis | Fields | Sprint |
+| --- | --- | --- | --- |
+| H1 | Older waterpoints have a lower working share than newer waterpoints. | Derived age and `status_group` | 1: descriptive comparison |
+| H2 | The distribution of pump states differs by location. | Region, basin, coordinates | 1 |
+| H3 | Waterpoints recorded as having enough water have a higher working share than dry or insufficient-water groups. | Quantity and state | 1 |
+| H4 | Pump states differ among extraction technologies and outlet types. | Extraction and waterpoint type | 1 |
+| H5 | Pump states differ among management and payment groups. | Management and payment fields | 1 |
+| H6 | Combining feature groups improves prediction over a single field. | Combined predictors and held-out evaluation | 2: not yet tested |
+
+H1 now names the working share directly. The original wording joined repair and
+non-working outcomes, which could hide their different patterns. It is a
+clarification of the question after inspecting the data, not a preregistered test.
+
+The categorical notebook also discusses source, quality, installer, funder and
+permit. Those are supporting analyses, not additional hypotheses silently
+substituted for H1-H6. A weak one-field association for permit does not establish
+that permits have no effect or cannot help a model.
+
+The team has presented the Sprint 1 results, as confirmed by the project owner.
+A separate vote or formal approval of every hypothesis has not been recorded.
+Peer reviewers can confirm the consolidated framing in PR #11.
+
+## Original data groups
+
+The following assigns each of the 40 input columns once. The target is listed
+separately. Counts describe columns, not predictive importance.
+
+| Group | Count | Columns |
+| --- | ---: | --- |
+| Geography and elevation | 10 | longitude, latitude, gps_height, basin, region, region_code, district_code, lga, ward, subvillage |
+| Construction, funding and installation | 3 | construction_year, funder, installer |
+| Pump and outlet technology | 5 | extraction_type, extraction_type_group, extraction_type_class, waterpoint_type, waterpoint_type_group |
+| Water source | 3 | source, source_type, source_class |
+| Water availability and amount | 3 | quantity, quantity_group, amount_tsh |
+| Water quality | 2 | water_quality, quality_group |
+| Management and governance | 6 | management, management_group, scheme_management, scheme_name, permit, public_meeting |
+| Payment | 2 | payment, payment_type |
+| Population | 1 | population |
+| Identification and recording | 4 | id, wpt_name, date_recorded, recorded_by |
+| Meaning unresolved | 1 | num_private |
+| Target, supplied separately | 1 | status_group |
+
+The presentation combines these into six larger topics for readability.
+Population describes a recorded population field, not a verified count of people
+served. Funder, installer and manager describe different roles. Related category
+fields can retain different levels of detail.
+
+## Method and interpretation
+
+1. Validate the ID join and inspect raw values before cleaning.
+2. Preserve the raw files and retain rows unless there is evidence for removal.
+3. Describe the target, missingness and category sizes.
+4. Compare pump states within categories and locations.
+5. Derive age at recording and state its coverage and exclusions.
+6. Check numeric distributions and pairwise correlations, including sensitivity
+   to zero heights.
+7. Compare the youngest and oldest groups within regions and extraction classes.
+8. Use the findings to define modelling checks, rather than claim model performance.
+
+Cramer's V summarises a categorical field's association with the three states.
+Spearman correlation compares selected numeric fields. They answer different
+questions and their values should not be ranked together. No hypothesis is
+declared statistically proven; these are descriptive analyses.
+
+The available records do not provide a regular time series for each waterpoint.
+Time autocorrelation is therefore not part of Sprint 1. Geographic comparisons
+are descriptive and are not a formal spatial-autocorrelation analysis.
+
+## Sprint 2 evaluation plan
+
+Start with a majority-class baseline and a simple classifier before comparing
+more complex models. Report accuracy alongside precision, recall, F1 and a
+confusion matrix for each state. Test class weights rather than assuming they
+will help.
+
+Split the data before learning imputation, encoding, scaling or rare-category
+groupings. Review identical feature records before assigning validation folds.
+Consider location-based evaluation to test transfer to places outside training.
+
+Compare models with and without water quantity and document whether every field
+would be available at the intended prediction time. Review missingness flags,
+zero heights, uncertain field meanings and related columns.
+
+H6 remains open until those comparisons use a defined validation protocol.
+
+## Sources
+
+- [Data dictionary](data_dictionary.md) and [quality findings](data_quality_findings.md)
+- [Integrated findings and pinned analysis revisions](sprint1_integration.md)
+- [Presentation archive and figure selection](presentations/sprint1/README.md)
+- [DrivenData competition description](https://www.drivendata.org/competitions/7/pump-it-up-data-mining-the-water-table/)

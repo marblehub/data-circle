@@ -337,6 +337,24 @@ Reserved for the optional Streamlit application.
 
 Contains tests for reusable project code.
 
+## Sprint 1 results and presentation
+
+The [integrated findings](reports/sprint1_integration.md) bring together the
+quality audit, categorical EDA, geospatial analysis and additional checks.
+The [research framework](reports/sprint1_research_framework.md) defines the
+questions and H1-H6. The [decision log](reports/sprint1_decisions.md) distinguishes
+implemented rules from Sprint 2 work.
+
+The [presentation archive](reports/presentations/sprint1/README.md) preserves
+the earlier six-slide deck identified by the owner as presented, plus a clearly
+labelled expanded revision. It includes prepared speaker notes, source handouts,
+selected figures, timing and checksums.
+
+See the [completion and review record](reports/sprint1_completion_review.md)
+for Issue #3 acceptance evidence and the remaining independent peer-review step.
+Some underlying analyses remain in separate PRs; the summary pins their exact
+revisions rather than implying they are merged into main.
+
 ## Data Audit and Cleaning Workflow
 
 [`notebooks/data_audit.ipynb`](notebooks/data_audit.ipynb) presents the audit and
