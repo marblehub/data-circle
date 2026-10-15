@@ -800,6 +800,25 @@ The project therefore distinguishes between:
 
 ---
 
+# Additional Sprint 1 Analysis
+
+The [additional EDA report](reports/sprint1_additional_eda.md) documents numeric
+feature distributions and correlations, missingness by class and region, and
+age comparisons within regions and extraction classes.
+
+The [executed notebook](notebooks/04_additional_numeric_missingness_age_eda.ipynb)
+uses the reusable [analysis module](src/team_wtm/additional_eda.py). From this
+project directory, regenerate the aggregate figures and summaries with:
+
+```bash
+uv run python -m team_wtm.additional_eda
+```
+
+Original CSV files remain local. Generated outputs under
+`reports/additional_eda/` contain aggregate results and figures.
+
+---
+
 # License
 
 Project code is released under the [MIT License](LICENSE).

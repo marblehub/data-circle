@@ -1,0 +1,3693 @@
+{
+  "method": {
+    "min_cell_n": 30,
+    "age_groups": [
+      "0-5",
+      "6-10",
+      "11-20",
+      "21-30",
+      "31+"
+    ],
+    "numeric_features": [
+      "pump_age",
+      "population",
+      "amount_tsh",
+      "gps_height"
+    ],
+    "target_order": [
+      "functional",
+      "functional needs repair",
+      "non functional"
+    ]
+  },
+  "inputs": {
+    "Training_set_values.csv": "d8ebe40f49fe749a851c8ea28601115cd92442f7b20025fbc33881595ae75f5d",
+    "Training_set_labels.csv": "ae9b4f893e8e89df3a2187d38cade75c61dfb1d1e156ecd7615fee14fdbe0a24"
+  },
+  "counts": {
+    "all_rows": 59400,
+    "usable_age": 38682,
+    "unknown_year": 20709,
+    "invalid_known_age": 9,
+    "elevation_zero": 20438
+  },
+  "numeric_summary": [
+    {
+      "feature": "pump_age",
+      "status": "functional",
+      "class_n": 32259,
+      "valid_n": 21700,
+      "missing_n": 10559,
+      "zero_n": 413,
+      "negative_n": 0,
+      "min": 0.0,
+      "p01": 0.0,
+      "p25": 3.0,
+      "median": 9.0,
+      "p75": 18.0,
+      "p99": 43.0,
+      "max": 53.0
+    },
+    {
+      "feature": "pump_age",
+      "status": "functional needs repair",
+      "class_n": 4317,
+      "valid_n": 2528,
+      "missing_n": 1789,
+      "zero_n": 11,
+      "negative_n": 0,
+      "min": 0.0,
+      "p01": 1.0,
+      "p25": 6.0,
+      "median": 14.0,
+      "p75": 27.0,
+      "p99": 45.0,
+      "max": 53.0
+    },
+    {
+      "feature": "pump_age",
+      "status": "non functional",
+      "class_n": 22824,
+      "valid_n": 14454,
+      "missing_n": 8370,
+      "zero_n": 164,
+      "negative_n": 0,
+      "min": 0.0,
+      "p01": 0.0,
+      "p25": 7.0,
+      "median": 18.0,
+      "p75": 31.0,
+      "p99": 49.47,
+      "max": 53.0
+    },
+    {
+      "feature": "population",
+      "status": "functional",
+      "class_n": 32259,
+      "valid_n": 20985,
+      "missing_n": 11274,
+      "zero_n": 0,
+      "negative_n": 0,
+      "min": 1.0,
+      "p01": 1.0,
+      "p25": 45.0,
+      "median": 150.0,
+      "p75": 316.0,
+      "p99": 2600.0,
+      "max": 30500.0
+    },
+    {
+      "feature": "population",
+      "status": "functional needs repair",
+      "class_n": 4317,
+      "valid_n": 2542,
+      "missing_n": 1775,
+      "zero_n": 0,
+      "negative_n": 0,
+      "min": 1.0,
+      "p01": 1.0,
+      "p25": 60.0,
+      "median": 200.0,
+      "p75": 397.5,
+      "p99": 1711.8,
+      "max": 15300.0
+    },
+    {
+      "feature": "population",
+      "status": "non functional",
+      "class_n": 22824,
+      "valid_n": 14492,
+      "missing_n": 8332,
+      "zero_n": 0,
+      "negative_n": 0,
+      "min": 1.0,
+      "p01": 1.0,
+      "p25": 1.0,
+      "median": 150.0,
+      "p75": 320.0,
+      "p99": 2202.7,
+      "max": 9865.0
+    },
+    {
+      "feature": "amount_tsh",
+      "status": "functional",
+      "class_n": 32259,
+      "valid_n": 32259,
+      "missing_n": 0,
+      "zero_n": 19706,
+      "negative_n": 0,
+      "min": 0.0,
+      "p01": 0.0,
+      "p25": 0.0,
+      "median": 0.0,
+      "p75": 50.0,
+      "p99": 6000.0,
+      "max": 350000.0
+    },
+    {
+      "feature": "amount_tsh",
+      "status": "functional needs repair",
+      "class_n": 4317,
+      "valid_n": 4317,
+      "missing_n": 0,
+      "zero_n": 3048,
+      "negative_n": 0,
+      "min": 0.0,
+      "p01": 0.0,
+      "p25": 0.0,
+      "median": 0.0,
+      "p75": 50.0,
+      "p99": 5000.0,
+      "max": 100000.0
+    },
+    {
+      "feature": "amount_tsh",
+      "status": "non functional",
+      "class_n": 22824,
+      "valid_n": 22824,
+      "missing_n": 0,
+      "zero_n": 18885,
+      "negative_n": 0,
+      "min": 0.0,
+      "p01": 0.0,
+      "p25": 0.0,
+      "median": 0.0,
+      "p75": 0.0,
+      "p99": 2500.0,
+      "max": 117000.0
+    },
+    {
+      "feature": "gps_height",
+      "status": "functional",
+      "class_n": 32259,
+      "valid_n": 32259,
+      "missing_n": 0,
+      "zero_n": 10469,
+      "negative_n": 782,
+      "min": -90.0,
+      "p01": -20.0,
+      "p25": 0.0,
+      "median": 550.0,
+      "p75": 1404.0,
+      "p99": 2178.0,
+      "max": 2628.0
+    },
+    {
+      "feature": "gps_height",
+      "status": "functional needs repair",
+      "class_n": 4317,
+      "valid_n": 4317,
+      "missing_n": 0,
+      "zero_n": 1763,
+      "negative_n": 42,
+      "min": -51.0,
+      "p01": 0.0,
+      "p25": 0.0,
+      "median": 385.0,
+      "p75": 1243.0,
+      "p99": 1930.68,
+      "max": 2770.0
+    },
+    {
+      "feature": "gps_height",
+      "status": "non functional",
+      "class_n": 22824,
+      "valid_n": 22824,
+      "missing_n": 0,
+      "zero_n": 8206,
+      "negative_n": 672,
+      "min": -59.0,
+      "p01": -25.0,
+      "p25": 0.0,
+      "median": 293.0,
+      "p75": 1211.0,
+      "p99": 1954.0,
+      "max": 2627.0
+    }
+  ],
+  "correlations": {
+    "features": [
+      "pump_age",
+      "population",
+      "amount_tsh",
+      "gps_height"
+    ],
+    "base": {
+      "spearman": [
+        [
+          1.0,
+          -0.0183806909,
+          -0.0847530616,
+          0.0330452946
+        ],
+        [
+          -0.0183806909,
+          1.0,
+          0.0192951594,
+          -0.0662966563
+        ],
+        [
+          -0.0847530616,
+          0.0192951594,
+          1.0,
+          0.3418799889
+        ],
+        [
+          0.0330452946,
+          -0.0662966563,
+          0.3418799889,
+          1.0
+        ]
+      ],
+      "pearson": [
+        [
+          1.0,
+          -0.0285500145,
+          -0.0090631567,
+          0.0170713764
+        ],
+        [
+          -0.0285500145,
+          1.0,
+          -0.0002941119,
+          -0.0458125851
+        ],
+        [
+          -0.0090631567,
+          -0.0002941119,
+          1.0,
+          0.0766502951
+        ],
+        [
+          0.0170713764,
+          -0.0458125851,
+          0.0766502951,
+          1.0
+        ]
+      ],
+      "pairwise_n": [
+        [
+          38682,
+          37335,
+          38682,
+          38682
+        ],
+        [
+          37335,
+          38019,
+          38019,
+          38019
+        ],
+        [
+          38682,
+          38019,
+          59400,
+          59400
+        ],
+        [
+          38682,
+          38019,
+          59400,
+          59400
+        ]
+      ]
+    },
+    "elevation_sensitivity": {
+      "spearman": [
+        [
+          1.0,
+          -0.0183806909,
+          -0.0847530616,
+          0.03673013
+        ],
+        [
+          -0.0183806909,
+          1.0,
+          0.0192951594,
+          -0.0626952916
+        ],
+        [
+          -0.0847530616,
+          0.0192951594,
+          1.0,
+          0.0224718045
+        ],
+        [
+          0.03673013,
+          -0.0626952916,
+          0.0224718045,
+          1.0
+        ]
+      ],
+      "pearson": [
+        [
+          1.0,
+          -0.0285500145,
+          -0.0090631567,
+          0.0210296802
+        ],
+        [
+          -0.0285500145,
+          1.0,
+          -0.0002941119,
+          -0.0392359398
+        ],
+        [
+          -0.0090631567,
+          -0.0002941119,
+          1.0,
+          0.0345861336
+        ],
+        [
+          0.0210296802,
+          -0.0392359398,
+          0.0345861336,
+          1.0
+        ]
+      ],
+      "pairwise_n": [
+        [
+          38682,
+          37335,
+          38682,
+          37919
+        ],
+        [
+          37335,
+          38019,
+          38019,
+          37249
+        ],
+        [
+          38682,
+          38019,
+          59400,
+          38962
+        ],
+        [
+          37919,
+          37249,
+          38962,
+          38962
+        ]
+      ]
+    }
+  },
+  "missingness_by_status": [
+    {
+      "group": "functional",
+      "feature": "construction_year",
+      "n": 32259,
+      "missing_n": 10555,
+      "missing_pct": 32.719551133
+    },
+    {
+      "group": "functional",
+      "feature": "population",
+      "n": 32259,
+      "missing_n": 11274,
+      "missing_pct": 34.9483864968
+    },
+    {
+      "group": "functional",
+      "feature": "scheme_name",
+      "n": 32259,
+      "missing_n": 14900,
+      "missing_pct": 46.1886605288
+    },
+    {
+      "group": "functional",
+      "feature": "scheme_management",
+      "n": 32259,
+      "missing_n": 1874,
+      "missing_pct": 5.8092315323
+    },
+    {
+      "group": "functional",
+      "feature": "installer",
+      "n": 32259,
+      "missing_n": 2000,
+      "missing_pct": 6.1998202052
+    },
+    {
+      "group": "functional",
+      "feature": "funder",
+      "n": 32259,
+      "missing_n": 1982,
+      "missing_pct": 6.1440218234
+    },
+    {
+      "group": "functional",
+      "feature": "public_meeting",
+      "n": 32259,
+      "missing_n": 1678,
+      "missing_pct": 5.2016491522
+    },
+    {
+      "group": "functional",
+      "feature": "permit",
+      "n": 32259,
+      "missing_n": 1673,
+      "missing_pct": 5.1861496017
+    },
+    {
+      "group": "functional needs repair",
+      "feature": "construction_year",
+      "n": 4317,
+      "missing_n": 1789,
+      "missing_pct": 41.4408153811
+    },
+    {
+      "group": "functional needs repair",
+      "feature": "population",
+      "n": 4317,
+      "missing_n": 1775,
+      "missing_pct": 41.1165160991
+    },
+    {
+      "group": "functional needs repair",
+      "feature": "scheme_name",
+      "n": 4317,
+      "missing_n": 2034,
+      "missing_pct": 47.1160528145
+    },
+    {
+      "group": "functional needs repair",
+      "feature": "scheme_management",
+      "n": 4317,
+      "missing_n": 223,
+      "missing_pct": 5.1656242761
+    },
+    {
+      "group": "functional needs repair",
+      "feature": "installer",
+      "n": 4317,
+      "missing_n": 440,
+      "missing_pct": 10.1922631457
+    },
+    {
+      "group": "functional needs repair",
+      "feature": "funder",
+      "n": 4317,
+      "missing_n": 437,
+      "missing_pct": 10.1227704424
+    },
+    {
+      "group": "functional needs repair",
+      "feature": "public_meeting",
+      "n": 4317,
+      "missing_n": 156,
+      "missing_pct": 3.6136205698
+    },
+    {
+      "group": "functional needs repair",
+      "feature": "permit",
+      "n": 4317,
+      "missing_n": 300,
+      "missing_pct": 6.9492703266
+    },
+    {
+      "group": "non functional",
+      "feature": "construction_year",
+      "n": 22824,
+      "missing_n": 8365,
+      "missing_pct": 36.6500175254
+    },
+    {
+      "group": "non functional",
+      "feature": "population",
+      "n": 22824,
+      "missing_n": 8332,
+      "missing_pct": 36.5054328777
+    },
+    {
+      "group": "non functional",
+      "feature": "scheme_name",
+      "n": 22824,
+      "missing_n": 11876,
+      "missing_pct": 52.0329477743
+    },
+    {
+      "group": "non functional",
+      "feature": "scheme_management",
+      "n": 22824,
+      "missing_n": 1781,
+      "missing_pct": 7.803189625
+    },
+    {
+      "group": "non functional",
+      "feature": "installer",
+      "n": 22824,
+      "missing_n": 1215,
+      "missing_pct": 5.3233438486
+    },
+    {
+      "group": "non functional",
+      "feature": "funder",
+      "n": 22824,
+      "missing_n": 1218,
+      "missing_pct": 5.3364879075
+    },
+    {
+      "group": "non functional",
+      "feature": "public_meeting",
+      "n": 22824,
+      "missing_n": 1500,
+      "missing_pct": 6.5720294427
+    },
+    {
+      "group": "non functional",
+      "feature": "permit",
+      "n": 22824,
+      "missing_n": 1083,
+      "missing_pct": 4.7450052576
+    }
+  ],
+  "missingness_by_region": [
+    {
+      "group": "Arusha",
+      "feature": "construction_year",
+      "n": 3350,
+      "missing_n": 51,
+      "missing_pct": 1.5223880597
+    },
+    {
+      "group": "Arusha",
+      "feature": "population",
+      "n": 3350,
+      "missing_n": 1,
+      "missing_pct": 0.0298507463
+    },
+    {
+      "group": "Arusha",
+      "feature": "scheme_name",
+      "n": 3350,
+      "missing_n": 451,
+      "missing_pct": 13.4626865672
+    },
+    {
+      "group": "Arusha",
+      "feature": "scheme_management",
+      "n": 3350,
+      "missing_n": 60,
+      "missing_pct": 1.7910447761
+    },
+    {
+      "group": "Arusha",
+      "feature": "installer",
+      "n": 3350,
+      "missing_n": 315,
+      "missing_pct": 9.4029850746
+    },
+    {
+      "group": "Arusha",
+      "feature": "funder",
+      "n": 3350,
+      "missing_n": 316,
+      "missing_pct": 9.4328358209
+    },
+    {
+      "group": "Arusha",
+      "feature": "public_meeting",
+      "n": 3350,
+      "missing_n": 38,
+      "missing_pct": 1.1343283582
+    },
+    {
+      "group": "Arusha",
+      "feature": "permit",
+      "n": 3350,
+      "missing_n": 445,
+      "missing_pct": 13.2835820896
+    },
+    {
+      "group": "Dar es Salaam",
+      "feature": "construction_year",
+      "n": 805,
+      "missing_n": 17,
+      "missing_pct": 2.1118012422
+    },
+    {
+      "group": "Dar es Salaam",
+      "feature": "population",
+      "n": 805,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Dar es Salaam",
+      "feature": "scheme_name",
+      "n": 805,
+      "missing_n": 693,
+      "missing_pct": 86.0869565217
+    },
+    {
+      "group": "Dar es Salaam",
+      "feature": "scheme_management",
+      "n": 805,
+      "missing_n": 7,
+      "missing_pct": 0.8695652174
+    },
+    {
+      "group": "Dar es Salaam",
+      "feature": "installer",
+      "n": 805,
+      "missing_n": 28,
+      "missing_pct": 3.4782608696
+    },
+    {
+      "group": "Dar es Salaam",
+      "feature": "funder",
+      "n": 805,
+      "missing_n": 28,
+      "missing_pct": 3.4782608696
+    },
+    {
+      "group": "Dar es Salaam",
+      "feature": "public_meeting",
+      "n": 805,
+      "missing_n": 460,
+      "missing_pct": 57.1428571429
+    },
+    {
+      "group": "Dar es Salaam",
+      "feature": "permit",
+      "n": 805,
+      "missing_n": 28,
+      "missing_pct": 3.4782608696
+    },
+    {
+      "group": "Dodoma",
+      "feature": "construction_year",
+      "n": 2201,
+      "missing_n": 2201,
+      "missing_pct": 100.0
+    },
+    {
+      "group": "Dodoma",
+      "feature": "population",
+      "n": 2201,
+      "missing_n": 2201,
+      "missing_pct": 100.0
+    },
+    {
+      "group": "Dodoma",
+      "feature": "scheme_name",
+      "n": 2201,
+      "missing_n": 429,
+      "missing_pct": 19.4911403907
+    },
+    {
+      "group": "Dodoma",
+      "feature": "scheme_management",
+      "n": 2201,
+      "missing_n": 5,
+      "missing_pct": 0.2271694684
+    },
+    {
+      "group": "Dodoma",
+      "feature": "installer",
+      "n": 2201,
+      "missing_n": 2,
+      "missing_pct": 0.0908677874
+    },
+    {
+      "group": "Dodoma",
+      "feature": "funder",
+      "n": 2201,
+      "missing_n": 5,
+      "missing_pct": 0.2271694684
+    },
+    {
+      "group": "Dodoma",
+      "feature": "public_meeting",
+      "n": 2201,
+      "missing_n": 1,
+      "missing_pct": 0.0454338937
+    },
+    {
+      "group": "Dodoma",
+      "feature": "permit",
+      "n": 2201,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Iringa",
+      "feature": "construction_year",
+      "n": 5294,
+      "missing_n": 372,
+      "missing_pct": 7.0268228183
+    },
+    {
+      "group": "Iringa",
+      "feature": "population",
+      "n": 5294,
+      "missing_n": 1164,
+      "missing_pct": 21.9871552701
+    },
+    {
+      "group": "Iringa",
+      "feature": "scheme_name",
+      "n": 5294,
+      "missing_n": 797,
+      "missing_pct": 15.0547789951
+    },
+    {
+      "group": "Iringa",
+      "feature": "scheme_management",
+      "n": 5294,
+      "missing_n": 59,
+      "missing_pct": 1.1144692104
+    },
+    {
+      "group": "Iringa",
+      "feature": "installer",
+      "n": 5294,
+      "missing_n": 6,
+      "missing_pct": 0.1133358519
+    },
+    {
+      "group": "Iringa",
+      "feature": "funder",
+      "n": 5294,
+      "missing_n": 9,
+      "missing_pct": 0.1700037779
+    },
+    {
+      "group": "Iringa",
+      "feature": "public_meeting",
+      "n": 5294,
+      "missing_n": 2,
+      "missing_pct": 0.0377786173
+    },
+    {
+      "group": "Iringa",
+      "feature": "permit",
+      "n": 5294,
+      "missing_n": 3,
+      "missing_pct": 0.056667926
+    },
+    {
+      "group": "Kagera",
+      "feature": "construction_year",
+      "n": 3316,
+      "missing_n": 3316,
+      "missing_pct": 100.0
+    },
+    {
+      "group": "Kagera",
+      "feature": "population",
+      "n": 3316,
+      "missing_n": 3316,
+      "missing_pct": 100.0
+    },
+    {
+      "group": "Kagera",
+      "feature": "scheme_name",
+      "n": 3316,
+      "missing_n": 2128,
+      "missing_pct": 64.1737032569
+    },
+    {
+      "group": "Kagera",
+      "feature": "scheme_management",
+      "n": 3316,
+      "missing_n": 361,
+      "missing_pct": 10.8866103739
+    },
+    {
+      "group": "Kagera",
+      "feature": "installer",
+      "n": 3316,
+      "missing_n": 92,
+      "missing_pct": 2.7744270205
+    },
+    {
+      "group": "Kagera",
+      "feature": "funder",
+      "n": 3316,
+      "missing_n": 107,
+      "missing_pct": 3.2267792521
+    },
+    {
+      "group": "Kagera",
+      "feature": "public_meeting",
+      "n": 3316,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Kagera",
+      "feature": "permit",
+      "n": 3316,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Kigoma",
+      "feature": "construction_year",
+      "n": 2816,
+      "missing_n": 10,
+      "missing_pct": 0.3551136364
+    },
+    {
+      "group": "Kigoma",
+      "feature": "population",
+      "n": 2816,
+      "missing_n": 31,
+      "missing_pct": 1.1008522727
+    },
+    {
+      "group": "Kigoma",
+      "feature": "scheme_name",
+      "n": 2816,
+      "missing_n": 1013,
+      "missing_pct": 35.9730113636
+    },
+    {
+      "group": "Kigoma",
+      "feature": "scheme_management",
+      "n": 2816,
+      "missing_n": 21,
+      "missing_pct": 0.7457386364
+    },
+    {
+      "group": "Kigoma",
+      "feature": "installer",
+      "n": 2816,
+      "missing_n": 11,
+      "missing_pct": 0.390625
+    },
+    {
+      "group": "Kigoma",
+      "feature": "funder",
+      "n": 2816,
+      "missing_n": 10,
+      "missing_pct": 0.3551136364
+    },
+    {
+      "group": "Kigoma",
+      "feature": "public_meeting",
+      "n": 2816,
+      "missing_n": 31,
+      "missing_pct": 1.1008522727
+    },
+    {
+      "group": "Kigoma",
+      "feature": "permit",
+      "n": 2816,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Kilimanjaro",
+      "feature": "construction_year",
+      "n": 4379,
+      "missing_n": 35,
+      "missing_pct": 0.7992692396
+    },
+    {
+      "group": "Kilimanjaro",
+      "feature": "population",
+      "n": 4379,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Kilimanjaro",
+      "feature": "scheme_name",
+      "n": 4379,
+      "missing_n": 270,
+      "missing_pct": 6.1657912765
+    },
+    {
+      "group": "Kilimanjaro",
+      "feature": "scheme_management",
+      "n": 4379,
+      "missing_n": 22,
+      "missing_pct": 0.5023978077
+    },
+    {
+      "group": "Kilimanjaro",
+      "feature": "installer",
+      "n": 4379,
+      "missing_n": 6,
+      "missing_pct": 0.1370175839
+    },
+    {
+      "group": "Kilimanjaro",
+      "feature": "funder",
+      "n": 4379,
+      "missing_n": 5,
+      "missing_pct": 0.1141813199
+    },
+    {
+      "group": "Kilimanjaro",
+      "feature": "public_meeting",
+      "n": 4379,
+      "missing_n": 20,
+      "missing_pct": 0.4567252797
+    },
+    {
+      "group": "Kilimanjaro",
+      "feature": "permit",
+      "n": 4379,
+      "missing_n": 138,
+      "missing_pct": 3.1514044302
+    },
+    {
+      "group": "Lindi",
+      "feature": "construction_year",
+      "n": 1546,
+      "missing_n": 113,
+      "missing_pct": 7.3091849935
+    },
+    {
+      "group": "Lindi",
+      "feature": "population",
+      "n": 1546,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Lindi",
+      "feature": "scheme_name",
+      "n": 1546,
+      "missing_n": 888,
+      "missing_pct": 57.4385510996
+    },
+    {
+      "group": "Lindi",
+      "feature": "scheme_management",
+      "n": 1546,
+      "missing_n": 426,
+      "missing_pct": 27.5549805951
+    },
+    {
+      "group": "Lindi",
+      "feature": "installer",
+      "n": 1546,
+      "missing_n": 4,
+      "missing_pct": 0.2587322122
+    },
+    {
+      "group": "Lindi",
+      "feature": "funder",
+      "n": 1546,
+      "missing_n": 2,
+      "missing_pct": 0.1293661061
+    },
+    {
+      "group": "Lindi",
+      "feature": "public_meeting",
+      "n": 1546,
+      "missing_n": 181,
+      "missing_pct": 11.7076326003
+    },
+    {
+      "group": "Lindi",
+      "feature": "permit",
+      "n": 1546,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Manyara",
+      "feature": "construction_year",
+      "n": 1583,
+      "missing_n": 13,
+      "missing_pct": 0.8212255212
+    },
+    {
+      "group": "Manyara",
+      "feature": "population",
+      "n": 1583,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Manyara",
+      "feature": "scheme_name",
+      "n": 1583,
+      "missing_n": 717,
+      "missing_pct": 45.2937460518
+    },
+    {
+      "group": "Manyara",
+      "feature": "scheme_management",
+      "n": 1583,
+      "missing_n": 93,
+      "missing_pct": 5.874921036
+    },
+    {
+      "group": "Manyara",
+      "feature": "installer",
+      "n": 1583,
+      "missing_n": 3,
+      "missing_pct": 0.1895135818
+    },
+    {
+      "group": "Manyara",
+      "feature": "funder",
+      "n": 1583,
+      "missing_n": 3,
+      "missing_pct": 0.1895135818
+    },
+    {
+      "group": "Manyara",
+      "feature": "public_meeting",
+      "n": 1583,
+      "missing_n": 46,
+      "missing_pct": 2.905874921
+    },
+    {
+      "group": "Manyara",
+      "feature": "permit",
+      "n": 1583,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Mara",
+      "feature": "construction_year",
+      "n": 1969,
+      "missing_n": 17,
+      "missing_pct": 0.8633824276
+    },
+    {
+      "group": "Mara",
+      "feature": "population",
+      "n": 1969,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Mara",
+      "feature": "scheme_name",
+      "n": 1969,
+      "missing_n": 1506,
+      "missing_pct": 76.4855256475
+    },
+    {
+      "group": "Mara",
+      "feature": "scheme_management",
+      "n": 1969,
+      "missing_n": 244,
+      "missing_pct": 12.3920771965
+    },
+    {
+      "group": "Mara",
+      "feature": "installer",
+      "n": 1969,
+      "missing_n": 12,
+      "missing_pct": 0.6094464195
+    },
+    {
+      "group": "Mara",
+      "feature": "funder",
+      "n": 1969,
+      "missing_n": 14,
+      "missing_pct": 0.7110208228
+    },
+    {
+      "group": "Mara",
+      "feature": "public_meeting",
+      "n": 1969,
+      "missing_n": 768,
+      "missing_pct": 39.0045708481
+    },
+    {
+      "group": "Mara",
+      "feature": "permit",
+      "n": 1969,
+      "missing_n": 367,
+      "missing_pct": 18.6389029964
+    },
+    {
+      "group": "Mbeya",
+      "feature": "construction_year",
+      "n": 4639,
+      "missing_n": 4639,
+      "missing_pct": 100.0
+    },
+    {
+      "group": "Mbeya",
+      "feature": "population",
+      "n": 4639,
+      "missing_n": 4639,
+      "missing_pct": 100.0
+    },
+    {
+      "group": "Mbeya",
+      "feature": "scheme_name",
+      "n": 4639,
+      "missing_n": 2666,
+      "missing_pct": 57.4692821729
+    },
+    {
+      "group": "Mbeya",
+      "feature": "scheme_management",
+      "n": 4639,
+      "missing_n": 4,
+      "missing_pct": 0.0862254796
+    },
+    {
+      "group": "Mbeya",
+      "feature": "installer",
+      "n": 4639,
+      "missing_n": 1936,
+      "missing_pct": 41.7331321405
+    },
+    {
+      "group": "Mbeya",
+      "feature": "funder",
+      "n": 4639,
+      "missing_n": 1936,
+      "missing_pct": 41.7331321405
+    },
+    {
+      "group": "Mbeya",
+      "feature": "public_meeting",
+      "n": 4639,
+      "missing_n": 22,
+      "missing_pct": 0.474240138
+    },
+    {
+      "group": "Mbeya",
+      "feature": "permit",
+      "n": 4639,
+      "missing_n": 1106,
+      "missing_pct": 23.8413451175
+    },
+    {
+      "group": "Morogoro",
+      "feature": "construction_year",
+      "n": 4006,
+      "missing_n": 18,
+      "missing_pct": 0.449326011
+    },
+    {
+      "group": "Morogoro",
+      "feature": "population",
+      "n": 4006,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Morogoro",
+      "feature": "scheme_name",
+      "n": 4006,
+      "missing_n": 2413,
+      "missing_pct": 60.234648028
+    },
+    {
+      "group": "Morogoro",
+      "feature": "scheme_management",
+      "n": 4006,
+      "missing_n": 1035,
+      "missing_pct": 25.8362456316
+    },
+    {
+      "group": "Morogoro",
+      "feature": "installer",
+      "n": 4006,
+      "missing_n": 11,
+      "missing_pct": 0.2745881178
+    },
+    {
+      "group": "Morogoro",
+      "feature": "funder",
+      "n": 4006,
+      "missing_n": 8,
+      "missing_pct": 0.1997004493
+    },
+    {
+      "group": "Morogoro",
+      "feature": "public_meeting",
+      "n": 4006,
+      "missing_n": 32,
+      "missing_pct": 0.7988017973
+    },
+    {
+      "group": "Morogoro",
+      "feature": "permit",
+      "n": 4006,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Mtwara",
+      "feature": "construction_year",
+      "n": 1730,
+      "missing_n": 87,
+      "missing_pct": 5.0289017341
+    },
+    {
+      "group": "Mtwara",
+      "feature": "population",
+      "n": 1730,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Mtwara",
+      "feature": "scheme_name",
+      "n": 1730,
+      "missing_n": 844,
+      "missing_pct": 48.7861271676
+    },
+    {
+      "group": "Mtwara",
+      "feature": "scheme_management",
+      "n": 1730,
+      "missing_n": 184,
+      "missing_pct": 10.6358381503
+    },
+    {
+      "group": "Mtwara",
+      "feature": "installer",
+      "n": 1730,
+      "missing_n": 5,
+      "missing_pct": 0.289017341
+    },
+    {
+      "group": "Mtwara",
+      "feature": "funder",
+      "n": 1730,
+      "missing_n": 4,
+      "missing_pct": 0.2312138728
+    },
+    {
+      "group": "Mtwara",
+      "feature": "public_meeting",
+      "n": 1730,
+      "missing_n": 32,
+      "missing_pct": 1.8497109827
+    },
+    {
+      "group": "Mtwara",
+      "feature": "permit",
+      "n": 1730,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Mwanza",
+      "feature": "construction_year",
+      "n": 3102,
+      "missing_n": 2747,
+      "missing_pct": 88.5557704707
+    },
+    {
+      "group": "Mwanza",
+      "feature": "population",
+      "n": 3102,
+      "missing_n": 2735,
+      "missing_pct": 88.1689232753
+    },
+    {
+      "group": "Mwanza",
+      "feature": "scheme_name",
+      "n": 3102,
+      "missing_n": 2416,
+      "missing_pct": 77.885235332
+    },
+    {
+      "group": "Mwanza",
+      "feature": "scheme_management",
+      "n": 3102,
+      "missing_n": 439,
+      "missing_pct": 14.1521598968
+    },
+    {
+      "group": "Mwanza",
+      "feature": "installer",
+      "n": 3102,
+      "missing_n": 52,
+      "missing_pct": 1.6763378466
+    },
+    {
+      "group": "Mwanza",
+      "feature": "funder",
+      "n": 3102,
+      "missing_n": 41,
+      "missing_pct": 1.3217279175
+    },
+    {
+      "group": "Mwanza",
+      "feature": "public_meeting",
+      "n": 3102,
+      "missing_n": 288,
+      "missing_pct": 9.2843326886
+    },
+    {
+      "group": "Mwanza",
+      "feature": "permit",
+      "n": 3102,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Pwani",
+      "feature": "construction_year",
+      "n": 2635,
+      "missing_n": 176,
+      "missing_pct": 6.679316888
+    },
+    {
+      "group": "Pwani",
+      "feature": "population",
+      "n": 2635,
+      "missing_n": 1,
+      "missing_pct": 0.0379506641
+    },
+    {
+      "group": "Pwani",
+      "feature": "scheme_name",
+      "n": 2635,
+      "missing_n": 1481,
+      "missing_pct": 56.2049335863
+    },
+    {
+      "group": "Pwani",
+      "feature": "scheme_management",
+      "n": 2635,
+      "missing_n": 3,
+      "missing_pct": 0.1138519924
+    },
+    {
+      "group": "Pwani",
+      "feature": "installer",
+      "n": 2635,
+      "missing_n": 138,
+      "missing_pct": 5.2371916509
+    },
+    {
+      "group": "Pwani",
+      "feature": "funder",
+      "n": 2635,
+      "missing_n": 137,
+      "missing_pct": 5.1992409867
+    },
+    {
+      "group": "Pwani",
+      "feature": "public_meeting",
+      "n": 2635,
+      "missing_n": 7,
+      "missing_pct": 0.265654649
+    },
+    {
+      "group": "Pwani",
+      "feature": "permit",
+      "n": 2635,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Rukwa",
+      "feature": "construction_year",
+      "n": 1808,
+      "missing_n": 2,
+      "missing_pct": 0.110619469
+    },
+    {
+      "group": "Rukwa",
+      "feature": "population",
+      "n": 1808,
+      "missing_n": 47,
+      "missing_pct": 2.5995575221
+    },
+    {
+      "group": "Rukwa",
+      "feature": "scheme_name",
+      "n": 1808,
+      "missing_n": 1233,
+      "missing_pct": 68.1969026549
+    },
+    {
+      "group": "Rukwa",
+      "feature": "scheme_management",
+      "n": 1808,
+      "missing_n": 21,
+      "missing_pct": 1.1615044248
+    },
+    {
+      "group": "Rukwa",
+      "feature": "installer",
+      "n": 1808,
+      "missing_n": 3,
+      "missing_pct": 0.1659292035
+    },
+    {
+      "group": "Rukwa",
+      "feature": "funder",
+      "n": 1808,
+      "missing_n": 4,
+      "missing_pct": 0.2212389381
+    },
+    {
+      "group": "Rukwa",
+      "feature": "public_meeting",
+      "n": 1808,
+      "missing_n": 53,
+      "missing_pct": 2.9314159292
+    },
+    {
+      "group": "Rukwa",
+      "feature": "permit",
+      "n": 1808,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Ruvuma",
+      "feature": "construction_year",
+      "n": 2640,
+      "missing_n": 16,
+      "missing_pct": 0.6060606061
+    },
+    {
+      "group": "Ruvuma",
+      "feature": "population",
+      "n": 2640,
+      "missing_n": 467,
+      "missing_pct": 17.6893939394
+    },
+    {
+      "group": "Ruvuma",
+      "feature": "scheme_name",
+      "n": 2640,
+      "missing_n": 1034,
+      "missing_pct": 39.1666666667
+    },
+    {
+      "group": "Ruvuma",
+      "feature": "scheme_management",
+      "n": 2640,
+      "missing_n": 19,
+      "missing_pct": 0.7196969697
+    },
+    {
+      "group": "Ruvuma",
+      "feature": "installer",
+      "n": 2640,
+      "missing_n": 2,
+      "missing_pct": 0.0757575758
+    },
+    {
+      "group": "Ruvuma",
+      "feature": "funder",
+      "n": 2640,
+      "missing_n": 2,
+      "missing_pct": 0.0757575758
+    },
+    {
+      "group": "Ruvuma",
+      "feature": "public_meeting",
+      "n": 2640,
+      "missing_n": 522,
+      "missing_pct": 19.7727272727
+    },
+    {
+      "group": "Ruvuma",
+      "feature": "permit",
+      "n": 2640,
+      "missing_n": 2,
+      "missing_pct": 0.0757575758
+    },
+    {
+      "group": "Shinyanga",
+      "feature": "construction_year",
+      "n": 4982,
+      "missing_n": 4818,
+      "missing_pct": 96.7081493376
+    },
+    {
+      "group": "Shinyanga",
+      "feature": "population",
+      "n": 4982,
+      "missing_n": 4818,
+      "missing_pct": 96.7081493376
+    },
+    {
+      "group": "Shinyanga",
+      "feature": "scheme_name",
+      "n": 4982,
+      "missing_n": 4512,
+      "missing_pct": 90.5660377358
+    },
+    {
+      "group": "Shinyanga",
+      "feature": "scheme_management",
+      "n": 4982,
+      "missing_n": 775,
+      "missing_pct": 15.5560016058
+    },
+    {
+      "group": "Shinyanga",
+      "feature": "installer",
+      "n": 4982,
+      "missing_n": 42,
+      "missing_pct": 0.8430349257
+    },
+    {
+      "group": "Shinyanga",
+      "feature": "funder",
+      "n": 4982,
+      "missing_n": 23,
+      "missing_pct": 0.4616619831
+    },
+    {
+      "group": "Shinyanga",
+      "feature": "public_meeting",
+      "n": 4982,
+      "missing_n": 646,
+      "missing_pct": 12.9666800482
+    },
+    {
+      "group": "Shinyanga",
+      "feature": "permit",
+      "n": 4982,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Singida",
+      "feature": "construction_year",
+      "n": 2093,
+      "missing_n": 8,
+      "missing_pct": 0.3822264692
+    },
+    {
+      "group": "Singida",
+      "feature": "population",
+      "n": 2093,
+      "missing_n": 2,
+      "missing_pct": 0.0955566173
+    },
+    {
+      "group": "Singida",
+      "feature": "scheme_name",
+      "n": 2093,
+      "missing_n": 1129,
+      "missing_pct": 53.9417104634
+    },
+    {
+      "group": "Singida",
+      "feature": "scheme_management",
+      "n": 2093,
+      "missing_n": 74,
+      "missing_pct": 3.5355948399
+    },
+    {
+      "group": "Singida",
+      "feature": "installer",
+      "n": 2093,
+      "missing_n": 969,
+      "missing_pct": 46.2971810798
+    },
+    {
+      "group": "Singida",
+      "feature": "funder",
+      "n": 2093,
+      "missing_n": 967,
+      "missing_pct": 46.2016244625
+    },
+    {
+      "group": "Singida",
+      "feature": "public_meeting",
+      "n": 2093,
+      "missing_n": 125,
+      "missing_pct": 5.972288581
+    },
+    {
+      "group": "Singida",
+      "feature": "permit",
+      "n": 2093,
+      "missing_n": 967,
+      "missing_pct": 46.2016244625
+    },
+    {
+      "group": "Tabora",
+      "feature": "construction_year",
+      "n": 1959,
+      "missing_n": 1959,
+      "missing_pct": 100.0
+    },
+    {
+      "group": "Tabora",
+      "feature": "population",
+      "n": 1959,
+      "missing_n": 1959,
+      "missing_pct": 100.0
+    },
+    {
+      "group": "Tabora",
+      "feature": "scheme_name",
+      "n": 1959,
+      "missing_n": 1484,
+      "missing_pct": 75.752935171
+    },
+    {
+      "group": "Tabora",
+      "feature": "scheme_management",
+      "n": 1959,
+      "missing_n": 25,
+      "missing_pct": 1.2761613068
+    },
+    {
+      "group": "Tabora",
+      "feature": "installer",
+      "n": 1959,
+      "missing_n": 17,
+      "missing_pct": 0.8677896886
+    },
+    {
+      "group": "Tabora",
+      "feature": "funder",
+      "n": 1959,
+      "missing_n": 15,
+      "missing_pct": 0.7656967841
+    },
+    {
+      "group": "Tabora",
+      "feature": "public_meeting",
+      "n": 1959,
+      "missing_n": 57,
+      "missing_pct": 2.9096477795
+    },
+    {
+      "group": "Tabora",
+      "feature": "permit",
+      "n": 1959,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Tanga",
+      "feature": "construction_year",
+      "n": 2547,
+      "missing_n": 94,
+      "missing_pct": 3.6906164115
+    },
+    {
+      "group": "Tanga",
+      "feature": "population",
+      "n": 2547,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    },
+    {
+      "group": "Tanga",
+      "feature": "scheme_name",
+      "n": 2547,
+      "missing_n": 706,
+      "missing_pct": 27.7188849627
+    },
+    {
+      "group": "Tanga",
+      "feature": "scheme_management",
+      "n": 2547,
+      "missing_n": 1,
+      "missing_pct": 0.0392618767
+    },
+    {
+      "group": "Tanga",
+      "feature": "installer",
+      "n": 2547,
+      "missing_n": 1,
+      "missing_pct": 0.0392618767
+    },
+    {
+      "group": "Tanga",
+      "feature": "funder",
+      "n": 2547,
+      "missing_n": 1,
+      "missing_pct": 0.0392618767
+    },
+    {
+      "group": "Tanga",
+      "feature": "public_meeting",
+      "n": 2547,
+      "missing_n": 3,
+      "missing_pct": 0.1177856302
+    },
+    {
+      "group": "Tanga",
+      "feature": "permit",
+      "n": 2547,
+      "missing_n": 0,
+      "missing_pct": 0.0
+    }
+  ],
+  "age_availability": [
+    {
+      "availability": "Invalid year/date/age",
+      "status": "functional",
+      "n": 9,
+      "status_n": 4,
+      "status_pct": 44.4444444444
+    },
+    {
+      "availability": "Invalid year/date/age",
+      "status": "functional needs repair",
+      "n": 9,
+      "status_n": 0,
+      "status_pct": 0.0
+    },
+    {
+      "availability": "Invalid year/date/age",
+      "status": "non functional",
+      "n": 9,
+      "status_n": 5,
+      "status_pct": 55.5555555556
+    },
+    {
+      "availability": "Unknown construction year",
+      "status": "functional",
+      "n": 20709,
+      "status_n": 10555,
+      "status_pct": 50.9681780868
+    },
+    {
+      "availability": "Unknown construction year",
+      "status": "functional needs repair",
+      "n": 20709,
+      "status_n": 1789,
+      "status_pct": 8.6387560964
+    },
+    {
+      "availability": "Unknown construction year",
+      "status": "non functional",
+      "n": 20709,
+      "status_n": 8365,
+      "status_pct": 40.3930658168
+    },
+    {
+      "availability": "Usable age",
+      "status": "functional",
+      "n": 38682,
+      "status_n": 21700,
+      "status_pct": 56.0984437206
+    },
+    {
+      "availability": "Usable age",
+      "status": "functional needs repair",
+      "n": 38682,
+      "status_n": 2528,
+      "status_pct": 6.5353394344
+    },
+    {
+      "availability": "Usable age",
+      "status": "non functional",
+      "n": 38682,
+      "status_n": 14454,
+      "status_pct": 37.366216845
+    }
+  ],
+  "region": {
+    "age_rates": [
+      {
+        "region": "Arusha",
+        "age_group": "0-5",
+        "functional": 728,
+        "functional needs repair": 26,
+        "non functional": 120,
+        "n": 874,
+        "functional_pct": 83.295194508,
+        "functional needs repair_pct": 2.9748283753,
+        "non functional_pct": 13.7299771167
+      },
+      {
+        "region": "Arusha",
+        "age_group": "6-10",
+        "functional": 328,
+        "functional needs repair": 34,
+        "non functional": 139,
+        "n": 501,
+        "functional_pct": 65.4690618762,
+        "functional needs repair_pct": 6.7864271457,
+        "non functional_pct": 27.744510978
+      },
+      {
+        "region": "Arusha",
+        "age_group": "11-20",
+        "functional": 822,
+        "functional needs repair": 61,
+        "non functional": 341,
+        "n": 1224,
+        "functional_pct": 67.1568627451,
+        "functional needs repair_pct": 4.9836601307,
+        "non functional_pct": 27.8594771242
+      },
+      {
+        "region": "Arusha",
+        "age_group": "21-30",
+        "functional": 152,
+        "functional needs repair": 15,
+        "non functional": 83,
+        "n": 250,
+        "functional_pct": 60.8,
+        "functional needs repair_pct": 6.0,
+        "non functional_pct": 33.2
+      },
+      {
+        "region": "Arusha",
+        "age_group": "31+",
+        "functional": 226,
+        "functional needs repair": 38,
+        "non functional": 186,
+        "n": 450,
+        "functional_pct": 50.2222222222,
+        "functional needs repair_pct": 8.4444444444,
+        "non functional_pct": 41.3333333333
+      },
+      {
+        "region": "Dar es Salaam",
+        "age_group": "0-5",
+        "functional": 270,
+        "functional needs repair": 1,
+        "non functional": 48,
+        "n": 319,
+        "functional_pct": 84.6394984326,
+        "functional needs repair_pct": 0.3134796238,
+        "non functional_pct": 15.0470219436
+      },
+      {
+        "region": "Dar es Salaam",
+        "age_group": "6-10",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Dar es Salaam",
+        "age_group": "11-20",
+        "functional": 175,
+        "functional needs repair": 2,
+        "non functional": 196,
+        "n": 373,
+        "functional_pct": 46.9168900804,
+        "functional needs repair_pct": 0.5361930295,
+        "non functional_pct": 52.5469168901
+      },
+      {
+        "region": "Dar es Salaam",
+        "age_group": "21-30",
+        "functional": 1,
+        "functional needs repair": 0,
+        "non functional": 18,
+        "n": 19,
+        "functional_pct": 5.2631578947,
+        "functional needs repair_pct": 0.0,
+        "non functional_pct": 94.7368421053
+      },
+      {
+        "region": "Dar es Salaam",
+        "age_group": "31+",
+        "functional": 4,
+        "functional needs repair": 0,
+        "non functional": 73,
+        "n": 77,
+        "functional_pct": 5.1948051948,
+        "functional needs repair_pct": 0.0,
+        "non functional_pct": 94.8051948052
+      },
+      {
+        "region": "Dodoma",
+        "age_group": "0-5",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Dodoma",
+        "age_group": "6-10",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Dodoma",
+        "age_group": "11-20",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Dodoma",
+        "age_group": "21-30",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Dodoma",
+        "age_group": "31+",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Iringa",
+        "age_group": "0-5",
+        "functional": 1589,
+        "functional needs repair": 15,
+        "non functional": 240,
+        "n": 1844,
+        "functional_pct": 86.1713665944,
+        "functional needs repair_pct": 0.8134490239,
+        "non functional_pct": 13.0151843818
+      },
+      {
+        "region": "Iringa",
+        "age_group": "6-10",
+        "functional": 480,
+        "functional needs repair": 7,
+        "non functional": 102,
+        "n": 589,
+        "functional_pct": 81.494057725,
+        "functional needs repair_pct": 1.1884550085,
+        "non functional_pct": 17.3174872666
+      },
+      {
+        "region": "Iringa",
+        "age_group": "11-20",
+        "functional": 804,
+        "functional needs repair": 16,
+        "non functional": 223,
+        "n": 1043,
+        "functional_pct": 77.0853307766,
+        "functional needs repair_pct": 1.5340364334,
+        "non functional_pct": 21.38063279
+      },
+      {
+        "region": "Iringa",
+        "age_group": "21-30",
+        "functional": 599,
+        "functional needs repair": 22,
+        "non functional": 155,
+        "n": 776,
+        "functional_pct": 77.1907216495,
+        "functional needs repair_pct": 2.8350515464,
+        "non functional_pct": 19.9742268041
+      },
+      {
+        "region": "Iringa",
+        "age_group": "31+",
+        "functional": 403,
+        "functional needs repair": 58,
+        "non functional": 208,
+        "n": 669,
+        "functional_pct": 60.2391629297,
+        "functional needs repair_pct": 8.6696562033,
+        "non functional_pct": 31.091180867
+      },
+      {
+        "region": "Kagera",
+        "age_group": "0-5",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Kagera",
+        "age_group": "6-10",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Kagera",
+        "age_group": "11-20",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Kagera",
+        "age_group": "21-30",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Kagera",
+        "age_group": "31+",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Kigoma",
+        "age_group": "0-5",
+        "functional": 335,
+        "functional needs repair": 141,
+        "non functional": 181,
+        "n": 657,
+        "functional_pct": 50.9893455099,
+        "functional needs repair_pct": 21.4611872146,
+        "non functional_pct": 27.5494672755
+      },
+      {
+        "region": "Kigoma",
+        "age_group": "6-10",
+        "functional": 365,
+        "functional needs repair": 134,
+        "non functional": 150,
+        "n": 649,
+        "functional_pct": 56.2403697997,
+        "functional needs repair_pct": 20.6471494607,
+        "non functional_pct": 23.1124807396
+      },
+      {
+        "region": "Kigoma",
+        "age_group": "11-20",
+        "functional": 354,
+        "functional needs repair": 125,
+        "non functional": 163,
+        "n": 642,
+        "functional_pct": 55.1401869159,
+        "functional needs repair_pct": 19.4704049844,
+        "non functional_pct": 25.3894080997
+      },
+      {
+        "region": "Kigoma",
+        "age_group": "21-30",
+        "functional": 203,
+        "functional needs repair": 121,
+        "non functional": 245,
+        "n": 569,
+        "functional_pct": 35.6766256591,
+        "functional needs repair_pct": 21.2653778559,
+        "non functional_pct": 43.0579964851
+      },
+      {
+        "region": "Kigoma",
+        "age_group": "31+",
+        "functional": 100,
+        "functional needs repair": 81,
+        "non functional": 108,
+        "n": 289,
+        "functional_pct": 34.6020761246,
+        "functional needs repair_pct": 28.0276816609,
+        "non functional_pct": 37.3702422145
+      },
+      {
+        "region": "Kilimanjaro",
+        "age_group": "0-5",
+        "functional": 1061,
+        "functional needs repair": 97,
+        "non functional": 279,
+        "n": 1437,
+        "functional_pct": 73.8343771747,
+        "functional needs repair_pct": 6.7501739736,
+        "non functional_pct": 19.4154488518
+      },
+      {
+        "region": "Kilimanjaro",
+        "age_group": "6-10",
+        "functional": 445,
+        "functional needs repair": 36,
+        "non functional": 139,
+        "n": 620,
+        "functional_pct": 71.7741935484,
+        "functional needs repair_pct": 5.8064516129,
+        "non functional_pct": 22.4193548387
+      },
+      {
+        "region": "Kilimanjaro",
+        "age_group": "11-20",
+        "functional": 803,
+        "functional needs repair": 43,
+        "non functional": 244,
+        "n": 1090,
+        "functional_pct": 73.6697247706,
+        "functional needs repair_pct": 3.9449541284,
+        "non functional_pct": 22.3853211009
+      },
+      {
+        "region": "Kilimanjaro",
+        "age_group": "21-30",
+        "functional": 35,
+        "functional needs repair": 12,
+        "non functional": 46,
+        "n": 93,
+        "functional_pct": 37.6344086022,
+        "functional needs repair_pct": 12.9032258065,
+        "non functional_pct": 49.4623655914
+      },
+      {
+        "region": "Kilimanjaro",
+        "age_group": "31+",
+        "functional": 283,
+        "functional needs repair": 131,
+        "non functional": 690,
+        "n": 1104,
+        "functional_pct": 25.634057971,
+        "functional needs repair_pct": 11.865942029,
+        "non functional_pct": 62.5
+      },
+      {
+        "region": "Lindi",
+        "age_group": "0-5",
+        "functional": 208,
+        "functional needs repair": 20,
+        "non functional": 155,
+        "n": 383,
+        "functional_pct": 54.3080939948,
+        "functional needs repair_pct": 5.2219321149,
+        "non functional_pct": 40.4699738903
+      },
+      {
+        "region": "Lindi",
+        "age_group": "6-10",
+        "functional": 111,
+        "functional needs repair": 30,
+        "non functional": 104,
+        "n": 245,
+        "functional_pct": 45.306122449,
+        "functional needs repair_pct": 12.2448979592,
+        "non functional_pct": 42.4489795918
+      },
+      {
+        "region": "Lindi",
+        "age_group": "11-20",
+        "functional": 33,
+        "functional needs repair": 8,
+        "non functional": 100,
+        "n": 141,
+        "functional_pct": 23.4042553191,
+        "functional needs repair_pct": 5.6737588652,
+        "non functional_pct": 70.9219858156
+      },
+      {
+        "region": "Lindi",
+        "age_group": "21-30",
+        "functional": 57,
+        "functional needs repair": 14,
+        "non functional": 211,
+        "n": 282,
+        "functional_pct": 20.2127659574,
+        "functional needs repair_pct": 4.9645390071,
+        "non functional_pct": 74.8226950355
+      },
+      {
+        "region": "Lindi",
+        "age_group": "31+",
+        "functional": 38,
+        "functional needs repair": 16,
+        "non functional": 328,
+        "n": 382,
+        "functional_pct": 9.9476439791,
+        "functional needs repair_pct": 4.1884816754,
+        "non functional_pct": 85.8638743455
+      },
+      {
+        "region": "Manyara",
+        "age_group": "0-5",
+        "functional": 407,
+        "functional needs repair": 27,
+        "non functional": 145,
+        "n": 579,
+        "functional_pct": 70.2936096718,
+        "functional needs repair_pct": 4.6632124352,
+        "non functional_pct": 25.0431778929
+      },
+      {
+        "region": "Manyara",
+        "age_group": "6-10",
+        "functional": 246,
+        "functional needs repair": 17,
+        "non functional": 140,
+        "n": 403,
+        "functional_pct": 61.0421836228,
+        "functional needs repair_pct": 4.2183622829,
+        "non functional_pct": 34.7394540943
+      },
+      {
+        "region": "Manyara",
+        "age_group": "11-20",
+        "functional": 258,
+        "functional needs repair": 32,
+        "non functional": 127,
+        "n": 417,
+        "functional_pct": 61.8705035971,
+        "functional needs repair_pct": 7.6738609113,
+        "non functional_pct": 30.4556354916
+      },
+      {
+        "region": "Manyara",
+        "age_group": "21-30",
+        "functional": 23,
+        "functional needs repair": 8,
+        "non functional": 25,
+        "n": 56,
+        "functional_pct": 41.0714285714,
+        "functional needs repair_pct": 14.2857142857,
+        "non functional_pct": 44.6428571429
+      },
+      {
+        "region": "Manyara",
+        "age_group": "31+",
+        "functional": 47,
+        "functional needs repair": 11,
+        "non functional": 57,
+        "n": 115,
+        "functional_pct": 40.8695652174,
+        "functional needs repair_pct": 9.5652173913,
+        "non functional_pct": 49.5652173913
+      },
+      {
+        "region": "Mara",
+        "age_group": "0-5",
+        "functional": 425,
+        "functional needs repair": 15,
+        "non functional": 157,
+        "n": 597,
+        "functional_pct": 71.189279732,
+        "functional needs repair_pct": 2.5125628141,
+        "non functional_pct": 26.2981574539
+      },
+      {
+        "region": "Mara",
+        "age_group": "6-10",
+        "functional": 87,
+        "functional needs repair": 5,
+        "non functional": 58,
+        "n": 150,
+        "functional_pct": 58.0,
+        "functional needs repair_pct": 3.3333333333,
+        "non functional_pct": 38.6666666667
+      },
+      {
+        "region": "Mara",
+        "age_group": "11-20",
+        "functional": 288,
+        "functional needs repair": 24,
+        "non functional": 391,
+        "n": 703,
+        "functional_pct": 40.9672830725,
+        "functional needs repair_pct": 3.413940256,
+        "non functional_pct": 55.6187766714
+      },
+      {
+        "region": "Mara",
+        "age_group": "21-30",
+        "functional": 43,
+        "functional needs repair": 2,
+        "non functional": 234,
+        "n": 279,
+        "functional_pct": 15.4121863799,
+        "functional needs repair_pct": 0.7168458781,
+        "non functional_pct": 83.8709677419
+      },
+      {
+        "region": "Mara",
+        "age_group": "31+",
+        "functional": 35,
+        "functional needs repair": 13,
+        "non functional": 174,
+        "n": 222,
+        "functional_pct": 15.7657657658,
+        "functional needs repair_pct": 5.8558558559,
+        "non functional_pct": 78.3783783784
+      },
+      {
+        "region": "Mbeya",
+        "age_group": "0-5",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Mbeya",
+        "age_group": "6-10",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Mbeya",
+        "age_group": "11-20",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Mbeya",
+        "age_group": "21-30",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Mbeya",
+        "age_group": "31+",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Morogoro",
+        "age_group": "0-5",
+        "functional": 785,
+        "functional needs repair": 54,
+        "non functional": 268,
+        "n": 1107,
+        "functional_pct": 70.9123757904,
+        "functional needs repair_pct": 4.8780487805,
+        "non functional_pct": 24.2095754291
+      },
+      {
+        "region": "Morogoro",
+        "age_group": "6-10",
+        "functional": 312,
+        "functional needs repair": 65,
+        "non functional": 171,
+        "n": 548,
+        "functional_pct": 56.9343065693,
+        "functional needs repair_pct": 11.8613138686,
+        "non functional_pct": 31.204379562
+      },
+      {
+        "region": "Morogoro",
+        "age_group": "11-20",
+        "functional": 587,
+        "functional needs repair": 90,
+        "non functional": 510,
+        "n": 1187,
+        "functional_pct": 49.452401011,
+        "functional needs repair_pct": 7.5821398484,
+        "non functional_pct": 42.9654591407
+      },
+      {
+        "region": "Morogoro",
+        "age_group": "21-30",
+        "functional": 268,
+        "functional needs repair": 53,
+        "non functional": 310,
+        "n": 631,
+        "functional_pct": 42.4722662441,
+        "functional needs repair_pct": 8.3993660856,
+        "non functional_pct": 49.1283676704
+      },
+      {
+        "region": "Morogoro",
+        "age_group": "31+",
+        "functional": 159,
+        "functional needs repair": 37,
+        "non functional": 319,
+        "n": 515,
+        "functional_pct": 30.8737864078,
+        "functional needs repair_pct": 7.1844660194,
+        "non functional_pct": 61.9417475728
+      },
+      {
+        "region": "Mtwara",
+        "age_group": "0-5",
+        "functional": 147,
+        "functional needs repair": 26,
+        "non functional": 171,
+        "n": 344,
+        "functional_pct": 42.7325581395,
+        "functional needs repair_pct": 7.5581395349,
+        "non functional_pct": 49.7093023256
+      },
+      {
+        "region": "Mtwara",
+        "age_group": "6-10",
+        "functional": 118,
+        "functional needs repair": 28,
+        "non functional": 93,
+        "n": 239,
+        "functional_pct": 49.3723849372,
+        "functional needs repair_pct": 11.7154811715,
+        "non functional_pct": 38.9121338912
+      },
+      {
+        "region": "Mtwara",
+        "age_group": "11-20",
+        "functional": 44,
+        "functional needs repair": 26,
+        "non functional": 71,
+        "n": 141,
+        "functional_pct": 31.2056737589,
+        "functional needs repair_pct": 18.4397163121,
+        "non functional_pct": 50.3546099291
+      },
+      {
+        "region": "Mtwara",
+        "age_group": "21-30",
+        "functional": 73,
+        "functional needs repair": 17,
+        "non functional": 215,
+        "n": 305,
+        "functional_pct": 23.9344262295,
+        "functional needs repair_pct": 5.5737704918,
+        "non functional_pct": 70.4918032787
+      },
+      {
+        "region": "Mtwara",
+        "age_group": "31+",
+        "functional": 122,
+        "functional needs repair": 22,
+        "non functional": 469,
+        "n": 613,
+        "functional_pct": 19.9021207178,
+        "functional needs repair_pct": 3.5889070147,
+        "non functional_pct": 76.5089722675
+      },
+      {
+        "region": "Mwanza",
+        "age_group": "0-5",
+        "functional": 30,
+        "functional needs repair": 8,
+        "non functional": 25,
+        "n": 63,
+        "functional_pct": 47.619047619,
+        "functional needs repair_pct": 12.6984126984,
+        "non functional_pct": 39.6825396825
+      },
+      {
+        "region": "Mwanza",
+        "age_group": "6-10",
+        "functional": 9,
+        "functional needs repair": 12,
+        "non functional": 12,
+        "n": 33,
+        "functional_pct": 27.2727272727,
+        "functional needs repair_pct": 36.3636363636,
+        "non functional_pct": 36.3636363636
+      },
+      {
+        "region": "Mwanza",
+        "age_group": "11-20",
+        "functional": 50,
+        "functional needs repair": 40,
+        "non functional": 57,
+        "n": 147,
+        "functional_pct": 34.0136054422,
+        "functional needs repair_pct": 27.2108843537,
+        "non functional_pct": 38.7755102041
+      },
+      {
+        "region": "Mwanza",
+        "age_group": "21-30",
+        "functional": 9,
+        "functional needs repair": 3,
+        "non functional": 61,
+        "n": 73,
+        "functional_pct": 12.3287671233,
+        "functional needs repair_pct": 4.1095890411,
+        "non functional_pct": 83.5616438356
+      },
+      {
+        "region": "Mwanza",
+        "age_group": "31+",
+        "functional": 0,
+        "functional needs repair": 2,
+        "non functional": 37,
+        "n": 39,
+        "functional_pct": 0.0,
+        "functional needs repair_pct": 5.1282051282,
+        "non functional_pct": 94.8717948718
+      },
+      {
+        "region": "Pwani",
+        "age_group": "0-5",
+        "functional": 1002,
+        "functional needs repair": 5,
+        "non functional": 375,
+        "n": 1382,
+        "functional_pct": 72.503617945,
+        "functional needs repair_pct": 0.3617945007,
+        "non functional_pct": 27.1345875543
+      },
+      {
+        "region": "Pwani",
+        "age_group": "6-10",
+        "functional": 307,
+        "functional needs repair": 9,
+        "non functional": 265,
+        "n": 581,
+        "functional_pct": 52.8399311532,
+        "functional needs repair_pct": 1.5490533563,
+        "non functional_pct": 45.6110154905
+      },
+      {
+        "region": "Pwani",
+        "age_group": "11-20",
+        "functional": 64,
+        "functional needs repair": 2,
+        "non functional": 111,
+        "n": 177,
+        "functional_pct": 36.1581920904,
+        "functional needs repair_pct": 1.1299435028,
+        "non functional_pct": 62.7118644068
+      },
+      {
+        "region": "Pwani",
+        "age_group": "21-30",
+        "functional": 32,
+        "functional needs repair": 2,
+        "non functional": 101,
+        "n": 135,
+        "functional_pct": 23.7037037037,
+        "functional needs repair_pct": 1.4814814815,
+        "non functional_pct": 74.8148148148
+      },
+      {
+        "region": "Pwani",
+        "age_group": "31+",
+        "functional": 39,
+        "functional needs repair": 1,
+        "non functional": 141,
+        "n": 181,
+        "functional_pct": 21.546961326,
+        "functional needs repair_pct": 0.5524861878,
+        "non functional_pct": 77.9005524862
+      },
+      {
+        "region": "Rukwa",
+        "age_group": "0-5",
+        "functional": 155,
+        "functional needs repair": 28,
+        "non functional": 71,
+        "n": 254,
+        "functional_pct": 61.0236220472,
+        "functional needs repair_pct": 11.0236220472,
+        "non functional_pct": 27.9527559055
+      },
+      {
+        "region": "Rukwa",
+        "age_group": "6-10",
+        "functional": 60,
+        "functional needs repair": 3,
+        "non functional": 34,
+        "n": 97,
+        "functional_pct": 61.8556701031,
+        "functional needs repair_pct": 3.0927835052,
+        "non functional_pct": 35.0515463918
+      },
+      {
+        "region": "Rukwa",
+        "age_group": "11-20",
+        "functional": 108,
+        "functional needs repair": 24,
+        "non functional": 214,
+        "n": 346,
+        "functional_pct": 31.2138728324,
+        "functional needs repair_pct": 6.936416185,
+        "non functional_pct": 61.8497109827
+      },
+      {
+        "region": "Rukwa",
+        "age_group": "21-30",
+        "functional": 284,
+        "functional needs repair": 58,
+        "non functional": 465,
+        "n": 807,
+        "functional_pct": 35.1920693928,
+        "functional needs repair_pct": 7.1871127633,
+        "non functional_pct": 57.6208178439
+      },
+      {
+        "region": "Rukwa",
+        "age_group": "31+",
+        "functional": 98,
+        "functional needs repair": 22,
+        "non functional": 181,
+        "n": 301,
+        "functional_pct": 32.5581395349,
+        "functional needs repair_pct": 7.3089700997,
+        "non functional_pct": 60.1328903654
+      },
+      {
+        "region": "Ruvuma",
+        "age_group": "0-5",
+        "functional": 395,
+        "functional needs repair": 35,
+        "non functional": 159,
+        "n": 589,
+        "functional_pct": 67.0628183362,
+        "functional needs repair_pct": 5.9422750424,
+        "non functional_pct": 26.9949066214
+      },
+      {
+        "region": "Ruvuma",
+        "age_group": "6-10",
+        "functional": 176,
+        "functional needs repair": 25,
+        "non functional": 95,
+        "n": 296,
+        "functional_pct": 59.4594594595,
+        "functional needs repair_pct": 8.4459459459,
+        "non functional_pct": 32.0945945946
+      },
+      {
+        "region": "Ruvuma",
+        "age_group": "11-20",
+        "functional": 493,
+        "functional needs repair": 46,
+        "non functional": 363,
+        "n": 902,
+        "functional_pct": 54.6563192905,
+        "functional needs repair_pct": 5.0997782705,
+        "non functional_pct": 40.243902439
+      },
+      {
+        "region": "Ruvuma",
+        "age_group": "21-30",
+        "functional": 348,
+        "functional needs repair": 36,
+        "non functional": 240,
+        "n": 624,
+        "functional_pct": 55.7692307692,
+        "functional needs repair_pct": 5.7692307692,
+        "non functional_pct": 38.4615384615
+      },
+      {
+        "region": "Ruvuma",
+        "age_group": "31+",
+        "functional": 63,
+        "functional needs repair": 22,
+        "non functional": 128,
+        "n": 213,
+        "functional_pct": 29.5774647887,
+        "functional needs repair_pct": 10.3286384977,
+        "non functional_pct": 60.0938967136
+      },
+      {
+        "region": "Shinyanga",
+        "age_group": "0-5",
+        "functional": 35,
+        "functional needs repair": 5,
+        "non functional": 3,
+        "n": 43,
+        "functional_pct": 81.3953488372,
+        "functional needs repair_pct": 11.6279069767,
+        "non functional_pct": 6.976744186
+      },
+      {
+        "region": "Shinyanga",
+        "age_group": "6-10",
+        "functional": 35,
+        "functional needs repair": 13,
+        "non functional": 2,
+        "n": 50,
+        "functional_pct": 70.0,
+        "functional needs repair_pct": 26.0,
+        "non functional_pct": 4.0
+      },
+      {
+        "region": "Shinyanga",
+        "age_group": "11-20",
+        "functional": 2,
+        "functional needs repair": 50,
+        "non functional": 15,
+        "n": 67,
+        "functional_pct": 2.9850746269,
+        "functional needs repair_pct": 74.6268656716,
+        "non functional_pct": 22.3880597015
+      },
+      {
+        "region": "Shinyanga",
+        "age_group": "21-30",
+        "functional": 0,
+        "functional needs repair": 1,
+        "non functional": 3,
+        "n": 4,
+        "functional_pct": 0.0,
+        "functional needs repair_pct": 25.0,
+        "non functional_pct": 75.0
+      },
+      {
+        "region": "Shinyanga",
+        "age_group": "31+",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Singida",
+        "age_group": "0-5",
+        "functional": 267,
+        "functional needs repair": 15,
+        "non functional": 137,
+        "n": 419,
+        "functional_pct": 63.723150358,
+        "functional needs repair_pct": 3.5799522673,
+        "non functional_pct": 32.6968973747
+      },
+      {
+        "region": "Singida",
+        "age_group": "6-10",
+        "functional": 201,
+        "functional needs repair": 38,
+        "non functional": 85,
+        "n": 324,
+        "functional_pct": 62.037037037,
+        "functional needs repair_pct": 11.7283950617,
+        "non functional_pct": 26.2345679012
+      },
+      {
+        "region": "Singida",
+        "age_group": "11-20",
+        "functional": 349,
+        "functional needs repair": 33,
+        "non functional": 123,
+        "n": 505,
+        "functional_pct": 69.1089108911,
+        "functional needs repair_pct": 6.5346534653,
+        "non functional_pct": 24.3564356436
+      },
+      {
+        "region": "Singida",
+        "age_group": "21-30",
+        "functional": 139,
+        "functional needs repair": 23,
+        "non functional": 171,
+        "n": 333,
+        "functional_pct": 41.7417417417,
+        "functional needs repair_pct": 6.9069069069,
+        "non functional_pct": 51.3513513514
+      },
+      {
+        "region": "Singida",
+        "age_group": "31+",
+        "functional": 52,
+        "functional needs repair": 19,
+        "non functional": 433,
+        "n": 504,
+        "functional_pct": 10.3174603175,
+        "functional needs repair_pct": 3.7698412698,
+        "non functional_pct": 85.9126984127
+      },
+      {
+        "region": "Tabora",
+        "age_group": "0-5",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Tabora",
+        "age_group": "6-10",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Tabora",
+        "age_group": "11-20",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Tabora",
+        "age_group": "21-30",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Tabora",
+        "age_group": "31+",
+        "functional": 0,
+        "functional needs repair": 0,
+        "non functional": 0,
+        "n": 0,
+        "functional_pct": null,
+        "functional needs repair_pct": null,
+        "non functional_pct": null
+      },
+      {
+        "region": "Tanga",
+        "age_group": "0-5",
+        "functional": 480,
+        "functional needs repair": 9,
+        "non functional": 250,
+        "n": 739,
+        "functional_pct": 64.9526387009,
+        "functional needs repair_pct": 1.2178619756,
+        "non functional_pct": 33.8294993234
+      },
+      {
+        "region": "Tanga",
+        "age_group": "6-10",
+        "functional": 168,
+        "functional needs repair": 3,
+        "non functional": 131,
+        "n": 302,
+        "functional_pct": 55.6291390728,
+        "functional needs repair_pct": 0.9933774834,
+        "non functional_pct": 43.3774834437
+      },
+      {
+        "region": "Tanga",
+        "age_group": "11-20",
+        "functional": 214,
+        "functional needs repair": 11,
+        "non functional": 126,
+        "n": 351,
+        "functional_pct": 60.9686609687,
+        "functional needs repair_pct": 3.1339031339,
+        "non functional_pct": 35.8974358974
+      },
+      {
+        "region": "Tanga",
+        "age_group": "21-30",
+        "functional": 228,
+        "functional needs repair": 29,
+        "non functional": 140,
+        "n": 397,
+        "functional_pct": 57.4307304786,
+        "functional needs repair_pct": 7.3047858942,
+        "non functional_pct": 35.2644836272
+      },
+      {
+        "region": "Tanga",
+        "age_group": "31+",
+        "functional": 322,
+        "functional needs repair": 20,
+        "non functional": 320,
+        "n": 662,
+        "functional_pct": 48.6404833837,
+        "functional needs repair_pct": 3.0211480363,
+        "non functional_pct": 48.3383685801
+      }
+    ],
+    "contrasts": [
+      {
+        "region": "Arusha",
+        "young_n": 874,
+        "young_functional": 728,
+        "young_pct": 83.295194508,
+        "old_n": 450,
+        "old_functional": 226,
+        "old_pct": 50.2222222222,
+        "eligible": true,
+        "young_minus_old_pp": 33.0729722858
+      },
+      {
+        "region": "Dar es Salaam",
+        "young_n": 319,
+        "young_functional": 270,
+        "young_pct": 84.6394984326,
+        "old_n": 77,
+        "old_functional": 4,
+        "old_pct": 5.1948051948,
+        "eligible": true,
+        "young_minus_old_pp": 79.4446932378
+      },
+      {
+        "region": "Dodoma",
+        "young_n": 0,
+        "young_functional": 0,
+        "young_pct": null,
+        "old_n": 0,
+        "old_functional": 0,
+        "old_pct": null,
+        "eligible": false,
+        "young_minus_old_pp": null
+      },
+      {
+        "region": "Iringa",
+        "young_n": 1844,
+        "young_functional": 1589,
+        "young_pct": 86.1713665944,
+        "old_n": 669,
+        "old_functional": 403,
+        "old_pct": 60.2391629297,
+        "eligible": true,
+        "young_minus_old_pp": 25.9322036646
+      },
+      {
+        "region": "Kagera",
+        "young_n": 0,
+        "young_functional": 0,
+        "young_pct": null,
+        "old_n": 0,
+        "old_functional": 0,
+        "old_pct": null,
+        "eligible": false,
+        "young_minus_old_pp": null
+      },
+      {
+        "region": "Kigoma",
+        "young_n": 657,
+        "young_functional": 335,
+        "young_pct": 50.9893455099,
+        "old_n": 289,
+        "old_functional": 100,
+        "old_pct": 34.6020761246,
+        "eligible": true,
+        "young_minus_old_pp": 16.3872693853
+      },
+      {
+        "region": "Kilimanjaro",
+        "young_n": 1437,
+        "young_functional": 1061,
+        "young_pct": 73.8343771747,
+        "old_n": 1104,
+        "old_functional": 283,
+        "old_pct": 25.634057971,
+        "eligible": true,
+        "young_minus_old_pp": 48.2003192037
+      },
+      {
+        "region": "Lindi",
+        "young_n": 383,
+        "young_functional": 208,
+        "young_pct": 54.3080939948,
+        "old_n": 382,
+        "old_functional": 38,
+        "old_pct": 9.9476439791,
+        "eligible": true,
+        "young_minus_old_pp": 44.3604500157
+      },
+      {
+        "region": "Manyara",
+        "young_n": 579,
+        "young_functional": 407,
+        "young_pct": 70.2936096718,
+        "old_n": 115,
+        "old_functional": 47,
+        "old_pct": 40.8695652174,
+        "eligible": true,
+        "young_minus_old_pp": 29.4240444545
+      },
+      {
+        "region": "Mara",
+        "young_n": 597,
+        "young_functional": 425,
+        "young_pct": 71.189279732,
+        "old_n": 222,
+        "old_functional": 35,
+        "old_pct": 15.7657657658,
+        "eligible": true,
+        "young_minus_old_pp": 55.4235139662
+      },
+      {
+        "region": "Mbeya",
+        "young_n": 0,
+        "young_functional": 0,
+        "young_pct": null,
+        "old_n": 0,
+        "old_functional": 0,
+        "old_pct": null,
+        "eligible": false,
+        "young_minus_old_pp": null
+      },
+      {
+        "region": "Morogoro",
+        "young_n": 1107,
+        "young_functional": 785,
+        "young_pct": 70.9123757904,
+        "old_n": 515,
+        "old_functional": 159,
+        "old_pct": 30.8737864078,
+        "eligible": true,
+        "young_minus_old_pp": 40.0385893827
+      },
+      {
+        "region": "Mtwara",
+        "young_n": 344,
+        "young_functional": 147,
+        "young_pct": 42.7325581395,
+        "old_n": 613,
+        "old_functional": 122,
+        "old_pct": 19.9021207178,
+        "eligible": true,
+        "young_minus_old_pp": 22.8304374218
+      },
+      {
+        "region": "Mwanza",
+        "young_n": 63,
+        "young_functional": 30,
+        "young_pct": 47.619047619,
+        "old_n": 39,
+        "old_functional": 0,
+        "old_pct": 0.0,
+        "eligible": true,
+        "young_minus_old_pp": 47.619047619
+      },
+      {
+        "region": "Pwani",
+        "young_n": 1382,
+        "young_functional": 1002,
+        "young_pct": 72.503617945,
+        "old_n": 181,
+        "old_functional": 39,
+        "old_pct": 21.546961326,
+        "eligible": true,
+        "young_minus_old_pp": 50.956656619
+      },
+      {
+        "region": "Rukwa",
+        "young_n": 254,
+        "young_functional": 155,
+        "young_pct": 61.0236220472,
+        "old_n": 301,
+        "old_functional": 98,
+        "old_pct": 32.5581395349,
+        "eligible": true,
+        "young_minus_old_pp": 28.4654825124
+      },
+      {
+        "region": "Ruvuma",
+        "young_n": 589,
+        "young_functional": 395,
+        "young_pct": 67.0628183362,
+        "old_n": 213,
+        "old_functional": 63,
+        "old_pct": 29.5774647887,
+        "eligible": true,
+        "young_minus_old_pp": 37.4853535474
+      },
+      {
+        "region": "Shinyanga",
+        "young_n": 43,
+        "young_functional": 35,
+        "young_pct": 81.3953488372,
+        "old_n": 0,
+        "old_functional": 0,
+        "old_pct": null,
+        "eligible": false,
+        "young_minus_old_pp": null
+      },
+      {
+        "region": "Singida",
+        "young_n": 419,
+        "young_functional": 267,
+        "young_pct": 63.723150358,
+        "old_n": 504,
+        "old_functional": 52,
+        "old_pct": 10.3174603175,
+        "eligible": true,
+        "young_minus_old_pp": 53.4056900405
+      },
+      {
+        "region": "Tabora",
+        "young_n": 0,
+        "young_functional": 0,
+        "young_pct": null,
+        "old_n": 0,
+        "old_functional": 0,
+        "old_pct": null,
+        "eligible": false,
+        "young_minus_old_pp": null
+      },
+      {
+        "region": "Tanga",
+        "young_n": 739,
+        "young_functional": 480,
+        "young_pct": 64.9526387009,
+        "old_n": 662,
+        "old_functional": 322,
+        "old_pct": 48.6404833837,
+        "eligible": true,
+        "young_minus_old_pp": 16.3121553173
+      }
+    ],
+    "standardized": {
+      "eligible_strata": 16,
+      "common_n": 17923,
+      "young_n": 11587,
+      "young_pooled_pct": 71.4939155951,
+      "young_standardized_pct": 70.0995429365,
+      "old_n": 6336,
+      "old_pooled_pct": 31.4236111111,
+      "old_standardized_pct": 32.8599237759,
+      "pooled_gap_pp": 40.070304484,
+      "standardized_gap_pp": 37.2396191606
+    }
+  },
+  "extraction_type_class": {
+    "age_rates": [
+      {
+        "extraction_type_class": "gravity",
+        "age_group": "0-5",
+        "functional": 4375,
+        "functional needs repair": 401,
+        "non functional": 871,
+        "n": 5647,
+        "functional_pct": 77.4747653621,
+        "functional needs repair_pct": 7.1011156366,
+        "non functional_pct": 15.4241190012
+      },
+      {
+        "extraction_type_class": "gravity",
+        "age_group": "6-10",
+        "functional": 1963,
+        "functional needs repair": 323,
+        "non functional": 554,
+        "n": 2840,
+        "functional_pct": 69.1197183099,
+        "functional needs repair_pct": 11.3732394366,
+        "non functional_pct": 19.5070422535
+      },
+      {
+        "extraction_type_class": "gravity",
+        "age_group": "11-20",
+        "functional": 3258,
+        "functional needs repair": 367,
+        "non functional": 1198,
+        "n": 4823,
+        "functional_pct": 67.5513166079,
+        "functional needs repair_pct": 7.6093717603,
+        "non functional_pct": 24.8393116318
+      },
+      {
+        "extraction_type_class": "gravity",
+        "age_group": "21-30",
+        "functional": 1505,
+        "functional needs repair": 297,
+        "non functional": 963,
+        "n": 2765,
+        "functional_pct": 54.4303797468,
+        "functional needs repair_pct": 10.7414104882,
+        "non functional_pct": 34.8282097649
+      },
+      {
+        "extraction_type_class": "gravity",
+        "age_group": "31+",
+        "functional": 1525,
+        "functional needs repair": 426,
+        "non functional": 1941,
+        "n": 3892,
+        "functional_pct": 39.1829393628,
+        "functional needs repair_pct": 10.9455292909,
+        "non functional_pct": 49.8715313464
+      },
+      {
+        "extraction_type_class": "handpump",
+        "age_group": "0-5",
+        "functional": 1674,
+        "functional needs repair": 45,
+        "non functional": 699,
+        "n": 2418,
+        "functional_pct": 69.2307692308,
+        "functional needs repair_pct": 1.8610421836,
+        "non functional_pct": 28.9081885856
+      },
+      {
+        "extraction_type_class": "handpump",
+        "age_group": "6-10",
+        "functional": 767,
+        "functional needs repair": 31,
+        "non functional": 545,
+        "n": 1343,
+        "functional_pct": 57.1109456441,
+        "functional needs repair_pct": 2.3082650782,
+        "non functional_pct": 40.5807892777
+      },
+      {
+        "extraction_type_class": "handpump",
+        "age_group": "11-20",
+        "functional": 1443,
+        "functional needs repair": 150,
+        "non functional": 979,
+        "n": 2572,
+        "functional_pct": 56.1041990669,
+        "functional needs repair_pct": 5.832037325,
+        "non functional_pct": 38.0637636081
+      },
+      {
+        "extraction_type_class": "handpump",
+        "age_group": "21-30",
+        "functional": 753,
+        "functional needs repair": 75,
+        "non functional": 454,
+        "n": 1282,
+        "functional_pct": 58.736349454,
+        "functional needs repair_pct": 5.8502340094,
+        "non functional_pct": 35.4134165367
+      },
+      {
+        "extraction_type_class": "handpump",
+        "age_group": "31+",
+        "functional": 178,
+        "functional needs repair": 19,
+        "non functional": 112,
+        "n": 309,
+        "functional_pct": 57.6051779935,
+        "functional needs repair_pct": 6.1488673139,
+        "non functional_pct": 36.2459546926
+      },
+      {
+        "extraction_type_class": "motorpump",
+        "age_group": "0-5",
+        "functional": 333,
+        "functional needs repair": 3,
+        "non functional": 201,
+        "n": 537,
+        "functional_pct": 62.0111731844,
+        "functional needs repair_pct": 0.5586592179,
+        "non functional_pct": 37.4301675978
+      },
+      {
+        "extraction_type_class": "motorpump",
+        "age_group": "6-10",
+        "functional": 83,
+        "functional needs repair": 21,
+        "non functional": 63,
+        "n": 167,
+        "functional_pct": 49.7005988024,
+        "functional needs repair_pct": 12.5748502994,
+        "non functional_pct": 37.7245508982
+      },
+      {
+        "extraction_type_class": "motorpump",
+        "age_group": "11-20",
+        "functional": 77,
+        "functional needs repair": 3,
+        "non functional": 78,
+        "n": 158,
+        "functional_pct": 48.7341772152,
+        "functional needs repair_pct": 1.8987341772,
+        "non functional_pct": 49.3670886076
+      },
+      {
+        "extraction_type_class": "motorpump",
+        "age_group": "21-30",
+        "functional": 25,
+        "functional needs repair": 7,
+        "non functional": 53,
+        "n": 85,
+        "functional_pct": 29.4117647059,
+        "functional needs repair_pct": 8.2352941176,
+        "non functional_pct": 62.3529411765
+      },
+      {
+        "extraction_type_class": "motorpump",
+        "age_group": "31+",
+        "functional": 66,
+        "functional needs repair": 15,
+        "non functional": 527,
+        "n": 608,
+        "functional_pct": 10.8552631579,
+        "functional needs repair_pct": 2.4671052632,
+        "non functional_pct": 86.6776315789
+      },
+      {
+        "extraction_type_class": "other",
+        "age_group": "0-5",
+        "functional": 240,
+        "functional needs repair": 16,
+        "non functional": 455,
+        "n": 711,
+        "functional_pct": 33.7552742616,
+        "functional needs repair_pct": 2.2503516174,
+        "non functional_pct": 63.994374121
+      },
+      {
+        "extraction_type_class": "other",
+        "age_group": "6-10",
+        "functional": 67,
+        "functional needs repair": 15,
+        "non functional": 256,
+        "n": 338,
+        "functional_pct": 19.8224852071,
+        "functional needs repair_pct": 4.4378698225,
+        "non functional_pct": 75.7396449704
+      },
+      {
+        "extraction_type_class": "other",
+        "age_group": "11-20",
+        "functional": 149,
+        "functional needs repair": 53,
+        "non functional": 772,
+        "n": 974,
+        "functional_pct": 15.2977412731,
+        "functional needs repair_pct": 5.4414784394,
+        "non functional_pct": 79.2607802875
+      },
+      {
+        "extraction_type_class": "other",
+        "age_group": "21-30",
+        "functional": 53,
+        "functional needs repair": 19,
+        "non functional": 975,
+        "n": 1047,
+        "functional_pct": 5.0620821394,
+        "functional needs repair_pct": 1.8147086915,
+        "non functional_pct": 93.1232091691
+      },
+      {
+        "extraction_type_class": "other",
+        "age_group": "31+",
+        "functional": 43,
+        "functional needs repair": 9,
+        "non functional": 640,
+        "n": 692,
+        "functional_pct": 6.2138728324,
+        "functional needs repair_pct": 1.3005780347,
+        "non functional_pct": 92.4855491329
+      },
+      {
+        "extraction_type_class": "rope pump",
+        "age_group": "0-5",
+        "functional": 216,
+        "functional needs repair": 1,
+        "non functional": 42,
+        "n": 259,
+        "functional_pct": 83.3976833977,
+        "functional needs repair_pct": 0.3861003861,
+        "non functional_pct": 16.2162162162
+      },
+      {
+        "extraction_type_class": "rope pump",
+        "age_group": "6-10",
+        "functional": 29,
+        "functional needs repair": 4,
+        "non functional": 10,
+        "n": 43,
+        "functional_pct": 67.4418604651,
+        "functional needs repair_pct": 9.3023255814,
+        "non functional_pct": 23.2558139535
+      },
+      {
+        "extraction_type_class": "rope pump",
+        "age_group": "11-20",
+        "functional": 22,
+        "functional needs repair": 7,
+        "non functional": 46,
+        "n": 75,
+        "functional_pct": 29.3333333333,
+        "functional needs repair_pct": 9.3333333333,
+        "non functional_pct": 61.3333333333
+      },
+      {
+        "extraction_type_class": "rope pump",
+        "age_group": "21-30",
+        "functional": 6,
+        "functional needs repair": 0,
+        "non functional": 4,
+        "n": 10,
+        "functional_pct": 60.0,
+        "functional needs repair_pct": 0.0,
+        "non functional_pct": 40.0
+      },
+      {
+        "extraction_type_class": "rope pump",
+        "age_group": "31+",
+        "functional": 1,
+        "functional needs repair": 0,
+        "non functional": 1,
+        "n": 2,
+        "functional_pct": 50.0,
+        "functional needs repair_pct": 0.0,
+        "non functional_pct": 50.0
+      },
+      {
+        "extraction_type_class": "submersible",
+        "age_group": "0-5",
+        "functional": 1472,
+        "functional needs repair": 59,
+        "non functional": 508,
+        "n": 2039,
+        "functional_pct": 72.1922511035,
+        "functional needs repair_pct": 2.893575282,
+        "non functional_pct": 24.9141736145
+      },
+      {
+        "extraction_type_class": "submersible",
+        "age_group": "6-10",
+        "functional": 535,
+        "functional needs repair": 64,
+        "non functional": 283,
+        "n": 882,
+        "functional_pct": 60.6575963719,
+        "functional needs repair_pct": 7.2562358277,
+        "non functional_pct": 32.0861678005
+      },
+      {
+        "extraction_type_class": "submersible",
+        "age_group": "11-20",
+        "functional": 497,
+        "functional needs repair": 52,
+        "non functional": 298,
+        "n": 847,
+        "functional_pct": 58.6776859504,
+        "functional needs repair_pct": 6.1393152302,
+        "non functional_pct": 35.1829988194
+      },
+      {
+        "extraction_type_class": "submersible",
+        "age_group": "21-30",
+        "functional": 151,
+        "functional needs repair": 18,
+        "non functional": 270,
+        "n": 439,
+        "functional_pct": 34.3963553531,
+        "functional needs repair_pct": 4.1002277904,
+        "non functional_pct": 61.5034168565
+      },
+      {
+        "extraction_type_class": "submersible",
+        "age_group": "31+",
+        "functional": 175,
+        "functional needs repair": 24,
+        "non functional": 618,
+        "n": 817,
+        "functional_pct": 21.4198286414,
+        "functional needs repair_pct": 2.9375764994,
+        "non functional_pct": 75.6425948592
+      },
+      {
+        "extraction_type_class": "wind-powered",
+        "age_group": "0-5",
+        "functional": 9,
+        "functional needs repair": 2,
+        "non functional": 8,
+        "n": 19,
+        "functional_pct": 47.3684210526,
+        "functional needs repair_pct": 10.5263157895,
+        "non functional_pct": 42.1052631579
+      },
+      {
+        "extraction_type_class": "wind-powered",
+        "age_group": "6-10",
+        "functional": 4,
+        "functional needs repair": 1,
+        "non functional": 9,
+        "n": 14,
+        "functional_pct": 28.5714285714,
+        "functional needs repair_pct": 7.1428571429,
+        "non functional_pct": 64.2857142857
+      },
+      {
+        "extraction_type_class": "wind-powered",
+        "age_group": "11-20",
+        "functional": 2,
+        "functional needs repair": 1,
+        "non functional": 4,
+        "n": 7,
+        "functional_pct": 28.5714285714,
+        "functional needs repair_pct": 14.2857142857,
+        "non functional_pct": 57.1428571429
+      },
+      {
+        "extraction_type_class": "wind-powered",
+        "age_group": "21-30",
+        "functional": 1,
+        "functional needs repair": 0,
+        "non functional": 4,
+        "n": 5,
+        "functional_pct": 20.0,
+        "functional needs repair_pct": 0.0,
+        "non functional_pct": 80.0
+      },
+      {
+        "extraction_type_class": "wind-powered",
+        "age_group": "31+",
+        "functional": 3,
+        "functional needs repair": 0,
+        "non functional": 13,
+        "n": 16,
+        "functional_pct": 18.75,
+        "functional needs repair_pct": 0.0,
+        "non functional_pct": 81.25
+      }
+    ],
+    "contrasts": [
+      {
+        "extraction_type_class": "gravity",
+        "young_n": 5647,
+        "young_functional": 4375,
+        "young_pct": 77.4747653621,
+        "old_n": 3892,
+        "old_functional": 1525,
+        "old_pct": 39.1829393628,
+        "eligible": true,
+        "young_minus_old_pp": 38.2918259993
+      },
+      {
+        "extraction_type_class": "handpump",
+        "young_n": 2418,
+        "young_functional": 1674,
+        "young_pct": 69.2307692308,
+        "old_n": 309,
+        "old_functional": 178,
+        "old_pct": 57.6051779935,
+        "eligible": true,
+        "young_minus_old_pp": 11.6255912372
+      },
+      {
+        "extraction_type_class": "motorpump",
+        "young_n": 537,
+        "young_functional": 333,
+        "young_pct": 62.0111731844,
+        "old_n": 608,
+        "old_functional": 66,
+        "old_pct": 10.8552631579,
+        "eligible": true,
+        "young_minus_old_pp": 51.1559100265
+      },
+      {
+        "extraction_type_class": "other",
+        "young_n": 711,
+        "young_functional": 240,
+        "young_pct": 33.7552742616,
+        "old_n": 692,
+        "old_functional": 43,
+        "old_pct": 6.2138728324,
+        "eligible": true,
+        "young_minus_old_pp": 27.5414014292
+      },
+      {
+        "extraction_type_class": "rope pump",
+        "young_n": 259,
+        "young_functional": 216,
+        "young_pct": 83.3976833977,
+        "old_n": 2,
+        "old_functional": 1,
+        "old_pct": 50.0,
+        "eligible": false,
+        "young_minus_old_pp": 33.3976833977
+      },
+      {
+        "extraction_type_class": "submersible",
+        "young_n": 2039,
+        "young_functional": 1472,
+        "young_pct": 72.1922511035,
+        "old_n": 817,
+        "old_functional": 175,
+        "old_pct": 21.4198286414,
+        "eligible": true,
+        "young_minus_old_pp": 50.7724224621
+      },
+      {
+        "extraction_type_class": "wind-powered",
+        "young_n": 19,
+        "young_functional": 9,
+        "young_pct": 47.3684210526,
+        "old_n": 16,
+        "old_functional": 3,
+        "old_pct": 18.75,
+        "eligible": false,
+        "young_minus_old_pp": 28.6184210526
+      }
+    ],
+    "standardized": {
+      "eligible_strata": 5,
+      "common_n": 17670,
+      "young_n": 11352,
+      "young_pooled_pct": 71.3002114165,
+      "young_standardized_pct": 70.8753031533,
+      "old_n": 6318,
+      "old_pooled_pct": 31.4498258943,
+      "old_standardized_pct": 34.7016270215,
+      "pooled_gap_pp": 39.8503855222,
+      "standardized_gap_pp": 36.1736761318
+    }
+  }
+}
