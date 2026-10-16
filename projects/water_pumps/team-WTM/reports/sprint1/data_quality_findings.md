@@ -2,9 +2,9 @@
 
 This audit supports [issue #4](https://github.com/marblehub/data-circle/issues/4).
 Counts were verified against the local training CSVs on 14 October 2026.
-The [audit notebook](../notebooks/data_audit.ipynb) shows the checks and imports
-shared logic from [cleaning.py](../src/team_wtm/cleaning.py). The
-[data dictionary](data_dictionary.md) describes every column and the target.
+The [audit notebook](../../notebooks/data_audit.ipynb) shows the checks and imports
+shared logic from [cleaning.py](../../src/team_wtm/cleaning.py). The
+[data dictionary](../../data/raw/data_dictionary.md) describes every column and the target.
 
 ## Dataset Structure and Target
 
@@ -272,4 +272,4 @@ is committed.
 
 ## Local cleaned snapshot export
 
-The optional [snapshot exporter](cleaned_data_export.md) now saves a local Parquet copy and provenance metadata while reusing the cleaning rules documented here. It retains rows, IDs and labels, and adds deterministic pump-age and quality flags. The original audit notebook and cleaning pipeline continue returning in-memory data. Both generated snapshot files are ignored by Git.
+The optional [snapshot exporter](../cleaned_data_export.md) now saves a local Parquet copy and provenance metadata while reusing the cleaning rules documented here. It retains rows, IDs and labels, and adds deterministic pump-age and quality flags. The original audit notebook and cleaning pipeline continue returning in-memory data. Both generated snapshot files are ignored by Git.

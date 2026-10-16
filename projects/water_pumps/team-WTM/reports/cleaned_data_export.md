@@ -148,7 +148,7 @@ folds without reviewing the duplicate policy.
 
 ## Validation
 
-- Full project suite: 36 tests passed.
+- Full project suite: 37 tests passed.
 - Ruff lint and formatting checks passed for the changed Python files.
 - The real training inputs exported successfully and round-tripped exactly,
   including nullable Boolean values and missingness.

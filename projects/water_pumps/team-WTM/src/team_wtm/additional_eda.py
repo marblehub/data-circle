@@ -54,7 +54,8 @@ LABELS = {
     "permit": "Permit",
 }
 COLORS = ("#008F78", "#E69F00", "#C6283E")
-DEFAULT_OUTPUT = PROJECT_DIR / "reports" / "additional_eda"
+DEFAULT_OUTPUT = PROJECT_DIR / "reports" / "sprint1" / "additional_eda"
+DEFAULT_FIGURES = PROJECT_DIR / "reports" / "figures" / "additional_eda"
 
 
 def prepare_eda(raw: pd.DataFrame) -> pd.DataFrame:
@@ -472,12 +473,16 @@ def run_analysis(
     labels_path=DEFAULT_LABELS_PATH,
     output_dir=DEFAULT_OUTPUT,
     min_n=30,
+    *,
+    figures_dir=DEFAULT_FIGURES,
 ):
-    """Regenerate aggregate outputs without saving individual observations."""
+    """Save aggregate JSON with the Sprint 1 reports and plots under figures_dir."""
     output = Path(output_dir)
-    output.mkdir(parents=True, exist_ok=True)
+    figures = Path(figures_dir)
     if min_n < 1:
         raise ValueError("min_n must be positive.")
+    output.mkdir(parents=True, exist_ok=True)
+    figures.mkdir(parents=True, exist_ok=True)
     values, labels = load_data(values_path, labels_path)
     raw = merge_data(values, labels)
     data = prepare_eda(raw)
@@ -528,10 +533,10 @@ def run_analysis(
             "contrasts": _records(contrasts),
             "standardized": standardized_extremes(contrasts),
         }
-        plot_age_heatmap(rates, stratum, output, min_n)
-    plot_numeric(data, output)
-    plot_correlations(base, sensitivity, output)
-    plot_missingness(by_status, by_region, output)
+        plot_age_heatmap(rates, stratum, figures, min_n)
+    plot_numeric(data, figures)
+    plot_correlations(base, sensitivity, figures)
+    plot_missingness(by_status, by_region, figures)
     serializable = json.loads(pd.Series(result).to_json(default_handler=str))
     (output / "summary.json").write_text(
         json.dumps(serializable, indent=2, allow_nan=False) + "\n"
@@ -543,11 +548,37 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--values", type=Path, default=DEFAULT_VALUES_PATH)
     parser.add_argument("--labels", type=Path, default=DEFAULT_LABELS_PATH)
-    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=DEFAULT_OUTPUT,
+        help="Directory for the aggregate summary.json",
+    )
+    parser.add_argument(
+        "--figures-dir",
+        type=Path,
+        default=DEFAULT_FIGURES,
+        help="Directory for generated PNG figures",
+    )
     parser.add_argument("--min-cell-n", type=int, default=30)
     args = parser.parse_args()
-    result = run_analysis(args.values, args.labels, args.output_dir, args.min_cell_n)
-    print(json.dumps({"output": str(args.output_dir), **result["counts"]}, indent=2))
+    result = run_analysis(
+        args.values,
+        args.labels,
+        args.output_dir,
+        args.min_cell_n,
+        figures_dir=args.figures_dir,
+    )
+    print(
+        json.dumps(
+            {
+                "output": str(args.output_dir),
+                "figures": str(args.figures_dir),
+                **result["counts"],
+            },
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

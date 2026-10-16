@@ -12,14 +12,14 @@ Analysis run: 15 October 2026. Scope: numeric distributions and correlations, mi
 
 ## What was added
 
-- A reusable analysis module: [additional_eda.py](../src/team_wtm/additional_eda.py).
-- An executed notebook: [04_additional_numeric_missingness_age_eda.ipynb](../notebooks/04_additional_numeric_missingness_age_eda.ipynb).
+- A reusable analysis module: [additional_eda.py](../../src/team_wtm/additional_eda.py).
+- An executed notebook: [04_additional_numeric_missingness_age_eda.ipynb](../../notebooks/04_additional_numeric_missingness_age_eda.ipynb).
 - Seven figures and an [aggregate JSON summary](additional_eda/summary.json).
 - Tests for age boundaries and exclusions, missingness denominators, pairwise correlation counts, elevation sensitivity, absent age strata, sample thresholds, and standardization.
 
 ## Data and preparation
 
-The original training features and labels are joined by validated, unique IDs. All 59,400 records are retained. The existing [shared cleaner](../src/team_wtm/cleaning.py) converts zero population and construction year to missing values and parses the recording date. Its defaults are reused without changes. Duplicate observations remain under the [audit policy](data_quality_findings.md).
+The original training features and labels are joined by validated, unique IDs. All 59,400 records are retained. The existing [shared cleaner](../../src/team_wtm/cleaning.py) converts zero population and construction year to missing values and parses the recording date. Its defaults are reused without changes. Duplicate observations remain under the [audit policy](data_quality_findings.md).
 
 Age is the recording year minus construction year. Unknown or nonpositive construction years, missing/unparseable recording dates, and negative derived ages cannot supply usable ages. The raw input is preserved. Nonzero construction years are not rewritten; only the derived age is missing for these cases.
 
@@ -49,17 +49,17 @@ Numeric summaries include valid and missing counts, zeros, negative values, mini
 
 Pump age has a median of 9 years among functional records, 14 among records needing repair, and 18 among non-functional records with usable ages. Population interquartile ranges overlap substantially. amount_tsh has a median of zero in all three classes, so its distributions need more than a comparison of medians. Very large population and amount values remain in the analysis and require source interpretation before any clipping or model transformation. The amount field is reported in source units without assuming that it measures a maintenance charge.
 
-![Within-class numeric density histograms](additional_eda/numeric_distributions.png)
+![Within-class numeric density histograms](../figures/additional_eda/numeric_distributions.png)
 
 Histograms share bin edges within each feature and normalize each class separately. Population and amount use sign(x) * log(1 + abs(x)) for display. Values are not trimmed. The y-axis is density on the displayed scale; it does not show class prevalence.
 
-![Numeric boxplots by target class](additional_eda/numeric_boxplots.png)
+![Numeric boxplots by target class](../figures/additional_eda/numeric_boxplots.png)
 
 Boxplots retain original values and use a symmetric log axis for population and amount. The boxes show the median and interquartile range. Whiskers follow the 1.5-IQR rule; individual outlier markers are hidden for readability. No records are removed.
 
 Spearman is the primary correlation measure. Pearson coefficients are also saved in the JSON and use the same pairwise-available observations. Neither measure establishes predictive usefulness or causation. No correlation significance tests are used.
 
-![Spearman matrices with pairwise counts and elevation sensitivity](additional_eda/numeric_spearman_heatmaps.png)
+![Spearman matrices with pairwise counts and elevation sensitivity](../figures/additional_eda/numeric_spearman_heatmaps.png)
 
 The amount-elevation coefficient falls from 0.342 (n=59,400) to 0.022 (n=38,962). The sensitivity scenario excludes 20,438 zero-elevation records from comparisons involving elevation. This changes the observed sample as well as the values used in those correlations. It is evidence of sensitivity, not proof of a specific recording error.
 
@@ -82,11 +82,11 @@ Each percentage below uses all records in its class or region. Population/year z
 
 Construction year is unknown for 41.4% of the repair class and 32.7% of the functional class. Population is unknown for 41.1% and 34.9%, respectively. Installer/funder nulls are also more common in the repair class. Indicators for missingness may therefore be worth evaluating within training-fold preprocessing, while checking whether recording patterns generalize.
 
-![Missingness within each target class](additional_eda/missingness_by_status.png)
+![Missingness within each target class](../figures/additional_eda/missingness_by_status.png)
 
 Regional missingness is strongly structured. Dodoma, Kagera, Mbeya and Tabora have no known construction years or populations under the agreed zero-placeholder rule. Construction year is also unknown for 96.7% of Shinyanga and 88.6% of Mwanza. Complete-age results have limited coverage of these regions.
 
-![Construction year, population and scheme-name missingness by region](additional_eda/missingness_by_region.png)
+![Construction year, population and scheme-name missingness by region](../figures/additional_eda/missingness_by_region.png)
 
 Target composition among age-availability groups:
 
@@ -104,7 +104,7 @@ All three target counts and percentages are saved for every stratum/age cell. Fi
 
 Rates for cells with fewer than 30 records are hidden in the heatmaps; the counts remain visible. The youngest-versus-oldest comparison requires at least 30 records in both extreme age groups. This threshold is a reporting rule and does not guarantee precise estimates. The aggregate JSON retains all cell counts and rates for transparent review.
 
-![Functional share and sample sizes by region and age](additional_eda/age_by_region.png)
+![Functional share and sample sizes by region and age](../figures/additional_eda/age_by_region.png)
 
 Among 16 eligible regions, the youngest group has a higher functional share in all 16. Four regions have no usable ages and Shinyanga has no 31+ group. Only three of the 15 regions with at least 30 observations in every age bin have non-increasing functional shares across all five bins. The pooled monotonic pattern does not describe every region.
 
@@ -134,7 +134,7 @@ Among 16 eligible regions, the youngest group has a higher functional share in a
 
 A gap is youngest minus oldest. Ineligible rows are retained for coverage; their gaps should not be used as evidence of a reliable age contrast.
 
-![Functional share and sample sizes by extraction class and age](additional_eda/age_by_extraction_type_class.png)
+![Functional share and sample sizes by extraction class and age](../figures/additional_eda/age_by_extraction_type_class.png)
 
 Five extraction classes meet the threshold in both extreme age groups, and all five have a higher functional share in the youngest group. Handpumps show a smaller extreme-age gap (11.6 percentage points) than motorpumps (51.2 points). Rope-pump and wind-powered oldest groups are too small for this comparison. Three of the five classes with sufficient counts in every bin have non-increasing rates across all bins.
 
@@ -179,7 +179,18 @@ uv run pytest
 uv run ruff check src/team_wtm/additional_eda.py tests/test_additional_eda.py notebooks/04_additional_numeric_missingness_age_eda.ipynb
 ```
 
-The CLI supports --values, --labels, --output-dir and --min-cell-n. Paths are resolved by the shared module rather than the notebook working directory. Both the CLI and notebook regenerate the figures and aggregate JSON. This Markdown report records the checked run dated above; refresh its narrative if input data or methods change.
+The CLI supports --values, --labels, --output-dir, --figures-dir and --min-cell-n.
+By default, the aggregate summary is written to
+`reports/sprint1/additional_eda/summary.json` and the seven PNG figures to
+`reports/figures/additional_eda/`. `--output-dir` selects the directory for the
+JSON summary; `--figures-dir` independently selects the directory for the figures.
+To redirect a whole run, supply both options:
+
+```bash
+uv run python -m team_wtm.additional_eda --output-dir /tmp/wtm-eda/results --figures-dir /tmp/wtm-eda/figures
+```
+
+Paths are resolved by the shared module rather than the notebook working directory. Both the CLI and notebook regenerate the figures and aggregate JSON. This Markdown report records the checked run dated above; refresh its narrative if input data or methods change.
 
 Input-file SHA-256 checksums:
 
@@ -192,14 +203,14 @@ No raw CSV files or individual waterpoint observations are included in the commi
 
 ## Validation
 
-The new notebook executed all cells in order from a fresh kernel against the local original training data. The full project test suite passed: 27 tests. Ruff checks passed for the new module, tests and notebook. All seven figures were visually inspected for labels, denominators, colour scales, missing cells and readability.
+The original notebook executed all cells in order from a fresh kernel against the local training data. After the path alignment, all six code cells were rerun in a fresh IPython process, including image display and summary checks; sandbox restrictions prevented starting a socket-based Jupyter kernel. The full project test suite passes with 37 tests, including separate output-directory coverage. Ruff checks passed for the new module, tests and notebook. All seven figures were visually inspected for labels, denominators, colour scales, missing cells and readability.
 
 ## Sources and scope
 
 Base: origin/main at 6bc61dc0d0daa87397ca756c3afb0156c65cfca0. The module reuses the existing shared cleaner and does not depend on unmerged categorical EDA code.
 
 - [Existing data-quality findings](data_quality_findings.md)
-- [Existing geospatial notebook](../notebooks/03_geospatial_analysis_tari.ipynb)
+- [Existing geospatial notebook](../../notebooks/03_geospatial_analysis_tari.ipynb)
 - [SciPy: Spearman correlation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.spearmanr.html)
 - [pandas: pairwise correlation](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.corr.html)
 - [NIST: time-series autocorrelation assumptions](https://itl.nist.gov/div898/handbook/eda/section3/eda35c.htm)

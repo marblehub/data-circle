@@ -253,7 +253,7 @@ team-WTM/
 │
 ├── data/
 │   ├── raw/
-│   │   └── .gitkeep
+│   │   └── data_dictionary.md
 │   ├── processed/
 │   │   └── processed_data_dictionary.md
 │
@@ -261,10 +261,14 @@ team-WTM/
 │   └── ...
 │
 ├── reports/
-│   ├── data_dictionary.md
-│   ├── data_quality_findings.md
+│   ├── cleaned_data_export.md
 │   ├── figures/
-│   └── ...
+│   │   └── additional_eda/
+│   └── sprint1/
+│       ├── data_quality_findings.md
+│       ├── additional_eda.md
+│       └── additional_eda/
+│           └── summary.json
 │
 ├── src/
 │   └── team_wtm/
@@ -324,7 +328,7 @@ Contains reusable Python code for:
 
 Contains:
 
-- figures;
+- figures and interactive visualizations under `reports/figures/`;
 - sprint materials;
 - presentation resources;
 - final project outputs.
@@ -377,9 +381,9 @@ zero coordinates, frequent zero elevations, categorical placeholders and spellin
 variants, and construction years after recording. Screening flags are reported
 without adding automatic corrections to the default cleaner. The verified
 counts, screening thresholds, and treatment or deferral decisions are in
-[`reports/data_quality_findings.md`](reports/data_quality_findings.md).
+[`reports/sprint1/data_quality_findings.md`](reports/sprint1/data_quality_findings.md).
 The raw feature descriptions and target classes are in
-[`reports/data_dictionary.md`](reports/data_dictionary.md).
+[`data/raw/data_dictionary.md`](data/raw/data_dictionary.md).
 
 From the project root, with the raw training CSVs under `data/raw/`:
 
@@ -820,7 +824,7 @@ Learned preprocessing remains part of the modelling pipeline.
 
 # Additional Sprint 1 Analysis
 
-The [additional EDA report](reports/sprint1_additional_eda.md) documents numeric
+The [additional EDA report](reports/sprint1/additional_eda.md) documents numeric
 feature distributions and correlations, missingness by class and region, and
 age comparisons within regions and extraction classes.
 
@@ -832,8 +836,10 @@ project directory, regenerate the aggregate figures and summaries with:
 uv run python -m team_wtm.additional_eda
 ```
 
-Original CSV files remain local. Generated outputs under
-`reports/additional_eda/` contain aggregate results and figures.
+Original CSV files remain local. The aggregate JSON is saved to
+`reports/sprint1/additional_eda/summary.json`; the seven PNG figures are saved
+under `reports/figures/additional_eda/`. Use `--output-dir` to choose the summary
+directory and `--figures-dir` to choose the figure directory independently.
 
 ---
 
