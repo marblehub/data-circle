@@ -1,8 +1,7 @@
 # Sprint 1 analytical decision log
 
 Prepared 15 October 2026 for Issue #3. This records the current rules and open
-questions. It does not imply that every proposal has been implemented or that
-an independent reviewer has approved the PR.
+questions.
 
 ## Data preparation
 
@@ -45,9 +44,9 @@ an independent reviewer has approved the PR.
 
 | ID | Decision and reason | Status / location |
 | --- | --- | --- |
-| D23 | Keep six slides and a prepared 4:30 script, using plain English and consistent state colours. | Presented version archived with 528 spoken words. Delivery confirmed by the owner; actual elapsed time was not recorded here. |
-| D24 | Keep citations in a source handout and retain editable charts/tables. | Both archived decks retain native evidence objects. Cover art is a generated conceptual illustration. |
-| D25 | Preserve which version was presented. | Earlier six-slide deck was presented. Expanded deck is a later revision; it must not replace the historical record. |
+| D23 | Keep six slides and distinguish prepared timing from measured delivery. | The presented file has embedded notes totalling approximately five minutes. Actual elapsed delivery time was not recorded here. |
+| D24 | Keep supporting figures and source references alongside the presentation. | The presentation README links the retained figures to their source analysis. The integration summary records the analysis revisions and input checksums. |
+| D25 | Preserve which version was presented. | The owner identifies wtm_sprint1.pptx as presented. This is the retained presentation file. |
 | D26 | Test quantity with and without inclusion and establish prediction-time availability. | Sprint 2 task. Possible leakage is a concern, not a confirmed diagnosis. |
 | D27 | Split before learning imputation, scaling, encodings or category groupings. Review identical feature records when assigning folds. | Sprint 2 task; the cleaned export performs no learned preprocessing. |
 | D28 | Compare a majority baseline and trained models with results for every state. | Sprint 2 task: precision, recall, F1, confusion matrices, missed repairs and false alarms. Class weights are an option to test. |
@@ -67,6 +66,6 @@ or a claimed causal explanation to close.
 
 ## Evidence
 
-See the [integration summary](sprint1_integration.md), [quality report](data_quality_findings.md),
-[presentation archive](presentations/sprint1/README.md) and [aggregate evidence](sprint1_evidence.json).
+See the [integration summary](README.md), [quality report](data_quality_findings.md),
+[presentation archive](presentations/README.md).
 The integration summary pins the source revisions for work not yet in main.

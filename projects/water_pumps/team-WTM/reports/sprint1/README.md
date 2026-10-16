@@ -3,9 +3,9 @@
 Team WTM: Goodfriend, Morisade, Tari and Tayaphon.
 Prepared 15 October 2026 for [Issue #3](https://github.com/marblehub/data-circle/issues/3).
 
-The project owner confirmed that the earlier six-slide results deck was
-presented. The [archive](presentations/sprint1/README.md) distinguishes that
-version from the expanded revision prepared afterwards.
+The project owner confirmed that `wtm_sprint1.pptx` was presented on
+15 October 2026. The [archive](presentations/README.md)
+preserves that file with its embedded speaker notes and supporting figures.
 
 ## What Sprint 1 established
 
@@ -37,7 +37,7 @@ missing all repair and non-working cases. It is a baseline, not a trained result
 The repair class needs separate evaluation; its size alone does not prove it
 will be the hardest class.
 
-The [framework](sprint1_research_framework.md#original-data-groups) groups all
+The [framework](research_framework.md#original-data-groups) groups all
 original columns. The six larger topics on slide 2 count columns, not their
 importance to a model.
 
@@ -64,7 +64,7 @@ The separately implemented export in PR #13 adds age and quality flags, creating
 a local 59,400-row, 47-column snapshot. That exporter is not introduced by this
 documentation PR. Its dataset and metadata must remain local.
 
-The [decision log](sprint1_decisions.md) separates implemented rules from checks
+The [decision log](decisions.md) separates implemented rules from checks
 still needed. Missingness patterns do not establish a missing-data mechanism.
 
 ## Water supply and category differences
@@ -143,10 +143,10 @@ The geospatial notebook flags 1,819 records outside longitude 29-41 and latitude
 approximate rectangles, not country-boundary polygons. The difference of seven
 comes from the latitude ranges.
 
-The [map](06_pump_status_map.html) shows a sample of 3,000 records from 57,581
+The [map](../figures/06_pump_status_map.html) shows a sample of 3,000 records from 57,581
 passing the notebook screen, using random_state=42. It does not show every
 waterpoint or establish statistically significant spatial clustering.
-The [regional figure](06_region_functionality.png) supports the rate comparison.
+The [regional figure](../figures/06_region_functionality.png) supports the rate comparison.
 
 ## Age at recording
 
@@ -204,7 +204,7 @@ need checking; the report does not interpret it as a maintenance fee.
 | H6 | Not tested in Sprint 1 | Requires models compared under the same held-out validation protocol in Sprint 2. |
 
 No row represents a formal causal test or a claim of model performance.
-The [framework](sprint1_research_framework.md) explains the consolidated wording.
+The [framework](research_framework.md) explains the consolidated wording.
 
 ## Sprint 2 handover
 
@@ -226,8 +226,8 @@ questions. They are documented handover items, not missing Sprint 1 model result
 
 | Work | Source revision | Location / status at integration |
 | --- | --- | --- |
-| Quality audit | 6bc61dc0d0daa87397ca756c3afb0156c65cfca0 | In main: [quality report](data_quality_findings.md), [audit notebook](../notebooks/data_audit.ipynb) |
-| Geospatial work | 3f87af2, included in the main revision above | In main: [notebook](../notebooks/03_geospatial_analysis_tari.ipynb), regional chart and map |
+| Quality audit | 6bc61dc0d0daa87397ca756c3afb0156c65cfca0 | In main: [quality report](data_quality_findings.md), [audit notebook](../../notebooks/data_audit.ipynb) |
+| Geospatial work | 3f87af2, included in the main revision above | In main: [notebook](../../notebooks/03_geospatial_analysis_tari.ipynb), regional chart and map |
 | Categorical EDA | 2c5b3e977e6925ae41c9c61970c048535fcd4b0c | [PR #8](https://github.com/marblehub/data-circle/pull/8), still separate |
 | Additional EDA and cleaned export | 747b6af589f35a3bef7a50b3d70890d5512c93ae | [PR #13](https://github.com/marblehub/data-circle/pull/13), still separate |
 
@@ -236,14 +236,17 @@ questions. They are documented handover items, not missing Sprint 1 model result
 - [Pinned additional EDA report](https://github.com/marblehub/data-circle/blob/747b6af589f35a3bef7a50b3d70890d5512c93ae/projects/water_pumps/team-WTM/reports/sprint1_additional_eda.md)
 - [Pinned cleaned-export report](https://github.com/marblehub/data-circle/blob/747b6af589f35a3bef7a50b3d70890d5512c93ae/projects/water_pumps/team-WTM/reports/cleaned_data_export.md)
 
-This PR integrates the documentation and aggregate evidence; it does not merge
-the code from PR #8 or PR #13. Their open status is not hidden by the presentation
-being complete.
+This integration brings together the findings without merging the code from
+PR #8 or PR #13. The pinned categorical summary above contains the categorical
+results. The [additional EDA aggregate results](https://github.com/marblehub/data-circle/blob/747b6af589f35a3bef7a50b3d70890d5512c93ae/projects/water_pumps/team-WTM/reports/additional_eda/summary.json)
+contain missingness, age coverage, stratified age comparisons and numeric
+correlations. Their source reports link to the full figures and methods.
 
-[Aggregate evidence](sprint1_evidence.json) records counts, coefficients,
-denominators, selected group rates and input SHA-256 hashes without individual
-records. The [archive manifest](presentations/sprint1/evidence_manifest.json)
-records the original revisions and checksums of copied figures and decks.
+The integrated findings were checked against the local training inputs with
+these SHA-256 checksums:
+
+- `Training_set_labels.csv`: `ae9b4f893e8e89df3a2187d38cade75c61dfb1d1e156ecd7615fee14fdbe0a24`
+- `Training_set_values.csv`: `d8ebe40f49fe749a851c8ea28601115cd92442f7b20025fbc33881595ae75f5d`
 
 From the team project root inside WSL, the audit can be repeated with
 `uv sync --locked`, `uv run python -m team_wtm.cleaning` and `uv run pytest`.

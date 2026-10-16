@@ -3,9 +3,8 @@
 Team WTM, ReDI School Data Circle 2026. Updated 15 October 2026 for Issue #3.
 
 This document defines the questions and hypotheses used to organise Sprint 1.
-The [integration summary](sprint1_integration.md) records the findings.
-The [decision log](sprint1_decisions.md) records the choices made during analysis.
-The [completion review](sprint1_completion_review.md) maps the deliverables to the issue.
+The [integration summary](README.md) records the findings.
+The [decision log](decisions.md) records the choices made during analysis.
 
 ## Problem and scope
 
@@ -53,7 +52,7 @@ the three states on records held out from training?
 
 These six identifiers preserve the original framework. They provide one common
 reference for the different analyses. Their descriptive outcomes and limits are
-in the [hypothesis results](sprint1_integration.md#hypothesis-results).
+in the [hypothesis results](README.md#hypothesis-results).
 
 | ID | Hypothesis | Fields | Sprint |
 | --- | --- | --- | --- |
@@ -97,7 +96,6 @@ separately. Counts describe columns, not predictive importance.
 | Meaning unresolved | 1 | num_private |
 | Target, supplied separately | 1 | status_group |
 
-The presentation combines these into six larger topics for readability.
 Population describes a recorded population field, not a verified count of people
 served. Funder, installer and manager describe different roles. Related category
 fields can retain different levels of detail.
@@ -142,7 +140,7 @@ H6 remains open until those comparisons use a defined validation protocol.
 
 ## Sources
 
-- [Data dictionary](data_dictionary.md) and [quality findings](data_quality_findings.md)
-- [Integrated findings and pinned analysis revisions](sprint1_integration.md)
-- [Presentation archive and figure selection](presentations/sprint1/README.md)
+- [Data dictionary](../../data/raw/data_dictionary.md) and [quality findings](data_quality_findings.md)
+- [Integrated findings and pinned analysis revisions](README.md)
+- [Presentation archive and figure selection](presentations/README.md)
 - [DrivenData competition description](https://www.drivendata.org/competitions/7/pump-it-up-data-mining-the-water-table/)

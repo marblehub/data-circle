@@ -70,9 +70,9 @@ The dataset contains both numerical and categorical variables, with 40 input col
 
 `id` is an identifier, so the 40 input columns comprise 39 potential predictors
 and one identifier. Raw column types, missing counts, and cardinalities are
-shown in [the audit notebook](../notebooks/data_audit.ipynb). Counts and cleaning
+shown in [the audit notebook](../../notebooks/data_audit.ipynb). Counts and cleaning
 decisions refer to the training dataset and are documented in
-[the data quality findings](data_quality_findings.md).
+[the data quality findings](../../reports/sprint1/data_quality_findings.md).
 
 ## Raw Data Overview
 
