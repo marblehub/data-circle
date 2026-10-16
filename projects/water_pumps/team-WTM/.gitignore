@@ -33,6 +33,8 @@ dist/
 data/**/*.csv
 data/**/*.zip
 data/**/*.parquet
+# Local provenance belongs with its generated dataset
+data/processed/*.metadata.json
 data/**/*.feather
 data/**/*.pkl
 data/**/*.pickle
@@ -76,6 +78,7 @@ htmlcov/
 # --------------------------------------------------
 .vscode/
 .idea/
+.codex/
 
 # --------------------------------------------------
 # Operating system files

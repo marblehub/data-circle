@@ -253,7 +253,7 @@ team-WTM/
 │
 ├── data/
 │   ├── raw/
-│   │   └── .gitkeep
+│   │   └── data_dictionary.md
 │   ├── processed/
 │   │   └── processed_data_dictionary.md
 │
@@ -261,10 +261,15 @@ team-WTM/
 │   └── ...
 │
 ├── reports/
-│   ├── data_dictionary.md
-│   ├── data_quality_findings.md
 │   ├── figures/
-│   └── ...
+│   └── sprint1/
+│       ├── README.md
+│       ├── decisions.md
+│       ├── data_quality_findings.md
+│       ├── research_framework.md
+│       └── presentations/
+│           ├── README.md
+│           └── wtm_sprint1.pptx
 │
 ├── src/
 │   └── team_wtm/
@@ -324,9 +329,9 @@ Contains reusable Python code for:
 
 Contains:
 
-- figures;
-- sprint materials;
-- presentation resources;
+- figures and interactive visualizations under `reports/figures/`;
+- Sprint 1 findings, decisions and research questions under `reports/sprint1/`;
+- the Sprint 1 deck under `reports/sprint1/presentations/`;
 - final project outputs.
 
 ### `app/`
@@ -336,6 +341,21 @@ Reserved for the optional Streamlit application.
 ### `tests/`
 
 Contains tests for reusable project code.
+
+## Sprint 1 results and presentation
+
+The [integrated findings](reports/sprint1/README.md) bring together the
+quality audit, categorical EDA, geospatial analysis and additional checks.
+The [research framework](reports/sprint1/research_framework.md) defines the
+questions and H1-H6. The [decision log](reports/sprint1/decisions.md) distinguishes
+implemented rules from Sprint 2 work.
+
+The [presentation archive](reports/sprint1/presentations/README.md) preserves
+`wtm_sprint1.pptx`, confirmed by the owner as presented, with embedded speaker
+notes and supporting categorical figures.
+
+The integration summary links to the original analysis reports and aggregate
+results at pinned revisions, including work from separate PRs.
 
 ## Data Audit and Cleaning Workflow
 
@@ -377,9 +397,9 @@ zero coordinates, frequent zero elevations, categorical placeholders and spellin
 variants, and construction years after recording. Screening flags are reported
 without adding automatic corrections to the default cleaner. The verified
 counts, screening thresholds, and treatment or deferral decisions are in
-[`reports/data_quality_findings.md`](reports/data_quality_findings.md).
+[`reports/sprint1/data_quality_findings.md`](reports/sprint1/data_quality_findings.md).
 The raw feature descriptions and target classes are in
-[`reports/data_dictionary.md`](reports/data_dictionary.md).
+[`data/raw/data_dictionary.md`](data/raw/data_dictionary.md).
 
 From the project root, with the raw training CSVs under `data/raw/`:
 
