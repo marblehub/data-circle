@@ -253,7 +253,7 @@ team-WTM/
 │
 ├── data/
 │   ├── raw/
-│   │   └── .gitkeep
+│   │   └── data_dictionary.md
 │   ├── processed/
 │   │   └── processed_data_dictionary.md
 │
@@ -261,10 +261,14 @@ team-WTM/
 │   └── ...
 │
 ├── reports/
-│   ├── data_dictionary.md
-│   ├── data_quality_findings.md
+│   ├── cleaned_data_export.md
 │   ├── figures/
-│   └── ...
+│   │   └── additional_eda/
+│   └── sprint1/
+│       ├── data_quality_findings.md
+│       ├── additional_eda.md
+│       └── additional_eda/
+│           └── summary.json
 │
 ├── src/
 │   └── team_wtm/
@@ -324,7 +328,7 @@ Contains reusable Python code for:
 
 Contains:
 
-- figures;
+- figures and interactive visualizations under `reports/figures/`;
 - sprint materials;
 - presentation resources;
 - final project outputs.
@@ -377,9 +381,9 @@ zero coordinates, frequent zero elevations, categorical placeholders and spellin
 variants, and construction years after recording. Screening flags are reported
 without adding automatic corrections to the default cleaner. The verified
 counts, screening thresholds, and treatment or deferral decisions are in
-[`reports/data_quality_findings.md`](reports/data_quality_findings.md).
+[`reports/sprint1/data_quality_findings.md`](reports/sprint1/data_quality_findings.md).
 The raw feature descriptions and target classes are in
-[`reports/data_dictionary.md`](reports/data_dictionary.md).
+[`data/raw/data_dictionary.md`](data/raw/data_dictionary.md).
 
 From the project root, with the raw training CSVs under `data/raw/`:
 
@@ -797,6 +801,45 @@ The project therefore distinguishes between:
 - prediction;
 - statistical association;
 - causal explanation.
+
+---
+
+# Local cleaned training snapshot
+
+Generate a cleaned working copy and provenance metadata with:
+
+```bash
+uv run python -m team_wtm.export_cleaned
+```
+
+The local files are `data/processed/training_cleaned.parquet` and
+`data/processed/training_cleaned.metadata.json`. Both are ignored by Git.
+Use `--overwrite` to regenerate an existing snapshot.
+
+The export retains all records, IDs and labels, reuses the shared cleaner,
+and adds pump age and quality flags. See the
+[export documentation](reports/cleaned_data_export.md) and
+[processed data dictionary](data/processed/processed_data_dictionary.md).
+Learned preprocessing remains part of the modelling pipeline.
+
+# Additional Sprint 1 Analysis
+
+The [additional EDA report](reports/sprint1/additional_eda.md) documents numeric
+feature distributions and correlations, missingness by class and region, and
+age comparisons within regions and extraction classes.
+
+The [executed notebook](notebooks/04_additional_numeric_missingness_age_eda.ipynb)
+uses the reusable [analysis module](src/team_wtm/additional_eda.py). From this
+project directory, regenerate the aggregate figures and summaries with:
+
+```bash
+uv run python -m team_wtm.additional_eda
+```
+
+Original CSV files remain local. The aggregate JSON is saved to
+`reports/sprint1/additional_eda/summary.json`; the seven PNG figures are saved
+under `reports/figures/additional_eda/`. Use `--output-dir` to choose the summary
+directory and `--figures-dir` to choose the figure directory independently.
 
 ---
 
