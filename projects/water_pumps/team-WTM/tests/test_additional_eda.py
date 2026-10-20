@@ -1,6 +1,7 @@
 """Checks for EDA denominators, placeholder treatment, and confounding."""
 
 import json
+from io import StringIO
 
 import numpy as np
 import pandas as pd
@@ -76,6 +77,38 @@ def test_age_boundaries_and_unknowns_do_not_mutate_source():
         "Invalid year/date/age": 2,
         "Unknown construction year": 1,
     }
+
+
+@pytest.mark.parametrize(
+    "string_columns",
+    [("population",), ("construction_year",), ("population", "construction_year")],
+)
+def test_mixed_csv_numeric_columns_keep_placeholder_and_age_rules(string_columns):
+    control = sample_raw([1, 0, -1, 5, 10, 35])
+    control["population"] = [0.0, 120.0, 150.0, np.nan, 250.0, 0.0]
+    control["construction_year"] = [0.0, 2013.0, 2014.0, np.nan, 2003.0, 0.0]
+    csv_input = control.copy(deep=True)
+    for column in string_columns:
+        csv_input[column] = csv_input[column].astype("string")
+        csv_input.loc[0, column] = "0"
+        csv_input.loc[3, column] = "not recorded"
+        csv_input.loc[5, column] = " 0 "
+    raw = pd.read_csv(StringIO(csv_input.to_csv(index=False)))
+    original = raw.copy(deep=True)
+
+    actual = prepare_eda(raw)
+    expected = prepare_eda(control)
+
+    assert_frame_equal(raw, original)
+    assert_frame_equal(actual, expected)
+    assert actual.loc[[0, 5], ["population", "construction_year"]].isna().all().all()
+    assert actual.loc[0, "age_availability"] == "Unknown construction year"
+    assert actual.loc[3, "age_availability"] == "Unknown construction year"
+    assert actual.loc[1, "pump_age"] == 0
+    assert actual.loc[2, "age_availability"] == "Invalid year/date/age"
+    assert actual.loc[0, "amount_tsh"] == 0
+    assert actual.loc[2, "gps_height"] == 0
+    assert actual.loc[0, "gps_height"] == -2
 
 
 @pytest.mark.parametrize("problem", ["missing_column", "missing_target", "bad_target"])
