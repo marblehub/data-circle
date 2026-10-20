@@ -53,7 +53,7 @@ def load_data(raw_dir: Path | str = RAW_DIR) -> pd.DataFrame:
 def status_share(df: pd.DataFrame, col: str, min_count: int = 0) -> pd.DataFrame:
     """Share of each status inside each category of `col` (rows sum to 1), plus `n`."""
     s = df[col].astype("object").fillna("missing")
-    tab = pd.crosstab(s, df["status_group"], normalize="index")[STATUS_ORDER]
+    tab = pd.crosstab(s, df["status_group"], normalize="index").reindex(columns=STATUS_ORDER, fill_value=0)
     tab["n"] = s.value_counts()
     return tab[tab["n"] >= min_count].sort_values("non functional")
 
