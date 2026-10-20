@@ -79,9 +79,11 @@ def prepare_eda(raw: pd.DataFrame) -> pd.DataFrame:
         raise ValueError(f"Missing analysis columns: {sorted(absent)}")
     if raw["status_group"].isna().any() or not raw["status_group"].isin(STATUS).all():
         raise ValueError("All analysis records need one of the three target labels.")
-    data = clean_data(raw)
+    data = raw.copy()
+    # Coerce text-inferred CSV columns before masking numeric zero placeholders.
     for column in ("population", "amount_tsh", "gps_height", "construction_year"):
         data[column] = pd.to_numeric(data[column], errors="coerce")
+    data = clean_data(data, copy=False)
     data["pump_age"] = derive_pump_age(data)
     data["age_group"] = pd.cut(
         data["pump_age"],
