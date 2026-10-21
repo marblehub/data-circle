@@ -370,6 +370,18 @@ def clean_data(
     return cleaned
 
 
+def derive_pump_age(data: pd.DataFrame) -> pd.Series:
+    """Derive usable age at recording without rewriting source years or dates.
+
+    Unknown/nonpositive construction years, invalid dates and negative ages
+    produce missing age. A waterpoint recorded in its construction year is 0.
+    """
+    year = pd.to_numeric(data["construction_year"], errors="coerce")
+    recorded = pd.to_datetime(data["date_recorded"], errors="coerce")
+    age = recorded.dt.year - year
+    return age.where(year.gt(0) & age.ge(0)).rename("pump_age")
+
+
 def run_pipeline(
     values_path: str | Path = DEFAULT_VALUES_PATH,
     labels_path: str | Path = DEFAULT_LABELS_PATH,
