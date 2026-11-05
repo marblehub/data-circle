@@ -127,6 +127,49 @@ def numeric_summary(data: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def numeric_outliers(data: pd.DataFrame) -> pd.DataFrame:
+    """Screen each feature with pooled 1.5-IQR fences, without changing values.
+
+    IQR is the width of the middle half of finite observations (Q3 minus Q1).
+    Values strictly outside Q1 - 1.5*IQR and Q3 + 1.5*IQR are review candidates,
+    not confirmed errors. With zero IQR, any value different from Q1 is flagged.
+    Percentages use finite observations only; missing/nonfinite values are counted.
+    """
+    rows = []
+    for feature in NUMERIC:
+        series = data[feature]
+        valid = series.loc[np.isfinite(series)]
+        q1, q3 = valid.quantile([0.25, 0.75])
+        iqr = q3 - q1
+        lower = q1 - 1.5 * iqr
+        upper = q3 + 1.5 * iqr
+        below = int(valid.lt(lower).sum())
+        above = int(valid.gt(upper).sum())
+        rows.append(
+            {
+                "feature": feature,
+                "total_n": len(series),
+                "valid_n": len(valid),
+                "missing_n": int(series.isna().sum()),
+                "nonfinite_n": int(series.notna().sum() - len(valid)),
+                "zero_n": int(valid.eq(0).sum()),
+                "q1": q1,
+                "q3": q3,
+                "iqr": iqr,
+                "lower_fence": lower,
+                "upper_fence": upper,
+                "below_n": below,
+                "above_n": above,
+                "outlier_n": below + above,
+                "outlier_pct": 100 * (below + above) / len(valid)
+                if len(valid)
+                else np.nan,
+                "zero_iqr": bool(iqr == 0),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def numeric_correlations(data: pd.DataFrame, *, mask_elevation_zero=False):
     """Return Spearman/Pearson coefficients and their pairwise valid counts.
 
@@ -296,7 +339,11 @@ def plot_numeric(data, output):
         )
         ax.set_ylabel("Within-class density")
         result = box.boxplot(
-            values, tick_labels=STATUS, showfliers=False, patch_artist=True
+            values,
+            tick_labels=STATUS,
+            showfliers=True,
+            flierprops={"marker": ".", "markersize": 3, "alpha": 0.35},
+            patch_artist=True,
         )
         for patch, color in zip(result["boxes"], COLORS, strict=True):
             patch.set_facecolor(color)
@@ -315,12 +362,64 @@ def plot_numeric(data, output):
     fig.tight_layout()
     fig2.suptitle(
         "Numeric distributions by class: medians and IQRs\n"
-        "Whiskers: 1.5 x IQR; individual outlier markers omitted, no records deleted",
+        "Class-specific 1.5 x IQR whiskers; dots show review candidates; all records retained",
         fontsize=14,
     )
     fig2.tight_layout(rect=(0, 0, 1, 0.93))
     _save(fig, output, "numeric_distributions.png")
     _save(fig2, output, "numeric_boxplots.png")
+
+
+def plot_outlier_distributions(data, outliers, output):
+    """Show full observed ranges and rare tails using pooled review fences."""
+    fig, axes = plt.subplots(2, 2, figsize=(13, 9))
+    for feature, ax in zip(NUMERIC, axes.flat, strict=True):
+        series = data[feature]
+        valid = series.loc[np.isfinite(series)]
+        row = outliers.loc[outliers["feature"].eq(feature)].iloc[0]
+        transformed = feature in ("population", "amount_tsh")
+        if not valid.empty:
+            # Equal bins on the display scale keep long tails readable.
+            displayed = (
+                np.sign(valid) * np.log1p(np.abs(valid)) if transformed else valid
+            )
+            edges = np.histogram_bin_edges(displayed, bins=35)
+            if transformed:
+                edges = np.sign(edges) * np.expm1(np.abs(edges))
+                # Avoid excluding endpoints through floating-point roundoff.
+                edges[0] = min(edges[0], valid.min())
+                edges[-1] = max(edges[-1], valid.max())
+            ax.hist(valid, bins=edges, color=COLORS[0], alpha=0.7)
+            for fence, label, color in (
+                (row["lower_fence"], "Lower fence", COLORS[1]),
+                (row["upper_fence"], "Upper fence", COLORS[2]),
+            ):
+                ax.axvline(fence, color=color, linestyle="--", label=label)
+            ax.set_yscale("log")
+            if transformed:
+                ax.set_xscale("symlog", linthresh=1)
+            ax.legend(fontsize=8)
+        else:
+            ax.text(
+                0.5, 0.5, "No finite observations", ha="center", transform=ax.transAxes
+            )
+        ax.set_title(
+            f"{LABELS[feature]}: {int(row['outlier_n']):,} candidates / "
+            f"{int(row['valid_n']):,} finite values",
+            loc="left",
+            fontsize=11,
+        )
+        ax.set_xlabel(
+            "Original units (symlog axis)" if transformed else LABELS[feature]
+        )
+        ax.set_ylabel("Records per bin (log scale)")
+    fig.suptitle(
+        "Numerical outlier review: full ranges and pooled 1.5 x IQR fences\n"
+        "Dashed lines are review thresholds, not error limits; no values removed",
+        fontsize=14,
+    )
+    fig.tight_layout(rect=(0, 0, 1, 0.93))
+    _save(fig, output, "numeric_outlier_distributions.png")
 
 
 def plot_correlations(base, sensitivity, output):
@@ -490,6 +589,7 @@ def run_analysis(
     data = prepare_eda(raw)
     base = numeric_correlations(data)
     sensitivity = numeric_correlations(data, mask_elevation_zero=True)
+    outliers = numeric_outliers(data)
     by_status = missingness_by(data, "status_group")
     by_region = missingness_by(data, "region")
     result = {
@@ -498,6 +598,8 @@ def run_analysis(
             "age_groups": AGE_GROUPS,
             "numeric_features": NUMERIC,
             "target_order": STATUS,
+            "outlier_rule": "Pooled finite values; strictly outside Q1/Q3 +/- 1.5 IQR",
+            "outlier_zero_iqr": "Flag values different from Q1; review, do not delete",
         },
         "inputs": {
             Path(p).name: hashlib.sha256(Path(p).read_bytes()).hexdigest()
@@ -513,6 +615,7 @@ def run_analysis(
             "elevation_zero": int(data["gps_height"].eq(0).sum()),
         },
         "numeric_summary": _records(numeric_summary(data)),
+        "numeric_outliers": _records(outliers),
         "correlations": {
             "features": NUMERIC,
             **{
@@ -537,6 +640,7 @@ def run_analysis(
         }
         plot_age_heatmap(rates, stratum, figures, min_n)
     plot_numeric(data, figures)
+    plot_outlier_distributions(data, outliers, figures)
     plot_correlations(base, sensitivity, figures)
     plot_missingness(by_status, by_region, figures)
     serializable = json.loads(pd.Series(result).to_json(default_handler=str))

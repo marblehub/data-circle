@@ -18,6 +18,7 @@ from team_wtm.additional_eda import (
     age_rates,
     missingness_by,
     numeric_correlations,
+    numeric_outliers,
     numeric_summary,
     prepare_eda,
     run_analysis,
@@ -282,12 +283,15 @@ def test_analysis_writes_summary_and_figures_to_separate_directories(tmp_path):
     )
 
     summary = json.loads((output_dir / "summary.json").read_text())
+    assert summary["numeric_outliers"] == result["numeric_outliers"]
+    assert len(summary["numeric_outliers"]) == len(NUMERIC)
     assert summary["counts"] == result["counts"]
     assert summary["counts"]["all_rows"] == len(raw)
     assert {p.name for p in output_dir.iterdir()} == {"summary.json"}
     assert {p.name for p in figures_dir.iterdir()} == {
         "numeric_distributions.png",
         "numeric_boxplots.png",
+        "numeric_outlier_distributions.png",
         "numeric_spearman_heatmaps.png",
         "missingness_by_status.png",
         "missingness_by_region.png",
@@ -297,3 +301,51 @@ def test_analysis_writes_summary_and_figures_to_separate_directories(tmp_path):
     assert all(
         p.read_bytes().startswith(b"\x89PNG\r\n\x1a\n") for p in figures_dir.iterdir()
     )
+
+
+def test_outliers_use_pooled_fences_strict_boundaries_and_valid_denominators():
+    # Q1=2, Q3=4, fences=-1 and 7. Boundary values themselves are not outliers.
+    values = [-2, -1, 2, 2, 3, 4, 4, 7, 8, np.nan, np.inf, -np.inf]
+    data = pd.DataFrame({feature: values for feature in NUMERIC})
+    original = data.copy(deep=True)
+    result = numeric_outliers(data).set_index("feature")
+    for feature in NUMERIC:
+        row = result.loc[feature]
+        assert row["q1"] == 2
+        assert row["q3"] == 4
+        assert row["lower_fence"] == -1
+        assert row["upper_fence"] == 7
+        assert row["below_n"] == row["above_n"] == 1
+        assert row["valid_n"] == 9
+        assert row["missing_n"] == 1
+        assert row["nonfinite_n"] == 2
+        assert row["outlier_pct"] == pytest.approx(200 / 9)
+    assert_frame_equal(data, original)
+    # Changing labels cannot change the feature-only pooled screen.
+    data["status_group"] = [STATUS[0]] * len(data)
+    assert_frame_equal(numeric_outliers(data).set_index("feature"), result)
+
+
+def test_outliers_explain_zero_iqr_constant_and_missing_features():
+    data = pd.DataFrame(
+        {
+            "pump_age": [5.0] * 10,
+            "population": [np.nan] * 10,
+            "amount_tsh": [0.0] * 9 + [100.0],
+            "gps_height": [np.inf] * 10,
+        }
+    )
+    result = numeric_outliers(data).set_index("feature")
+    assert result.loc["pump_age", "zero_iqr"]
+    assert result.loc["pump_age", "outlier_n"] == 0
+    amount = result.loc["amount_tsh"]
+    assert amount["zero_iqr"]
+    assert amount["lower_fence"] == amount["upper_fence"] == 0
+    assert amount["zero_n"] == 9
+    assert amount["above_n"] == 1
+    assert amount["outlier_pct"] == 10
+    for feature in ("population", "gps_height"):
+        assert result.loc[feature, "valid_n"] == 0
+        assert pd.isna(result.loc[feature, "lower_fence"])
+        assert pd.isna(result.loc[feature, "outlier_pct"])
+        assert result.loc[feature, "outlier_n"] == 0
