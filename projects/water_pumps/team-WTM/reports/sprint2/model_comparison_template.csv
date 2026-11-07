@@ -1,0 +1,1 @@
+model,features,fold,train_rows,validation_rows,accuracy,macro_f1,missed_repairs,false_repair_alarms,functional_precision,functional_recall,functional_f1,functional_support,repair_precision,repair_recall,repair_f1,repair_support,non_functional_precision,non_functional_recall,non_functional_f1,non_functional_support,random_seed,notes
