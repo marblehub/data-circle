@@ -1,6 +1,6 @@
 # Additional Sprint 1 EDA
 
-Analysis run: 15 October 2026. Scope: numeric distributions and correlations, missingness by target class and region, and age comparisons within regions and broad extraction classes.
+Analysis run: 30 October 2026; original analysis dated 15 October 2026. Scope: numeric distributions, outlier review and correlations, missingness by target class and region, and age comparisons within regions and broad extraction classes.
 
 ## Main findings
 
@@ -14,8 +14,8 @@ Analysis run: 15 October 2026. Scope: numeric distributions and correlations, mi
 
 - A reusable analysis module: [additional_eda.py](../../src/team_wtm/additional_eda.py).
 - An executed notebook: [04_additional_numeric_missingness_age_eda.ipynb](../../notebooks/04_additional_numeric_missingness_age_eda.ipynb).
-- Seven figures and an [aggregate JSON summary](additional_eda/summary.json).
-- Tests for age boundaries and exclusions, missingness denominators, pairwise correlation counts, elevation sensitivity, absent age strata, sample thresholds, and standardization.
+- Eight figures and an [aggregate JSON summary](additional_eda/summary.json).
+- Tests for age boundaries and exclusions, missingness denominators, pairwise correlation counts, elevation sensitivity, absent age strata, sample thresholds, and standardization, plus pooled outlier fences, strict boundaries, valid denominators, zero-IQR cases and source preservation.
 
 ## Data and preparation
 
@@ -55,7 +55,34 @@ Histograms share bin edges within each feature and normalize each class separate
 
 ![Numeric boxplots by target class](../figures/additional_eda/numeric_boxplots.png)
 
-Boxplots retain original values and use a symmetric log axis for population and amount. The boxes show the median and interquartile range. Whiskers follow the 1.5-IQR rule; individual outlier markers are hidden for readability. No records are removed.
+Boxplots retain original values and use a symmetric log axis for population and amount. The boxes show the median and interquartile range. Whiskers follow the 1.5-IQR rule separately within each target class; dots show values outside those class-specific whiskers. No records are removed. The pooled thresholds below use all classes together and can therefore flag different values.
+
+### Numerical outlier review
+
+An outlier is an unusually low or high value under a statistical rule, not automatically an error. For each of the four features, the screen uses all finite observed values together, without using target labels. Q1 and Q3 bound the middle half of observations, and IQR = Q3 - Q1. Review candidates are strictly below Q1 - 1.5 × IQR or above Q3 + 1.5 × IQR; values exactly on a fence are included as ordinary observations.
+
+Percentages use each feature's finite-value count. Missing values are excluded from the calculation and counted separately; nonfinite values are also counted separately (none in these inputs). Age has 20,718 missing values and population has 21,381 under the existing cleaning rules.
+
+| Feature | Finite values | Lower fence | Upper fence | Below | Above | Candidates % |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| pump_age | 38,682 | -25.000 | 55.000 | 0 | 0 | 0.00 |
+| population | 38,019 | -386.000 | 750.000 | 0 | 2,473 | 6.50 |
+| amount_tsh | 59,400 | -30.000 | 50.000 | 0 | 11,161 | 18.79 |
+| gps_height | 59,400 | -1,978.875 | 3,298.125 | 0 | 0 | 0.00 |
+
+The screen flags 2,473 population values above 750 and 11,161 amount_tsh values above 50. These are review thresholds, not plausible-value limits. The amount distribution contains 41,639 zeros (70.1%), so its upper quartile is only 20. Its large flagged share reflects this distribution and does not establish that positive amounts are wrong. Field meanings and source context are needed before treating these values.
+
+No pooled IQR candidates are found for age or elevation. This does not establish that those fields contain no errors: impossible ages are handled separately, and zero elevations remain uncertain. Some functional-class ages still appear as dots in the class-specific boxplot because that class has narrower age quartiles than the pooled population.
+
+![Full-range histograms with pooled outlier review thresholds](../figures/additional_eda/numeric_outlier_distributions.png)
+
+All finite values, including extremes, enter these histograms. The vertical axis uses log counts to show rare tails; population and amount use symmetric log horizontal axes in original units. Bins for those two fields are equally spaced on a signed-log1p display scale, so bar heights are counts per bin, not densities per original unit. Dashed lines show both pooled fences, including negative fences outside the observed range; those negative thresholds are not negative observations.
+
+If IQR is zero, both fences coincide and every value different from Q1 is flagged. A constant feature produces zero candidates; a zero-heavy feature can flag every positive value. The JSON/notebook table includes a zero_iqr indicator to make this limitation visible. None of the four pooled feature IQRs is zero in this run; the non-functional-class amount box does have zero IQR.
+
+The exact quartiles, IQR, fences, below/above counts, total candidates, percentages, zero counts and missing/nonfinite counts are in the notebook and aggregate JSON. No records are deleted, capped or overwritten. These are descriptive full-training-data summaries; any learned model transformation or clipping threshold must be fitted only on the fitting rows within each training fold. Domain checks for years and coordinates remain separate.
+
+### Numeric correlations
 
 Spearman is the primary correlation measure. Pearson coefficients are also saved in the JSON and use the same pairwise-available observations. Neither measure establishes predictive usefulness or causation. No correlation significance tests are used.
 
@@ -181,7 +208,7 @@ uv run ruff check src/team_wtm/additional_eda.py tests/test_additional_eda.py no
 
 The CLI supports --values, --labels, --output-dir, --figures-dir and --min-cell-n.
 By default, the aggregate summary is written to
-`reports/sprint1/additional_eda/summary.json` and the seven PNG figures to
+`reports/sprint1/additional_eda/summary.json` and the eight PNG figures to
 `reports/figures/additional_eda/`. `--output-dir` selects the directory for the
 JSON summary; `--figures-dir` independently selects the directory for the figures.
 To redirect a whole run, supply both options:
@@ -199,11 +226,11 @@ Input-file SHA-256 checksums:
 | Training_set_values.csv | d8ebe40f49fe749a851c8ea28601115cd92442f7b20025fbc33881595ae75f5d |
 | Training_set_labels.csv | ae9b4f893e8e89df3a2187d38cade75c61dfb1d1e156ecd7615fee14fdbe0a24 |
 
-No raw CSV files or individual waterpoint observations are included in the committed outputs. The JSON and notebook contain aggregates only. The seven PNGs are generated with Matplotlib/Seaborn. The provided presentation and local Codex files are outside this change.
+No raw CSV files or individual waterpoint observations are included in the committed outputs. The JSON and notebook contain aggregates only. The eight PNGs are generated with Matplotlib/Seaborn. The provided presentation and local Codex files are outside this change.
 
 ## Validation
 
-The original notebook executed all cells in order from a fresh kernel against the local training data. After the path alignment, all six code cells were rerun in a fresh IPython process, including image display and summary checks; sandbox restrictions prevented starting a socket-based Jupyter kernel. The full project test suite passes with 37 tests, including separate output-directory coverage. Ruff checks passed for the new module, tests and notebook. All seven figures were visually inspected for labels, denominators, colour scales, missing cells and readability.
+The updated notebook executed all seven code cells in order from a fresh kernel against the local training data. It contains the outlier table and both the updated boxplots and new full-range review figure, with no error outputs. The project test suite passed with 50 tests, including 15 additional-EDA tests; Ruff checks passed for the analysis module, tests and notebook. The new review histogram and updated boxplots were visually inspected for readable axes, visible dots, full ranges and threshold labels. All pre-existing saved aggregate results (counts, numeric summaries, correlations, missingness and stratified age comparisons) matched the prior summary exactly; the new outlier results and method settings were added. Input hashes matched the recorded inputs above.
 
 ## Sources and scope
 
