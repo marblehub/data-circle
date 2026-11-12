@@ -1,0 +1,67 @@
+{
+  "settings": {
+    "model": "random_forest_balanced",
+    "features": "full",
+    "feature_columns": [
+      "extraction_type_class",
+      "waterpoint_type_group",
+      "source_type",
+      "management_group",
+      "payment_type",
+      "scheme_management",
+      "permit",
+      "public_meeting",
+      "water_quality",
+      "population",
+      "gps_height",
+      "quantity",
+      "quantity_group",
+      "pump_age",
+      "pump_age_missing",
+      "population_missing",
+      "gps_height_zero",
+      "coordinate_unusable",
+      "region",
+      "basin",
+      "longitude_screened",
+      "latitude_screened"
+    ],
+    "random_seed": 42,
+    "model_settings": {
+      "bootstrap": true,
+      "ccp_alpha": 0.0,
+      "class_weight": "balanced",
+      "criterion": "gini",
+      "max_depth": null,
+      "max_features": "sqrt",
+      "max_leaf_nodes": null,
+      "max_samples": null,
+      "min_impurity_decrease": 0.0,
+      "min_samples_leaf": 1,
+      "min_samples_split": 2,
+      "min_weight_fraction_leaf": 0.0,
+      "monotonic_cst": null,
+      "n_estimators": 300,
+      "n_jobs": -1,
+      "oob_score": false,
+      "random_state": 42,
+      "verbose": 0,
+      "warm_start": false
+    }
+  },
+  "fit_rows": 59400,
+  "model_file": "models/final_pipeline.joblib",
+  "model_file_committed": false,
+  "reload_check": {
+    "same_predictions": true,
+    "same_probabilities": true,
+    "rows_checked": 59400
+  },
+  "versions": {
+    "python": "3.12.13",
+    "pandas": "3.0.6",
+    "numpy": "2.5.3",
+    "scikit_learn": "1.9.1",
+    "joblib": "1.6.0"
+  }
+}

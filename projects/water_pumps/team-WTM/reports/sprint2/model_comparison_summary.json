@@ -1,0 +1,653 @@
+{
+  "scope": "Development folds only; the labelled holdout was not scored.",
+  "settings": {
+    "random_seed": 42,
+    "development_folds": 5,
+    "feature_options": {
+      "base": [
+        "extraction_type_class",
+        "waterpoint_type_group",
+        "source_type",
+        "management_group",
+        "payment_type",
+        "scheme_management",
+        "permit",
+        "public_meeting",
+        "water_quality",
+        "population",
+        "gps_height",
+        "quantity",
+        "quantity_group"
+      ]
+    },
+    "std": "sample standard deviation (ddof=1) over folds"
+  },
+  "holdout_scored": false,
+  "class_order": [
+    "functional",
+    "functional needs repair",
+    "non functional"
+  ],
+  "confusion_matrix_rows": "actual",
+  "confusion_matrix_columns": "predicted",
+  "comparison": [
+    {
+      "model": "random_forest_balanced",
+      "features": "base",
+      "folds": 5,
+      "macro_f1_mean": 0.6162097586346224,
+      "macro_f1_std": 0.007935017729741863,
+      "accuracy_mean": 0.7099116161616161,
+      "accuracy_std": 0.008711905180392273,
+      "repair_precision_mean": 0.25201381307583653,
+      "repair_precision_std": 0.012047177818912085,
+      "repair_recall_mean": 0.509843327250991,
+      "repair_recall_std": 0.013060453701184178,
+      "repair_f1_mean": 0.3371198407262732,
+      "repair_f1_std": 0.011032041963066733,
+      "missed_repairs_mean": 338.6,
+      "missed_repairs_std": 9.016651263079881,
+      "false_repair_alarms_mean": 1048.0,
+      "false_repair_alarms_std": 73.86812573769555
+    },
+    {
+      "model": "random_forest",
+      "features": "base",
+      "folds": 5,
+      "macro_f1_mean": 0.6133162250409722,
+      "macro_f1_std": 0.004709141191616259,
+      "accuracy_mean": 0.7558080808080808,
+      "accuracy_std": 0.002174749273192541,
+      "repair_precision_mean": 0.4039842086941089,
+      "repair_precision_std": 0.014366820889121132,
+      "repair_recall_mean": 0.21916147570209107,
+      "repair_recall_std": 0.015994539153544873,
+      "repair_f1_mean": 0.28401356348413315,
+      "repair_f1_std": 0.015933978015838606,
+      "missed_repairs_mean": 539.4,
+      "missed_repairs_std": 10.853570840972111,
+      "false_repair_alarms_mean": 223.2,
+      "false_repair_alarms_std": 11.476062042355816
+    },
+    {
+      "model": "logistic_regression_balanced",
+      "features": "base",
+      "folds": 5,
+      "macro_f1_mean": 0.5205007878996059,
+      "macro_f1_std": 0.002781578121016568,
+      "accuracy_mean": 0.584659090909091,
+      "accuracy_std": 0.0024355380955864256,
+      "repair_precision_mean": 0.15114630200287876,
+      "repair_precision_std": 0.005476839159255363,
+      "repair_recall_mean": 0.5883076406803834,
+      "repair_recall_std": 0.01985676995139046,
+      "repair_f1_mean": 0.24047885111028416,
+      "repair_f1_std": 0.00813760672932693,
+      "missed_repairs_mean": 284.4,
+      "missed_repairs_std": 13.794926603646724,
+      "false_repair_alarms_mean": 2283.4,
+      "false_repair_alarms_std": 72.0923019468792
+    },
+    {
+      "model": "logistic_regression",
+      "features": "base",
+      "folds": 5,
+      "macro_f1_mean": 0.4875386424433172,
+      "macro_f1_std": 0.0019618672621274065,
+      "accuracy_mean": 0.7206018518518519,
+      "accuracy_std": 0.0014322910627933754,
+      "repair_precision_mean": 0.35,
+      "repair_precision_std": 0.22360679774997896,
+      "repair_recall_mean": 0.001447597474779253,
+      "repair_recall_std": 0.0010233098093021288,
+      "repair_f1_mean": 0.0028818539643174733,
+      "repair_f1_std": 0.002034848150560343,
+      "missed_repairs_mean": 689.8,
+      "missed_repairs_std": 0.836660026534073,
+      "false_repair_alarms_mean": 2.0,
+      "false_repair_alarms_std": 1.0
+    },
+    {
+      "model": "majority_baseline",
+      "features": "none",
+      "folds": 5,
+      "macro_f1_mean": 0.23462935387122866,
+      "macro_f1_std": 1.6135485892307506e-05,
+      "accuracy_mean": 0.5430765993265994,
+      "accuracy_std": 5.763074047824135e-05,
+      "repair_precision_mean": 0.0,
+      "repair_precision_std": 0.0,
+      "repair_recall_mean": 0.0,
+      "repair_recall_std": 0.0,
+      "repair_f1_mean": 0.0,
+      "repair_f1_std": 0.0,
+      "missed_repairs_mean": 690.8,
+      "missed_repairs_std": 0.4472135954999691,
+      "false_repair_alarms_mean": 0.0,
+      "false_repair_alarms_std": 0.0
+    }
+  ],
+  "confusion_matrices": {
+    "majority_baseline / none": [
+      {
+        "fold": 0,
+        "predicted_class": "functional",
+        "confusion_matrix": [
+          [
+            5162,
+            0,
+            0
+          ],
+          [
+            690,
+            0,
+            0
+          ],
+          [
+            3652,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "predicted_class": "functional",
+        "confusion_matrix": [
+          [
+            5161,
+            0,
+            0
+          ],
+          [
+            691,
+            0,
+            0
+          ],
+          [
+            3652,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "predicted_class": "functional",
+        "confusion_matrix": [
+          [
+            5161,
+            0,
+            0
+          ],
+          [
+            691,
+            0,
+            0
+          ],
+          [
+            3652,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "predicted_class": "functional",
+        "confusion_matrix": [
+          [
+            5161,
+            0,
+            0
+          ],
+          [
+            691,
+            0,
+            0
+          ],
+          [
+            3652,
+            0,
+            0
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "predicted_class": "functional",
+        "confusion_matrix": [
+          [
+            5162,
+            0,
+            0
+          ],
+          [
+            691,
+            0,
+            0
+          ],
+          [
+            3651,
+            0,
+            0
+          ]
+        ]
+      }
+    ],
+    "logistic_regression / base": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            4733,
+            0,
+            429
+          ],
+          [
+            606,
+            1,
+            83
+          ],
+          [
+            1550,
+            1,
+            2101
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            4756,
+            2,
+            403
+          ],
+          [
+            598,
+            0,
+            93
+          ],
+          [
+            1563,
+            1,
+            2088
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            4709,
+            0,
+            452
+          ],
+          [
+            598,
+            2,
+            91
+          ],
+          [
+            1496,
+            2,
+            2154
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            4724,
+            0,
+            437
+          ],
+          [
+            582,
+            1,
+            108
+          ],
+          [
+            1538,
+            1,
+            2113
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            4738,
+            2,
+            422
+          ],
+          [
+            593,
+            1,
+            97
+          ],
+          [
+            1528,
+            1,
+            2122
+          ]
+        ]
+      }
+    ],
+    "logistic_regression_balanced / base": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            3030,
+            1551,
+            581
+          ],
+          [
+            185,
+            416,
+            89
+          ],
+          [
+            874,
+            632,
+            2146
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            2960,
+            1647,
+            554
+          ],
+          [
+            204,
+            410,
+            77
+          ],
+          [
+            786,
+            700,
+            2166
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            2966,
+            1635,
+            560
+          ],
+          [
+            195,
+            419,
+            77
+          ],
+          [
+            761,
+            725,
+            2166
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            2990,
+            1594,
+            577
+          ],
+          [
+            189,
+            402,
+            100
+          ],
+          [
+            810,
+            668,
+            2174
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            2981,
+            1600,
+            581
+          ],
+          [
+            208,
+            385,
+            98
+          ],
+          [
+            814,
+            665,
+            2172
+          ]
+        ]
+      }
+    ],
+    "random_forest / base": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            4412,
+            156,
+            594
+          ],
+          [
+            416,
+            140,
+            134
+          ],
+          [
+            917,
+            72,
+            2663
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            4417,
+            146,
+            598
+          ],
+          [
+            436,
+            149,
+            106
+          ],
+          [
+            992,
+            63,
+            2597
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            4389,
+            152,
+            620
+          ],
+          [
+            419,
+            154,
+            118
+          ],
+          [
+            932,
+            72,
+            2648
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            4374,
+            176,
+            611
+          ],
+          [
+            411,
+            169,
+            111
+          ],
+          [
+            954,
+            63,
+            2635
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            4424,
+            151,
+            587
+          ],
+          [
+            447,
+            145,
+            99
+          ],
+          [
+            986,
+            65,
+            2600
+          ]
+        ]
+      }
+    ],
+    "random_forest_balanced / base": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            3786,
+            718,
+            658
+          ],
+          [
+            232,
+            351,
+            107
+          ],
+          [
+            700,
+            246,
+            2706
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            3726,
+            750,
+            685
+          ],
+          [
+            259,
+            349,
+            83
+          ],
+          [
+            704,
+            261,
+            2687
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            3680,
+            802,
+            679
+          ],
+          [
+            240,
+            368,
+            83
+          ],
+          [
+            676,
+            322,
+            2654
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            3759,
+            741,
+            661
+          ],
+          [
+            251,
+            347,
+            93
+          ],
+          [
+            689,
+            272,
+            2691
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            3657,
+            827,
+            678
+          ],
+          [
+            256,
+            346,
+            89
+          ],
+          [
+            722,
+            301,
+            2628
+          ]
+        ]
+      }
+    ]
+  },
+  "versions": {
+    "python": "3.12.13",
+    "pandas": "3.0.6",
+    "numpy": "2.5.3",
+    "scikit_learn": "1.9.1"
+  }
+}
