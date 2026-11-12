@@ -18,7 +18,9 @@
       "functional",
       "functional needs repair",
       "non functional"
-    ]
+    ],
+    "outlier_rule": "Pooled finite values; strictly outside Q1/Q3 +/- 1.5 IQR",
+    "outlier_zero_iqr": "Flag values different from Q1; review, do not delete"
   },
   "inputs": {
     "Training_set_values.csv": "d8ebe40f49fe749a851c8ea28601115cd92442f7b20025fbc33881595ae75f5d",
@@ -223,6 +225,80 @@
       "p75": 1211.0,
       "p99": 1954.0,
       "max": 2627.0
+    }
+  ],
+  "numeric_outliers": [
+    {
+      "feature": "pump_age",
+      "total_n": 59400,
+      "valid_n": 38682,
+      "missing_n": 20718,
+      "nonfinite_n": 0,
+      "zero_n": 588,
+      "q1": 5.0,
+      "q3": 25.0,
+      "iqr": 20.0,
+      "lower_fence": -25.0,
+      "upper_fence": 55.0,
+      "below_n": 0,
+      "above_n": 0,
+      "outlier_n": 0,
+      "outlier_pct": 0.0,
+      "zero_iqr": false
+    },
+    {
+      "feature": "population",
+      "total_n": 59400,
+      "valid_n": 38019,
+      "missing_n": 21381,
+      "nonfinite_n": 0,
+      "zero_n": 0,
+      "q1": 40.0,
+      "q3": 324.0,
+      "iqr": 284.0,
+      "lower_fence": -386.0,
+      "upper_fence": 750.0,
+      "below_n": 0,
+      "above_n": 2473,
+      "outlier_n": 2473,
+      "outlier_pct": 6.5046424156,
+      "zero_iqr": false
+    },
+    {
+      "feature": "amount_tsh",
+      "total_n": 59400,
+      "valid_n": 59400,
+      "missing_n": 0,
+      "nonfinite_n": 0,
+      "zero_n": 41639,
+      "q1": 0.0,
+      "q3": 20.0,
+      "iqr": 20.0,
+      "lower_fence": -30.0,
+      "upper_fence": 50.0,
+      "below_n": 0,
+      "above_n": 11161,
+      "outlier_n": 11161,
+      "outlier_pct": 18.7895622896,
+      "zero_iqr": false
+    },
+    {
+      "feature": "gps_height",
+      "total_n": 59400,
+      "valid_n": 59400,
+      "missing_n": 0,
+      "nonfinite_n": 0,
+      "zero_n": 20438,
+      "q1": 0.0,
+      "q3": 1319.25,
+      "iqr": 1319.25,
+      "lower_fence": -1978.875,
+      "upper_fence": 3298.125,
+      "below_n": 0,
+      "above_n": 0,
+      "outlier_n": 0,
+      "outlier_pct": 0.0,
+      "zero_iqr": false
     }
   ],
   "correlations": {
