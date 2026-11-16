@@ -1,0 +1,164 @@
+{
+  "scope": "Recorded pump condition; not future failure prediction.",
+  "settings": {
+    "random_seed": 42,
+    "outer_folds": 5,
+    "development_folds": 5,
+    "holdout_outer_fold": 0
+  },
+  "rows": {
+    "all": 59400,
+    "development": 47520,
+    "holdout": 11880
+  },
+  "feature_groups": 59363,
+  "repeated_feature_rows": 37,
+  "holdout_scored": false,
+  "supplied_test_file_loaded": false,
+  "class_order": [
+    "functional",
+    "functional needs repair",
+    "non functional"
+  ],
+  "confusion_matrix_rows": "actual",
+  "confusion_matrix_columns": "predicted",
+  "cv_mean": {
+    "accuracy": 0.5430765993265994,
+    "macro_f1": 0.23462935387122869,
+    "functional_precision": 0.5430765993265994,
+    "functional_recall": 1.0,
+    "functional_f1": 0.7038880616136861,
+    "repair_precision": 0.0,
+    "repair_recall": 0.0,
+    "repair_f1": 0.0,
+    "non_functional_precision": 0.0,
+    "non_functional_recall": 0.0,
+    "non_functional_f1": 0.0
+  },
+  "cv_std": {
+    "accuracy": 5.763074047823881e-05,
+    "macro_f1": 1.6135485892287662e-05,
+    "functional_precision": 5.763074047823881e-05,
+    "functional_recall": 0.0,
+    "functional_f1": 4.840645767686298e-05,
+    "repair_precision": 0.0,
+    "repair_recall": 0.0,
+    "repair_f1": 0.0,
+    "non_functional_precision": 0.0,
+    "non_functional_recall": 0.0,
+    "non_functional_f1": 0.0
+  },
+  "fold_details": [
+    {
+      "fold": 0,
+      "predicted_class": "functional",
+      "confusion_matrix": [
+        [
+          5162,
+          0,
+          0
+        ],
+        [
+          690,
+          0,
+          0
+        ],
+        [
+          3652,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "fold": 1,
+      "predicted_class": "functional",
+      "confusion_matrix": [
+        [
+          5161,
+          0,
+          0
+        ],
+        [
+          691,
+          0,
+          0
+        ],
+        [
+          3652,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "fold": 2,
+      "predicted_class": "functional",
+      "confusion_matrix": [
+        [
+          5161,
+          0,
+          0
+        ],
+        [
+          691,
+          0,
+          0
+        ],
+        [
+          3652,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "fold": 3,
+      "predicted_class": "functional",
+      "confusion_matrix": [
+        [
+          5161,
+          0,
+          0
+        ],
+        [
+          691,
+          0,
+          0
+        ],
+        [
+          3652,
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "fold": 4,
+      "predicted_class": "functional",
+      "confusion_matrix": [
+        [
+          5162,
+          0,
+          0
+        ],
+        [
+          691,
+          0,
+          0
+        ],
+        [
+          3651,
+          0,
+          0
+        ]
+      ]
+    }
+  ],
+  "versions": {
+    "python": "3.12.14",
+    "pandas": "3.0.6",
+    "numpy": "2.5.3",
+    "scikit_learn": "1.9.1"
+  }
+}
