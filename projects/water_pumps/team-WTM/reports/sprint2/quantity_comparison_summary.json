@@ -1,0 +1,815 @@
+{
+  "scope": "Development folds only; the labelled holdout was not scored.",
+  "settings": {
+    "random_seed": 42,
+    "development_folds": 5,
+    "feature_options": {
+      "base": [
+        "extraction_type_class",
+        "waterpoint_type_group",
+        "source_type",
+        "management_group",
+        "payment_type",
+        "scheme_management",
+        "permit",
+        "public_meeting",
+        "water_quality",
+        "population",
+        "gps_height",
+        "quantity",
+        "quantity_group"
+      ],
+      "full": [
+        "extraction_type_class",
+        "waterpoint_type_group",
+        "source_type",
+        "management_group",
+        "payment_type",
+        "scheme_management",
+        "permit",
+        "public_meeting",
+        "water_quality",
+        "population",
+        "gps_height",
+        "quantity",
+        "quantity_group",
+        "pump_age",
+        "pump_age_missing",
+        "population_missing",
+        "gps_height_zero",
+        "coordinate_unusable",
+        "region",
+        "basin",
+        "longitude_screened",
+        "latitude_screened"
+      ],
+      "full_no_quantity": [
+        "extraction_type_class",
+        "waterpoint_type_group",
+        "source_type",
+        "management_group",
+        "payment_type",
+        "scheme_management",
+        "permit",
+        "public_meeting",
+        "water_quality",
+        "population",
+        "gps_height",
+        "pump_age",
+        "pump_age_missing",
+        "population_missing",
+        "gps_height_zero",
+        "coordinate_unusable",
+        "region",
+        "basin",
+        "longitude_screened",
+        "latitude_screened"
+      ]
+    },
+    "std": "sample standard deviation (ddof=1) over folds"
+  },
+  "holdout_scored": false,
+  "class_order": [
+    "functional",
+    "functional needs repair",
+    "non functional"
+  ],
+  "confusion_matrix_rows": "actual",
+  "confusion_matrix_columns": "predicted",
+  "comparison": [
+    {
+      "model": "random_forest_balanced",
+      "features": "full",
+      "folds": 5,
+      "macro_f1_mean": 0.6827785173530009,
+      "macro_f1_std": 0.005221013356188845,
+      "accuracy_mean": 0.7793350168350168,
+      "accuracy_std": 0.004671527584347356,
+      "repair_precision_mean": 0.38307781588607775,
+      "repair_precision_std": 0.01245833976044587,
+      "repair_recall_mean": 0.4889947356278445,
+      "repair_recall_std": 0.012545247040236905,
+      "repair_f1_mean": 0.4294437366092622,
+      "repair_f1_std": 0.00860454640831882,
+      "missed_repairs_mean": 353.0,
+      "missed_repairs_std": 8.544003745317536,
+      "false_repair_alarms_mean": 544.8,
+      "false_repair_alarms_std": 32.98029714844908
+    },
+    {
+      "model": "random_forest",
+      "features": "full",
+      "folds": 5,
+      "macro_f1_mean": 0.6783263903771828,
+      "macro_f1_std": 0.011205661294082564,
+      "accuracy_mean": 0.7965698653198653,
+      "accuracy_std": 0.0057441207885172985,
+      "repair_precision_mean": 0.49425238443773994,
+      "repair_precision_std": 0.027815238435907,
+      "repair_recall_mean": 0.3326483357452967,
+      "repair_recall_std": 0.026852776835782927,
+      "repair_f1_mean": 0.39735946397762945,
+      "repair_f1_std": 0.025824239776968638,
+      "missed_repairs_mean": 461.0,
+      "missed_repairs_std": 18.34393632784414,
+      "false_repair_alarms_mean": 235.2,
+      "false_repair_alarms_std": 19.929877069364977
+    },
+    {
+      "model": "random_forest_balanced",
+      "features": "full_no_quantity",
+      "folds": 5,
+      "macro_f1_mean": 0.6576857324372609,
+      "macro_f1_std": 0.006920984197764163,
+      "accuracy_mean": 0.7484638047138047,
+      "accuracy_std": 0.005347871881237437,
+      "repair_precision_mean": 0.3758095461166201,
+      "repair_precision_std": 0.014881339656364853,
+      "repair_recall_mean": 0.48408355879947146,
+      "repair_recall_std": 0.016119895374393293,
+      "repair_f1_mean": 0.4229819177857005,
+      "repair_f1_std": 0.012785370177654793,
+      "missed_repairs_mean": 356.4,
+      "missed_repairs_std": 11.326958991715298,
+      "false_repair_alarms_mean": 556.2,
+      "false_repair_alarms_std": 33.00303016391071
+    },
+    {
+      "model": "random_forest",
+      "features": "full_no_quantity",
+      "folds": 5,
+      "macro_f1_mean": 0.6492007175303736,
+      "macro_f1_std": 0.010038767850847046,
+      "accuracy_mean": 0.7644570707070708,
+      "accuracy_std": 0.0045284464422506825,
+      "repair_precision_mean": 0.4808215883469894,
+      "repair_precision_std": 0.023707232621732646,
+      "repair_recall_mean": 0.31586568510245605,
+      "repair_recall_std": 0.02266062508645069,
+      "repair_f1_mean": 0.3811378081865483,
+      "repair_f1_std": 0.02326574853791387,
+      "missed_repairs_mean": 472.6,
+      "missed_repairs_std": 15.66205605915136,
+      "false_repair_alarms_mean": 235.4,
+      "false_repair_alarms_std": 12.778888840583914
+    },
+    {
+      "model": "random_forest_balanced",
+      "features": "base",
+      "folds": 5,
+      "macro_f1_mean": 0.6162097586346224,
+      "macro_f1_std": 0.007935017729741863,
+      "accuracy_mean": 0.7099116161616161,
+      "accuracy_std": 0.008711905180392273,
+      "repair_precision_mean": 0.25201381307583653,
+      "repair_precision_std": 0.012047177818912099,
+      "repair_recall_mean": 0.509843327250991,
+      "repair_recall_std": 0.013060453701184178,
+      "repair_f1_mean": 0.33711984072627316,
+      "repair_f1_std": 0.01103204196306676,
+      "missed_repairs_mean": 338.6,
+      "missed_repairs_std": 9.016651263079881,
+      "false_repair_alarms_mean": 1048.0,
+      "false_repair_alarms_std": 73.86812573769555
+    },
+    {
+      "model": "random_forest",
+      "features": "base",
+      "folds": 5,
+      "macro_f1_mean": 0.6133162250409722,
+      "macro_f1_std": 0.004709141191616259,
+      "accuracy_mean": 0.7558080808080808,
+      "accuracy_std": 0.002174749273192541,
+      "repair_precision_mean": 0.40398420869410884,
+      "repair_precision_std": 0.014366820889121118,
+      "repair_recall_mean": 0.21916147570209105,
+      "repair_recall_std": 0.015994539153544856,
+      "repair_f1_mean": 0.28401356348413315,
+      "repair_f1_std": 0.015933978015838606,
+      "missed_repairs_mean": 539.4,
+      "missed_repairs_std": 10.853570840972111,
+      "false_repair_alarms_mean": 223.2,
+      "false_repair_alarms_std": 11.476062042355816
+    }
+  ],
+  "confusion_matrices": {
+    "random_forest / base": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            4412,
+            156,
+            594
+          ],
+          [
+            416,
+            140,
+            134
+          ],
+          [
+            917,
+            72,
+            2663
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            4417,
+            146,
+            598
+          ],
+          [
+            436,
+            149,
+            106
+          ],
+          [
+            992,
+            63,
+            2597
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            4389,
+            152,
+            620
+          ],
+          [
+            419,
+            154,
+            118
+          ],
+          [
+            932,
+            72,
+            2648
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            4374,
+            176,
+            611
+          ],
+          [
+            411,
+            169,
+            111
+          ],
+          [
+            954,
+            63,
+            2635
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            4424,
+            151,
+            587
+          ],
+          [
+            447,
+            145,
+            99
+          ],
+          [
+            986,
+            65,
+            2600
+          ]
+        ]
+      }
+    ],
+    "random_forest_balanced / base": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            3786,
+            718,
+            658
+          ],
+          [
+            232,
+            351,
+            107
+          ],
+          [
+            700,
+            246,
+            2706
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            3726,
+            750,
+            685
+          ],
+          [
+            259,
+            349,
+            83
+          ],
+          [
+            704,
+            261,
+            2687
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            3680,
+            802,
+            679
+          ],
+          [
+            240,
+            368,
+            83
+          ],
+          [
+            676,
+            322,
+            2654
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            3759,
+            741,
+            661
+          ],
+          [
+            251,
+            347,
+            93
+          ],
+          [
+            689,
+            272,
+            2691
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            3657,
+            827,
+            678
+          ],
+          [
+            256,
+            346,
+            89
+          ],
+          [
+            722,
+            301,
+            2628
+          ]
+        ]
+      }
+    ],
+    "random_forest / full": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            4487,
+            170,
+            505
+          ],
+          [
+            364,
+            207,
+            119
+          ],
+          [
+            721,
+            67,
+            2864
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            4553,
+            143,
+            465
+          ],
+          [
+            347,
+            242,
+            102
+          ],
+          [
+            758,
+            63,
+            2831
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            4489,
+            180,
+            492
+          ],
+          [
+            347,
+            243,
+            101
+          ],
+          [
+            730,
+            77,
+            2845
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            4475,
+            176,
+            510
+          ],
+          [
+            327,
+            245,
+            119
+          ],
+          [
+            692,
+            73,
+            2887
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            4451,
+            161,
+            550
+          ],
+          [
+            378,
+            212,
+            101
+          ],
+          [
+            763,
+            66,
+            2822
+          ]
+        ]
+      }
+    ],
+    "random_forest_balanced / full": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            4188,
+            412,
+            562
+          ],
+          [
+            251,
+            329,
+            110
+          ],
+          [
+            620,
+            125,
+            2907
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            4217,
+            385,
+            559
+          ],
+          [
+            247,
+            339,
+            105
+          ],
+          [
+            631,
+            114,
+            2907
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            4181,
+            420,
+            560
+          ],
+          [
+            245,
+            349,
+            97
+          ],
+          [
+            617,
+            156,
+            2879
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            4138,
+            430,
+            593
+          ],
+          [
+            235,
+            343,
+            113
+          ],
+          [
+            588,
+            148,
+            2916
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            4144,
+            390,
+            628
+          ],
+          [
+            270,
+            329,
+            92
+          ],
+          [
+            639,
+            144,
+            2868
+          ]
+        ]
+      }
+    ],
+    "random_forest / full_no_quantity": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            4371,
+            157,
+            634
+          ],
+          [
+            359,
+            218,
+            113
+          ],
+          [
+            910,
+            81,
+            2661
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            4403,
+            148,
+            610
+          ],
+          [
+            328,
+            232,
+            131
+          ],
+          [
+            902,
+            72,
+            2678
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            4362,
+            171,
+            628
+          ],
+          [
+            345,
+            221,
+            125
+          ],
+          [
+            902,
+            84,
+            2666
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            4350,
+            155,
+            656
+          ],
+          [
+            316,
+            228,
+            147
+          ],
+          [
+            847,
+            78,
+            2727
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            4362,
+            159,
+            641
+          ],
+          [
+            378,
+            192,
+            121
+          ],
+          [
+            923,
+            72,
+            2656
+          ]
+        ]
+      }
+    ],
+    "random_forest_balanced / full_no_quantity": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            4038,
+            396,
+            728
+          ],
+          [
+            228,
+            351,
+            111
+          ],
+          [
+            744,
+            174,
+            2734
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            4074,
+            358,
+            729
+          ],
+          [
+            242,
+            332,
+            117
+          ],
+          [
+            727,
+            146,
+            2779
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            4020,
+            423,
+            718
+          ],
+          [
+            244,
+            331,
+            116
+          ],
+          [
+            754,
+            171,
+            2727
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            4027,
+            390,
+            744
+          ],
+          [
+            230,
+            337,
+            124
+          ],
+          [
+            719,
+            169,
+            2764
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            4019,
+            402,
+            741
+          ],
+          [
+            256,
+            321,
+            114
+          ],
+          [
+            786,
+            152,
+            2713
+          ]
+        ]
+      }
+    ]
+  },
+  "versions": {
+    "python": "3.12.13",
+    "pandas": "3.0.6",
+    "numpy": "2.5.3",
+    "scikit_learn": "1.9.1"
+  }
+}
