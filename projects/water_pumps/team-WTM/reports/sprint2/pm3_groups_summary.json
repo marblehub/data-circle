@@ -1,0 +1,39 @@
+{
+  "scope": "Development folds only (out-of-fold predictions); holdout not scored.",
+  "model": "random_forest_balanced",
+  "features": "full",
+  "min_repairs_for_reliable_group": 30,
+  "check_against_17_macro_f1_mean": 0.6827785173530009,
+  "fold_scores": [
+    {
+      "fold": 0,
+      "macro_f1": 0.6821355443783488,
+      "repair_recall": 0.47681159420289854,
+      "missed_repairs": 361
+    },
+    {
+      "fold": 1,
+      "macro_f1": 0.6902345568075047,
+      "repair_recall": 0.4905933429811867,
+      "missed_repairs": 352
+    },
+    {
+      "fold": 2,
+      "macro_f1": 0.6841568555605209,
+      "repair_recall": 0.5050651230101303,
+      "missed_repairs": 342
+    },
+    {
+      "fold": 3,
+      "macro_f1": 0.6816476600034337,
+      "repair_recall": 0.4963820549927641,
+      "missed_repairs": 348
+    },
+    {
+      "fold": 4,
+      "macro_f1": 0.6757179700151963,
+      "repair_recall": 0.4761215629522431,
+      "missed_repairs": 362
+    }
+  ]
+}
