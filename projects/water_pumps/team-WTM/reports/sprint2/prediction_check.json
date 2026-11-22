@@ -1,0 +1,33 @@
+{
+  "scope": "Predictions on unlabelled test records only; no fitting, no holdout scoring. Totals only, no individual records.",
+  "model": "random_forest_balanced",
+  "features": "full",
+  "model_file": "models/final_pipeline.joblib",
+  "records_file": "data/raw/test_features.csv.csv",
+  "submission_file": "data/raw/SubmissionFormat.csv",
+  "records_rows": 14850,
+  "records_columns": 40,
+  "prediction_rows": 14850,
+  "checks": {
+    "rows_match": true,
+    "ids_match_in_order": true,
+    "columns_match": true,
+    "labels_valid": true,
+    "no_missing_values": true,
+    "same_predictions_after_reload": true
+  },
+  "all_checks_passed": true,
+  "label_counts": {
+    "functional": 7848,
+    "functional needs repair": 1377,
+    "non functional": 5625
+  },
+  "version_warnings": [],
+  "versions": {
+    "python": "3.12.13",
+    "pandas": "3.0.6",
+    "numpy": "2.5.3",
+    "scikit_learn": "1.9.1",
+    "joblib": "1.6.0"
+  }
+}
