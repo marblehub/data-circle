@@ -14,7 +14,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from team_wtm.cleaning import clean_data, derive_pump_age, merge_data
+from team_wtm.cleaning import clean_data, merge_data
 from team_wtm.features import add_feature_columns, select_features
 
 ID_COLUMN = "id"
@@ -40,8 +40,8 @@ def merge_training_data(
 def prepare_features(data: pd.DataFrame) -> pd.DataFrame:
     """Apply shared cleaning, pump-age derivation and feature engineering."""
     prepared = clean_data(data)
-    if {"construction_year", "date_recorded"}.issubset(prepared.columns):
-        prepared["pump_age"] = derive_pump_age(prepared)
+    # add_feature_columns delegates age and quality flags to the shared
+    # export_cleaned.add_quality_features implementation.
     return add_feature_columns(prepared)
 
 
