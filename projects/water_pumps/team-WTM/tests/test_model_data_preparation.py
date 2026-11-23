@@ -1,3 +1,4 @@
+import joblib
 import numpy as np
 import pandas as pd
 import pytest
@@ -79,9 +80,7 @@ def test_prepare_inputs_excludes_id_and_target_and_preserves_alignment():
 
 
 def test_prepare_inputs_fails_when_required_feature_is_missing():
-    data = pd.DataFrame(
-        {"id": [1], "status_group": ["functional"], "extraction_type_class": ["gravity"]}
-    )
+    data = _feature_data().drop(columns=["source_type"])
     with pytest.raises(KeyError, match="Columns missing for 'full'"):
         prepare_model_inputs(data, option="full")
 
@@ -124,5 +123,58 @@ def test_preprocessor_handles_missing_values_and_unseen_categories_consistently(
         .named_steps["encoder"]
         .categories_[0]
     )
+    assert "__MISSING__" in categories
     assert "new" not in categories
     assert "unseen_test" not in categories
+
+
+@pytest.mark.parametrize(
+    "missing_value", [np.nan, None, pd.NA], ids=["nan", "none", "pd_na"]
+)
+def test_full_preparation_handles_missing_boolean_categories(missing_value):
+    training = _feature_data()
+    training["permit"] = pd.Series([True, missing_value, False], dtype=object)
+    X_train, _, _ = prepare_model_inputs(training, option="full")
+
+    supplied_test = _feature_data(include_target=False)
+    supplied_test["permit"] = pd.Series([False, True, missing_value], dtype=object)
+    supplied_test.loc[0, "source_type"] = "unseen_source"
+    X_test, target, ids = prepare_model_inputs(
+        supplied_test, option="full", require_target=False
+    )
+    original = X_train.copy(deep=True)
+
+    preprocessor = build_preprocessor(X_train)
+    train_out = preprocessor.fit_transform(X_train)
+    names = preprocessor.get_feature_names_out().copy()
+    test_out = preprocessor.transform(X_test)
+
+    assert target is None
+    assert ids.tolist() == supplied_test["id"].tolist()
+    assert X_train.columns.tolist() == X_test.columns.tolist()
+    assert train_out.shape[1] == test_out.shape[1] == len(names)
+    assert np.isfinite(train_out).all()
+    assert np.isfinite(test_out).all()
+    np.testing.assert_array_equal(preprocessor.get_feature_names_out(), names)
+    pd.testing.assert_frame_equal(X_train, original)
+
+    categorical = preprocessor.named_transformers_["categorical"]
+    permit_position = categorical.feature_names_in_.tolist().index("permit")
+    categories = categorical.named_steps["encoder"].categories_[permit_position]
+    assert set(categories) == {"False", "True", "__MISSING__"}
+
+
+def test_preprocessor_with_boolean_categories_can_be_saved_and_reloaded(tmp_path):
+    training = _feature_data()
+    training["permit"] = pd.Series([True, np.nan, False], dtype=object)
+    X, _, _ = prepare_model_inputs(training, option="full")
+    preprocessor = build_preprocessor(X).fit(X)
+
+    path = tmp_path / "preprocessor.joblib"
+    joblib.dump(preprocessor, path)
+    reloaded = joblib.load(path)
+
+    np.testing.assert_allclose(reloaded.transform(X), preprocessor.transform(X))
+    np.testing.assert_array_equal(
+        reloaded.get_feature_names_out(), preprocessor.get_feature_names_out()
+    )

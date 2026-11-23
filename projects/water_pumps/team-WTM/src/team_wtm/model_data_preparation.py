@@ -8,11 +8,12 @@ from __future__ import annotations
 
 from typing import Any
 
+import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardScaler
 
 from team_wtm.cleaning import clean_data, merge_data
 from team_wtm.features import add_feature_columns, select_features
@@ -77,6 +78,15 @@ def prepare_model_inputs(
     return X, y, record_ids
 
 
+def _categorical_values_as_text(features: pd.DataFrame) -> pd.DataFrame:
+    """Convert categories to text and use NaN for every missing value."""
+    output = features.copy()
+    for column in output.columns:
+        values = output[column]
+        output[column] = values.astype(str).astype(object).where(values.notna(), np.nan)
+    return output
+
+
 def build_preprocessor(X_train: pd.DataFrame) -> ColumnTransformer:
     """Build an unfitted transformer from training columns only.
 
@@ -111,6 +121,13 @@ def build_preprocessor(X_train: pd.DataFrame) -> ColumnTransformer:
     if categorical:
         categorical_pipeline = Pipeline(
             steps=[
+                (
+                    "as_text",
+                    FunctionTransformer(
+                        _categorical_values_as_text,
+                        feature_names_out="one-to-one",
+                    ),
+                ),
                 (
                     "imputer",
                     SimpleImputer(
