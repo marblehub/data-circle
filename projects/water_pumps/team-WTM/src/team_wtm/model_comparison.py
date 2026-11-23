@@ -25,7 +25,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
 
-from model_data_preparation import build_preprocessor
 from team_wtm.cleaning import PROJECT_DIR, clean_data, load_data, merge_data
 from team_wtm.evaluation import (
     RANDOM_SEED,
@@ -35,6 +34,7 @@ from team_wtm.evaluation import (
     score_predictions,
 )
 from team_wtm.features import FEATURE_OPTIONS, add_feature_columns, select_features
+from team_wtm.model_data_preparation import build_preprocessor
 
 SPLIT_PATH = PROJECT_DIR / "data" / "processed" / "sprint2_splits.csv"
 REPORT_DIR = PROJECT_DIR / "reports" / "sprint2"
