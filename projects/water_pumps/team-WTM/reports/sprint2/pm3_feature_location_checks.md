@@ -37,7 +37,12 @@ Each step adds one group. Same model, same folds. Mean ± sample std over five f
 - Age gives a small gain (about two fold standard deviations).
 - Missing-value flags give less than one fold standard deviation, so their
   value is not shown clearly.
-- Location gives the largest gain, mainly by cutting false repair alarms.
+- Location gives the largest gain in macro F1, mainly by cutting false repair
+  alarms (949 → 545 per fold; repair precision 0.278 → 0.383). The trade-off:
+  repair recall falls slightly (0.529 → 0.489), so the model finds a few fewer
+  pumps that need repair. If finding every repair matters more than avoiding
+  wasted visits, this trade-off should be revisited (e.g. by adjusting the
+  decision threshold in Sprint 3).
   Section 4 shows that this gain depends on the region being in the training data.
 
 ## 2. Quantity (card 14)
