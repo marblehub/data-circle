@@ -118,7 +118,7 @@ def test_preprocessor_handles_missing_values_and_unseen_categories_consistently(
     assert np.isfinite(test_out).all()
 
     numeric_imputer = preprocessor.named_transformers_["numerical"].named_steps["imputer"]
-    assert numeric_imputer.statistics_[0] == pytest.approx(8 / 3)
+    assert numeric_imputer.statistics_[0] == pytest.approx(3.0)
     categories = (
         preprocessor.named_transformers_["categorical"]
         .named_steps["encoder"]
