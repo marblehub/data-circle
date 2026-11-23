@@ -173,6 +173,10 @@ Main activities:
 
 ## Sprint 2: Model Development
 
+The [shared evaluation plan](reports/sprint2/evaluation_plan.md) defines the
+working splits, majority baseline and results format for issue #14.
+
+
 **Weeks 4-6**
 
 Main activities:
