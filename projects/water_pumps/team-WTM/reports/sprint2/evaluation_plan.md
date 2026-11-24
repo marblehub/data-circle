@@ -4,7 +4,7 @@ PM-1 tasks 01–04, issue [#14](https://github.com/marblehub/data-circle/issues/
 Updated 29 October 2026. Review these working settings with PM-2 and PM-4
 before using them for model comparisons.
 
-## 01 — Prediction goal and features
+## 01: Prediction goal and features
 
 Predict the condition recorded for a waterpoint: `functional`,
 `functional needs repair`, or `non functional`. This is classification of the
@@ -49,7 +49,7 @@ conditions. Their use here does not prove future prediction ability or leakage.
 PM-4 should review the intended use with PM-1; PM-2 should record any unavailable
 fields. The quantity comparison remains required before the final choice.
 
-## 02 — Shared splits and cross-validation
+## 02: Shared splits and cross-validation
 
 Working settings:
 
@@ -93,7 +93,7 @@ PM-4 evaluates the fixed setup on that holdout once. Only then refit the complet
 pipeline on all labelled training records and predict the supplied test records.
 No holdout model score is produced by the baseline command.
 
-## 03 — Majority-class baseline
+## 03: Majority-class baseline
 
 Run from the project directory using the existing environment:
 
@@ -136,7 +136,7 @@ The comments in `baseline.py` follow the run in four steps. The splitter comes
 from scikit-learn because it must balance classes while keeping matching records
 together. No Git installation is needed to run the baseline.
 
-## 04 — Common results and handoff
+## 04: Common results and handoff
 
 Use one row per development validation fold in the CSV template. Copy the
 baseline rows or add Logistic Regression, Random Forest and feature experiments
