@@ -1,0 +1,91 @@
+model,features,condition,metric,mean,std,folds
+logistic_regression,base,functional,precision,0.6895648245311194,0.002187994389263362,5
+logistic_regression,base,functional,recall,0.9168054735915006,0.0033478633893944745,5
+logistic_regression,base,functional,f1,0.7871060167034347,0.001025131214456346,5
+logistic_regression,base,functional needs repair,precision,0.35,0.22360679774997896,5
+logistic_regression,base,functional needs repair,recall,0.00144759747477922,0.0010233098093021247,5
+logistic_regression,base,functional needs repair,f1,0.00288185396431744,0.00203484815056033,5
+logistic_regression,base,non functional,precision,0.8018427006970382,0.005089348876783205,5
+logistic_regression,base,non functional,recall,0.5793308439554888,0.006852282766253898,5
+logistic_regression,base,non functional,f1,0.6726280566621993,0.0038493842180367392,5
+logistic_regression_balanced,base,functional,precision,0.7481758297783165,0.005743120811310031,5
+logistic_regression_balanced,base,functional,recall,0.5784086622307607,0.005310188778124525,5
+logistic_regression_balanced,base,functional,f1,0.6523973428448996,0.002201608667065974,5
+logistic_regression_balanced,base,functional needs repair,precision,0.1511463020028787,0.005476839159255369,5
+logistic_regression_balanced,base,functional needs repair,recall,0.5883076406803834,0.01985676995139046,5
+logistic_regression_balanced,base,functional needs repair,f1,0.24047885111028416,0.008137606729326917,5
+logistic_regression_balanced,base,non functional,precision,0.766719181654539,0.0062884872586468936,5
+logistic_regression_balanced,base,non functional,recall,0.59280366404739,0.0030664758158151523,5
+logistic_regression_balanced,base,non functional,f1,0.6686261697436338,0.0032248355505031714,5
+majority_baseline,none,functional,precision,0.5430765993265994,5.763074047824135e-05,5
+majority_baseline,none,functional,recall,1.0,0.0,5
+majority_baseline,none,functional,f1,0.7038880616136861,4.840645767688198e-05,5
+majority_baseline,none,functional needs repair,precision,0.0,0.0,5
+majority_baseline,none,functional needs repair,recall,0.0,0.0,5
+majority_baseline,none,functional needs repair,f1,0.0,0.0,5
+majority_baseline,none,non functional,precision,0.0,0.0,5
+majority_baseline,none,non functional,recall,0.0,0.0,5
+majority_baseline,none,non functional,f1,0.0,0.0,5
+random_forest,base,functional,precision,0.7611568200180157,0.005552550138496926,5
+random_forest,base,functional,recall,0.8531016570573222,0.0040003339864891725,5
+random_forest,base,functional,f1,0.804493507297774,0.002759766026173115,5
+random_forest,base,functional needs repair,precision,0.40398420869410884,0.014366820889121118,5
+random_forest,base,functional needs repair,recall,0.21916147570209105,0.015994539153544856,5
+random_forest,base,functional needs repair,f1,0.28401356348413315,0.015933978015838606,5
+random_forest,base,non functional,precision,0.7860503264984511,0.0033618107134813897,5
+random_forest,base,non functional,recall,0.7198089887000005,0.00795603185408032,5
+random_forest,base,non functional,f1,0.7514416043410096,0.003428396218987889,5
+random_forest,full,functional,precision,0.8053929822306989,0.006597872298939208,5
+random_forest,full,functional,recall,0.8701130982592975,0.007376181435709137,5
+random_forest,full,functional,f1,0.8364844374726793,0.0053664010893243845,5
+random_forest,full,functional needs repair,precision,0.4942523844377399,0.027815238435907018,5
+random_forest,full,functional needs repair,recall,0.3326483357452966,0.026852776835782927,5
+random_forest,full,functional needs repair,f1,0.3973594639776294,0.025824239776968627,5
+random_forest,full,non functional,precision,0.8230823138479426,0.007736993090890588,5
+random_forest,full,non functional,recall,0.7803818696013606,0.007103970776650614,5
+random_forest,full,non functional,f1,0.8011352696812395,0.005131278395993058,5
+random_forest,full_no_quantity,functional,precision,0.7787259607849489,0.0070988926387981965,5
+random_forest,full_no_quantity,functional,recall,0.8465920640910906,0.003909617743928124,5
+random_forest,full_no_quantity,functional,f1,0.8112245838362844,0.004161584596307091,5
+random_forest,full_no_quantity,functional needs repair,precision,0.4808215883469894,0.023707232621732653,5
+random_forest,full_no_quantity,functional needs repair,recall,0.315865685102456,0.022660625086450694,5
+random_forest,full_no_quantity,functional needs repair,f1,0.3811378081865483,0.023265748537913862,5
+random_forest,full_no_quantity,non functional,precision,0.7786847682189808,0.004102343465205851,5
+random_forest,full_no_quantity,non functional,recall,0.7332271342785048,0.007848488124498969,5
+random_forest,full_no_quantity,non functional,f1,0.7552397605682878,0.003161027951414264,5
+random_forest_balanced,base,functional,precision,0.7973469695638523,0.005506652397546801,5
+random_forest_balanced,base,functional,recall,0.7210446857976714,0.010374303349982609,5
+random_forest_balanced,base,functional,f1,0.7572609843692886,0.007654389336304412,5
+random_forest_balanced,base,functional needs repair,precision,0.25201381307583653,0.012047177818912099,5
+random_forest_balanced,base,functional needs repair,recall,0.509843327250991,0.013060453701184178,5
+random_forest_balanced,base,functional needs repair,f1,0.33711984072627316,0.01103204196306676,5
+random_forest_balanced,base,non functional,precision,0.7778919134613641,0.002688488337288531,5
+random_forest_balanced,base,non functional,recall,0.7320218950051345,0.008583086409155262,5
+random_forest_balanced,base,non functional,f1,0.7542484508083053,0.005713510761730205,5
+random_forest_balanced,base_age_missing,functional,precision,0.8109110835063656,0.004967663826122682,5
+random_forest_balanced,base_age_missing,functional,recall,0.7513081037774667,0.012843939663597636,5
+random_forest_balanced,base_age_missing,functional,f1,0.7799351427907781,0.008204632564413417,5
+random_forest_balanced,base_age_missing,functional needs repair,precision,0.27841819410694796,0.011836100132328487,5
+random_forest_balanced,base_age_missing,functional needs repair,recall,0.5289473353048513,0.01818661720752878,5
+random_forest_balanced,base_age_missing,functional needs repair,f1,0.3645910323199359,0.01068724633741859,5
+random_forest_balanced,base_age_missing,non functional,precision,0.797496671488012,0.0064593876747875215,5
+random_forest_balanced,base_age_missing,non functional,recall,0.7441256772814722,0.0070387222474671725,5
+random_forest_balanced,base_age_missing,non functional,f1,0.7698847844750009,0.006614563667513907,5
+random_forest_balanced,full,functional,precision,0.8277577339776553,0.005014256114233469,5
+random_forest_balanced,full,functional,recall,0.8086179382654203,0.006363313359557621,5
+random_forest_balanced,full,functional,f1,0.8180601122162774,0.004110579152600771,5
+random_forest_balanced,full,functional needs repair,precision,0.3830778158860777,0.01245833976044588,5
+random_forest_balanced,full,functional needs repair,recall,0.4889947356278445,0.012545247040236908,5
+random_forest_balanced,full,functional needs repair,f1,0.42944373660926216,0.008604546408318843,5
+random_forest_balanced,full,non functional,precision,0.8089807489529992,0.006555986800252295,5
+random_forest_balanced,full,non functional,recall,0.7928688684670706,0.005596048556610156,5
+random_forest_balanced,full,non functional,f1,0.8008317032334629,0.004987505214685383,5
+random_forest_balanced,full_no_quantity,functional,precision,0.8036705753411658,0.006169909662750392,5
+random_forest_balanced,full_no_quantity,functional,recall,0.7818809986771559,0.004435415845116893,5
+random_forest_balanced,full_no_quantity,functional,f1,0.7926194865873779,0.004690976816841085,5
+random_forest_balanced,full_no_quantity,functional needs repair,precision,0.3758095461166201,0.01488133965636484,5
+random_forest_balanced,full_no_quantity,functional needs repair,recall,0.48408355879947146,0.016119895374393303,5
+random_forest_balanced,full_no_quantity,functional needs repair,f1,0.4229819177857005,0.012785370177654774,5
+random_forest_balanced,full_no_quantity,non functional,precision,0.7637966609389444,0.0028890177399607474,5
+random_forest_balanced,full_no_quantity,non functional,recall,0.7512455139149262,0.007408990684964772,5
+random_forest_balanced,full_no_quantity,non functional,f1,0.7574557929387042,0.004422221856199035,5
