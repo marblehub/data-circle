@@ -178,11 +178,11 @@ Holdout confusion matrix (rows: actual, columns: predicted):
 
 ## Caveats and open points
 
-- **Quantity availability (PM-1, PM-4):** assumption used: `quantity` is
-  available at prediction time (the supplied test file contains it and the
-  prediction workflow uses it). This is not confirmed for real use; quantity
-  describes the inspected condition. If it is not known before a prediction,
-  use plan B (`full_no_quantity`, macro F1 0.658).
+- **Quantity availability (PM-1, PM-4):** quantity describes the inspected
+  condition. We use it for the supplied test records, because the file already
+  includes those values. To use the model to help decide which pumps to inspect
+  (a future dataset), the quantity values must be known before that decision.
+  If they are not, use plan B (`full_no_quantity`, macro F1 0.658).
 - **Location:** the folds keep exact duplicate rows together, not nearby
   pumps. Part of the location gain may come from neighbouring pumps looking
   alike. PM-3's region check confirms this limit: with whole regions held out,
