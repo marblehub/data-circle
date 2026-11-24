@@ -1,0 +1,450 @@
+{
+  "scope": "Development folds only; the labelled holdout was not scored.",
+  "settings": {
+    "random_seed": 42,
+    "development_folds": 5,
+    "feature_options": {
+      "base": [
+        "extraction_type_class",
+        "waterpoint_type_group",
+        "source_type",
+        "management_group",
+        "payment_type",
+        "scheme_management",
+        "permit",
+        "public_meeting",
+        "water_quality",
+        "population",
+        "gps_height",
+        "quantity",
+        "quantity_group"
+      ],
+      "base_age_missing": [
+        "extraction_type_class",
+        "waterpoint_type_group",
+        "source_type",
+        "management_group",
+        "payment_type",
+        "scheme_management",
+        "permit",
+        "public_meeting",
+        "water_quality",
+        "population",
+        "gps_height",
+        "quantity",
+        "quantity_group",
+        "pump_age",
+        "pump_age_missing",
+        "population_missing",
+        "gps_height_zero",
+        "coordinate_unusable"
+      ],
+      "full": [
+        "extraction_type_class",
+        "waterpoint_type_group",
+        "source_type",
+        "management_group",
+        "payment_type",
+        "scheme_management",
+        "permit",
+        "public_meeting",
+        "water_quality",
+        "population",
+        "gps_height",
+        "quantity",
+        "quantity_group",
+        "pump_age",
+        "pump_age_missing",
+        "population_missing",
+        "gps_height_zero",
+        "coordinate_unusable",
+        "region",
+        "basin",
+        "longitude_screened",
+        "latitude_screened"
+      ]
+    },
+    "std": "sample standard deviation (ddof=1) over folds"
+  },
+  "holdout_scored": false,
+  "class_order": [
+    "functional",
+    "functional needs repair",
+    "non functional"
+  ],
+  "confusion_matrix_rows": "actual",
+  "confusion_matrix_columns": "predicted",
+  "comparison": [
+    {
+      "model": "random_forest_balanced",
+      "features": "full",
+      "folds": 5,
+      "macro_f1_mean": 0.6827785173530009,
+      "macro_f1_std": 0.005221013356188845,
+      "accuracy_mean": 0.7793350168350168,
+      "accuracy_std": 0.004671527584347356,
+      "repair_precision_mean": 0.3830778158860777,
+      "repair_precision_std": 0.01245833976044588,
+      "repair_recall_mean": 0.4889947356278445,
+      "repair_recall_std": 0.012545247040236908,
+      "repair_f1_mean": 0.42944373660926216,
+      "repair_f1_std": 0.008604546408318843,
+      "missed_repairs_mean": 353.0,
+      "missed_repairs_std": 8.544003745317536,
+      "false_repair_alarms_mean": 544.8,
+      "false_repair_alarms_std": 32.98029714844908
+    },
+    {
+      "model": "random_forest_balanced",
+      "features": "base_age_missing",
+      "folds": 5,
+      "macro_f1_mean": 0.6381369865285716,
+      "macro_f1_std": 0.007704704981519918,
+      "accuracy_mean": 0.7323863636363637,
+      "accuracy_std": 0.008932330983826965,
+      "repair_precision_mean": 0.27841819410694796,
+      "repair_precision_std": 0.01183610013232846,
+      "repair_recall_mean": 0.5289473353048513,
+      "repair_recall_std": 0.01818661720752878,
+      "repair_f1_mean": 0.3645910323199359,
+      "repair_f1_std": 0.01068724633741862,
+      "missed_repairs_mean": 325.4,
+      "missed_repairs_std": 12.461942063739498,
+      "false_repair_alarms_mean": 949.2,
+      "false_repair_alarms_std": 70.14413731738384
+    },
+    {
+      "model": "random_forest_balanced",
+      "features": "base",
+      "folds": 5,
+      "macro_f1_mean": 0.6162097586346224,
+      "macro_f1_std": 0.007935017729741863,
+      "accuracy_mean": 0.7099116161616161,
+      "accuracy_std": 0.008711905180392273,
+      "repair_precision_mean": 0.25201381307583653,
+      "repair_precision_std": 0.012047177818912099,
+      "repair_recall_mean": 0.509843327250991,
+      "repair_recall_std": 0.013060453701184178,
+      "repair_f1_mean": 0.33711984072627316,
+      "repair_f1_std": 0.01103204196306676,
+      "missed_repairs_mean": 338.6,
+      "missed_repairs_std": 9.016651263079881,
+      "false_repair_alarms_mean": 1048.0,
+      "false_repair_alarms_std": 73.86812573769555
+    }
+  ],
+  "confusion_matrices": {
+    "random_forest_balanced / base": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            3786,
+            718,
+            658
+          ],
+          [
+            232,
+            351,
+            107
+          ],
+          [
+            700,
+            246,
+            2706
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            3726,
+            750,
+            685
+          ],
+          [
+            259,
+            349,
+            83
+          ],
+          [
+            704,
+            261,
+            2687
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            3680,
+            802,
+            679
+          ],
+          [
+            240,
+            368,
+            83
+          ],
+          [
+            676,
+            322,
+            2654
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            3759,
+            741,
+            661
+          ],
+          [
+            251,
+            347,
+            93
+          ],
+          [
+            689,
+            272,
+            2691
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            3657,
+            827,
+            678
+          ],
+          [
+            256,
+            346,
+            89
+          ],
+          [
+            722,
+            301,
+            2628
+          ]
+        ]
+      }
+    ],
+    "random_forest_balanced / full": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            4188,
+            412,
+            562
+          ],
+          [
+            251,
+            329,
+            110
+          ],
+          [
+            620,
+            125,
+            2907
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            4217,
+            385,
+            559
+          ],
+          [
+            247,
+            339,
+            105
+          ],
+          [
+            631,
+            114,
+            2907
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            4181,
+            420,
+            560
+          ],
+          [
+            245,
+            349,
+            97
+          ],
+          [
+            617,
+            156,
+            2879
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            4138,
+            430,
+            593
+          ],
+          [
+            235,
+            343,
+            113
+          ],
+          [
+            588,
+            148,
+            2916
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            4144,
+            390,
+            628
+          ],
+          [
+            270,
+            329,
+            92
+          ],
+          [
+            639,
+            144,
+            2868
+          ]
+        ]
+      }
+    ],
+    "random_forest_balanced / base_age_missing": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            3941,
+            653,
+            568
+          ],
+          [
+            239,
+            354,
+            97
+          ],
+          [
+            694,
+            224,
+            2734
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            3897,
+            671,
+            593
+          ],
+          [
+            256,
+            356,
+            79
+          ],
+          [
+            669,
+            244,
+            2739
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            3858,
+            681,
+            622
+          ],
+          [
+            228,
+            386,
+            77
+          ],
+          [
+            651,
+            305,
+            2696
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            3920,
+            648,
+            593
+          ],
+          [
+            224,
+            365,
+            102
+          ],
+          [
+            650,
+            267,
+            2735
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            3773,
+            758,
+            631
+          ],
+          [
+            237,
+            366,
+            88
+          ],
+          [
+            673,
+            295,
+            2683
+          ]
+        ]
+      }
+    ]
+  },
+  "versions": {
+    "python": "3.12.13",
+    "pandas": "3.0.6",
+    "numpy": "2.5.3",
+    "scikit_learn": "1.9.1"
+  }
+}
