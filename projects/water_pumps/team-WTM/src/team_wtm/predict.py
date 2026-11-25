@@ -47,7 +47,8 @@ RECORD_FILE_NAMES = [
     "Test_set_values.csv",
     "test_features.csv",
 ]
-SUBMISSION_PATH = RAW_DATA_DIR / "SubmissionFormat.csv"
+
+SUBMISSION_PATH = RAW_DATA_DIR / "Submission_format.csv"
 # data/**/*.csv is ignored by Git, so predictions stay local.
 PREDICTIONS_PATH = PROJECT_DIR / "data" / "processed" / "test_predictions.csv"
 CHECK_REPORT_PATH = REPORT_DIR / "prediction_check.json"
