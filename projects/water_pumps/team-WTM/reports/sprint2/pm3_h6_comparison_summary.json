@@ -1,0 +1,422 @@
+{
+  "scope": "Development folds only; the labelled holdout was not scored.",
+  "settings": {
+    "random_seed": 42,
+    "development_folds": 5,
+    "feature_options": {
+      "full": [
+        "extraction_type_class",
+        "waterpoint_type_group",
+        "source_type",
+        "management_group",
+        "payment_type",
+        "scheme_management",
+        "permit",
+        "public_meeting",
+        "water_quality",
+        "population",
+        "gps_height",
+        "quantity",
+        "quantity_group",
+        "pump_age",
+        "pump_age_missing",
+        "population_missing",
+        "gps_height_zero",
+        "coordinate_unusable",
+        "region",
+        "basin",
+        "longitude_screened",
+        "latitude_screened"
+      ],
+      "single_quantity": [
+        "quantity",
+        "quantity_group"
+      ],
+      "single_waterpoint_type": [
+        "waterpoint_type_group"
+      ]
+    },
+    "std": "sample standard deviation (ddof=1) over folds"
+  },
+  "holdout_scored": false,
+  "class_order": [
+    "functional",
+    "functional needs repair",
+    "non functional"
+  ],
+  "confusion_matrix_rows": "actual",
+  "confusion_matrix_columns": "predicted",
+  "comparison": [
+    {
+      "model": "random_forest_balanced",
+      "features": "full",
+      "folds": 5,
+      "macro_f1_mean": 0.6827785173530009,
+      "macro_f1_std": 0.005221013356188845,
+      "accuracy_mean": 0.7793350168350168,
+      "accuracy_std": 0.004671527584347356,
+      "repair_precision_mean": 0.3830778158860777,
+      "repair_precision_std": 0.01245833976044588,
+      "repair_recall_mean": 0.4889947356278445,
+      "repair_recall_std": 0.012545247040236908,
+      "repair_f1_mean": 0.42944373660926216,
+      "repair_f1_std": 0.008604546408318843,
+      "missed_repairs_mean": 353.0,
+      "missed_repairs_std": 8.544003745317536,
+      "false_repair_alarms_mean": 544.8,
+      "false_repair_alarms_std": 32.98029714844908
+    },
+    {
+      "model": "random_forest_balanced",
+      "features": "single_quantity",
+      "folds": 5,
+      "macro_f1_mean": 0.42034693737778916,
+      "macro_f1_std": 0.005810806672134215,
+      "accuracy_mean": 0.5066919191919192,
+      "accuracy_std": 0.0057078683281999104,
+      "repair_precision_mean": 0.09742538395761657,
+      "repair_precision_std": 0.005308563883803171,
+      "repair_recall_mean": 0.43197130812307305,
+      "repair_recall_std": 0.021262143010900965,
+      "repair_f1_mean": 0.15898873580837075,
+      "repair_f1_std": 0.00847694417364394,
+      "missed_repairs_mean": 392.4,
+      "missed_repairs_std": 14.876155417311292,
+      "false_repair_alarms_mean": 2765.4,
+      "false_repair_alarms_std": 48.67545582734689
+    },
+    {
+      "model": "random_forest_balanced",
+      "features": "single_waterpoint_type",
+      "folds": 5,
+      "macro_f1_mean": 0.3147064551900797,
+      "macro_f1_std": 0.005392139990885968,
+      "accuracy_mean": 0.32087542087542087,
+      "accuracy_std": 0.0061215313577750625,
+      "repair_precision_mean": 0.08435001441201531,
+      "repair_precision_std": 0.0010286937019399376,
+      "repair_recall_mean": 0.6913723022714403,
+      "repair_recall_std": 0.013079814557929798,
+      "repair_f1_mean": 0.15035421414163275,
+      "repair_f1_std": 0.001878378608738635,
+      "missed_repairs_mean": 213.2,
+      "missed_repairs_std": 9.038805230781337,
+      "false_repair_alarms_mean": 5184.4,
+      "false_repair_alarms_std": 63.176736224657816
+    }
+  ],
+  "confusion_matrices": {
+    "random_forest_balanced / full": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            4188,
+            412,
+            562
+          ],
+          [
+            251,
+            329,
+            110
+          ],
+          [
+            620,
+            125,
+            2907
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            4217,
+            385,
+            559
+          ],
+          [
+            247,
+            339,
+            105
+          ],
+          [
+            631,
+            114,
+            2907
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            4181,
+            420,
+            560
+          ],
+          [
+            245,
+            349,
+            97
+          ],
+          [
+            617,
+            156,
+            2879
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            4138,
+            430,
+            593
+          ],
+          [
+            235,
+            343,
+            113
+          ],
+          [
+            588,
+            148,
+            2916
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            4144,
+            390,
+            628
+          ],
+          [
+            270,
+            329,
+            92
+          ],
+          [
+            639,
+            144,
+            2868
+          ]
+        ]
+      }
+    ],
+    "random_forest_balanced / single_quantity": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            3462,
+            1639,
+            61
+          ],
+          [
+            363,
+            318,
+            9
+          ],
+          [
+            1512,
+            1082,
+            1058
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            3499,
+            1612,
+            50
+          ],
+          [
+            406,
+            280,
+            5
+          ],
+          [
+            1471,
+            1148,
+            1033
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            3446,
+            1656,
+            59
+          ],
+          [
+            382,
+            302,
+            7
+          ],
+          [
+            1437,
+            1131,
+            1084
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            3503,
+            1596,
+            62
+          ],
+          [
+            379,
+            303,
+            9
+          ],
+          [
+            1462,
+            1126,
+            1064
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            3418,
+            1685,
+            59
+          ],
+          [
+            393,
+            289,
+            9
+          ],
+          [
+            1480,
+            1152,
+            1019
+          ]
+        ]
+      }
+    ],
+    "random_forest_balanced / single_waterpoint_type": [
+      {
+        "fold": 0,
+        "confusion_matrix": [
+          [
+            1735,
+            3305,
+            122
+          ],
+          [
+            176,
+            477,
+            37
+          ],
+          [
+            948,
+            1891,
+            813
+          ]
+        ]
+      },
+      {
+        "fold": 1,
+        "confusion_matrix": [
+          [
+            1734,
+            3284,
+            143
+          ],
+          [
+            168,
+            469,
+            54
+          ],
+          [
+            926,
+            1916,
+            810
+          ]
+        ]
+      },
+      {
+        "fold": 2,
+        "confusion_matrix": [
+          [
+            1642,
+            3368,
+            151
+          ],
+          [
+            167,
+            492,
+            32
+          ],
+          [
+            902,
+            1897,
+            853
+          ]
+        ]
+      },
+      {
+        "fold": 3,
+        "confusion_matrix": [
+          [
+            1777,
+            3248,
+            136
+          ],
+          [
+            153,
+            479,
+            59
+          ],
+          [
+            871,
+            1923,
+            858
+          ]
+        ]
+      },
+      {
+        "fold": 4,
+        "confusion_matrix": [
+          [
+            1758,
+            3266,
+            138
+          ],
+          [
+            176,
+            471,
+            44
+          ],
+          [
+            947,
+            1824,
+            880
+          ]
+        ]
+      }
+    ]
+  },
+  "versions": {
+    "python": "3.13.16",
+    "pandas": "3.0.5",
+    "numpy": "2.5.3",
+    "scikit_learn": "1.9.1"
+  }
+}

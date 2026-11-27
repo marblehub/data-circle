@@ -1,0 +1,165 @@
+{
+  "scope": "Development records only; holdout not scored.",
+  "model": "random_forest_balanced",
+  "features": "full",
+  "region_folds": 5,
+  "grouping": "GroupKFold by region; each region is validated once and never fitted on in that fold.",
+  "difference_from_main_split": "Main folds only keep identical records together, so nearby pumps in the same region appear in fitting and validation. Region folds hold out whole regions.",
+  "comparison": [
+    {
+      "split": "main folds (identical records kept together)",
+      "macro_f1_mean": 0.6827785173530009,
+      "accuracy_mean": 0.7793350168350168,
+      "repair_recall_mean": 0.4889947356278445,
+      "repair_precision_mean": 0.3830778158860777,
+      "macro_f1_std": 0.005221013356188845,
+      "accuracy_std": 0.004671527584347352,
+      "repair_recall_std": 0.012545247040236912,
+      "repair_precision_std": 0.012458339760445874
+    },
+    {
+      "split": "region folds (validation regions unseen)",
+      "macro_f1_mean": 0.4886929327581896,
+      "accuracy_mean": 0.6908102584978265,
+      "repair_recall_mean": 0.03628494876778184,
+      "repair_precision_mean": 0.16014577969779636,
+      "macro_f1_std": 0.037148260387474985,
+      "accuracy_std": 0.058295209619503574,
+      "repair_recall_std": 0.03915214891686543,
+      "repair_precision_std": 0.18636160075012823
+    }
+  ],
+  "confusion_matrices": [
+    {
+      "fold": 0,
+      "regions": [
+        "Iringa",
+        "Mara",
+        "Rukwa",
+        "Ruvuma"
+      ],
+      "confusion_matrix": [
+        [
+          5140,
+          69,
+          566
+        ],
+        [
+          273,
+          12,
+          89
+        ],
+        [
+          1055,
+          32,
+          2116
+        ]
+      ]
+    },
+    {
+      "fold": 1,
+      "regions": [
+        "Kigoma",
+        "Shinyanga",
+        "Singida",
+        "Tabora"
+      ],
+      "confusion_matrix": [
+        [
+          4076,
+          104,
+          637
+        ],
+        [
+          855,
+          111,
+          153
+        ],
+        [
+          1318,
+          15,
+          2220
+        ]
+      ]
+    },
+    {
+      "fold": 2,
+      "regions": [
+        "Dodoma",
+        "Mbeya",
+        "Mtwara",
+        "Mwanza"
+      ],
+      "confusion_matrix": [
+        [
+          2674,
+          260,
+          1330
+        ],
+        [
+          489,
+          35,
+          305
+        ],
+        [
+          1084,
+          94,
+          3061
+        ]
+      ]
+    },
+    {
+      "fold": 3,
+      "regions": [
+        "Kagera",
+        "Kilimanjaro",
+        "Lindi",
+        "Tanga"
+      ],
+      "confusion_matrix": [
+        [
+          4039,
+          21,
+          942
+        ],
+        [
+          425,
+          5,
+          201
+        ],
+        [
+          1470,
+          15,
+          2308
+        ]
+      ]
+    },
+    {
+      "fold": 4,
+      "regions": [
+        "Arusha",
+        "Dar es Salaam",
+        "Manyara",
+        "Morogoro",
+        "Pwani"
+      ],
+      "confusion_matrix": [
+        [
+          5146,
+          6,
+          797
+        ],
+        [
+          409,
+          0,
+          92
+        ],
+        [
+          1556,
+          22,
+          1893
+        ]
+      ]
+    }
+  ]
+}
