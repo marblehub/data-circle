@@ -90,6 +90,38 @@ Only this pair isolates the effect of quantity.
 - Location mainly reduces false repair alarms (949 → 545 per fold). Repair
   recall falls slightly (0.53 → 0.49).
 
+## 4. Scores for each pump condition
+
+From the saved fold scores above; no model was refitted. Mean ± sample std
+over five folds. Code: `src/team_wtm/per_class_scores.py`.
+
+Final setup (RF balanced, `full`):
+
+| Condition | Precision | Recall | F1 |
+| --- | ---: | ---: | ---: |
+| functional | 0.828 ± 0.005 | 0.809 ± 0.006 | 0.818 ± 0.004 |
+| functional needs repair | 0.383 ± 0.012 | 0.489 ± 0.013 | 0.429 ± 0.009 |
+| non functional | 0.809 ± 0.007 | 0.793 ± 0.006 | 0.801 ± 0.005 |
+
+F1 for each pump condition, all setups:
+
+| Model | Features | Functional F1 | Needs repair F1 | Non functional F1 |
+| --- | --- | ---: | ---: | ---: |
+| Majority baseline | none | 0.704 ± 0.000 | 0.000 | 0.000 |
+| LR | base | 0.787 ± 0.001 | 0.003 ± 0.002 | 0.673 ± 0.004 |
+| LR balanced | base | 0.652 ± 0.002 | 0.240 ± 0.008 | 0.669 ± 0.003 |
+| RF | base | 0.804 ± 0.003 | 0.284 ± 0.016 | 0.751 ± 0.003 |
+| RF balanced | base | 0.757 ± 0.008 | 0.337 ± 0.011 | 0.754 ± 0.006 |
+| RF | full | 0.836 ± 0.005 | 0.397 ± 0.026 | 0.801 ± 0.005 |
+| RF balanced | full | **0.818 ± 0.004** | **0.429 ± 0.009** | **0.801 ± 0.005** |
+| RF balanced | full_no_quantity | 0.793 ± 0.005 | 0.423 ± 0.013 | 0.757 ± 0.004 |
+
+- Functional and non functional pumps are found well (F1 about 0.8).
+  "Needs repair" is the weak class and the smallest one (F1 0.43, about 7% of
+  records).
+- Balanced class weights lower functional F1 (0.836 → 0.818) and raise repair
+  F1 (0.397 → 0.429) for `full`.
+
 ## Choice (PM-1 selection rule)
 
 1. **Mean macro F1:** `full` is clearly best. RF balanced (0.683) and RF
@@ -100,6 +132,13 @@ Only this pair isolates the effect of quantity.
    false alarms (precision 0.38 vs 0.49).
 4. **Simpler model:** both are the same model type. The documented gain in
    repair detection decides for RF balanced.
+5. **PM-3's regional check ([PR #22](https://github.com/marblehub/data-circle/pull/22)):**
+   keeping `full` is confirmed, but the result only holds for regions already
+   in the data. With whole regions held out, macro F1 falls from 0.683 to
+   0.489 and repair recall from 0.49 to 0.04 (163 of 3,454 repairs found).
+   Location also lowers repair recall slightly (0.529 → 0.489) while it cuts
+   false alarms (949 → 545 per fold). See `pm3_feature_location_checks.md`,
+   sections 1 and 4.
 
 The costs of a missed repair and a false alarm have not been quantified. If
 the team later values false alarms as more costly, plain RF on `full` is the
@@ -140,12 +179,16 @@ Holdout confusion matrix (rows: actual, columns: predicted):
 ## Caveats and open points
 
 - **Quantity availability (PM-1, PM-4):** quantity describes the inspected
-  condition. It is not confirmed that it would be known before a real
-  prediction. If not, use plan B.
+  condition. We use it for the supplied test records, because the file already
+  includes those values. To use the model to help decide which pumps to inspect
+  (a future dataset), the quantity values must be known before that decision.
+  If they are not, use plan B (`full_no_quantity`, macro F1 0.658).
 - **Location:** the folds keep exact duplicate rows together, not nearby
   pumps. Part of the location gain may come from neighbouring pumps looking
-  alike. PM-3's location-based validation should be read with this result
-  before claiming the model transfers to new areas.
+  alike. PM-3's region check confirms this limit: with whole regions held out,
+  macro F1 is 0.489 and repair recall 0.04. Report 0.683 as performance in
+  regions already surveyed, not in a new area. For a new area, collect
+  labelled inspections there first.
 - **No tuning:** default settings and 300 trees. Tuning would use the same
   development folds; the holdout is already used and must not guide it.
 - **Costs:** the trade-off between missed repairs and false alarms is a team
@@ -160,6 +203,8 @@ All in `reports/sprint2/`; scores and counts only, no record-level data.
   `_comparison_summary.json` (confusion matrices per fold, settings, versions).
 - `holdout_result.json`: the one-time holdout score.
 - `final_model.json`: final settings and the reload check.
+- `per_class_scores.csv`: precision, recall and F1 for each pump condition,
+  mean and std over folds, for every setup above (from the saved fold scores).
 
 ## Reproduce
 
@@ -171,6 +216,7 @@ uv run python -m team_wtm.model_comparison             # four models on base
 uv run python -m team_wtm.model_comparison quantity    # quantity check
 uv run python -m team_wtm.model_comparison location    # location check
 uv run python -m team_wtm.final_model                  # holdout (once) + final model
+uv run python -m team_wtm.per_class_scores             # scores per pump condition
 ```
 
 Later commands reuse files written by earlier ones. `final_model` does not
