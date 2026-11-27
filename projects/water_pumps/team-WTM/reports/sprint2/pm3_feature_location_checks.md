@@ -59,7 +59,7 @@ condition. If it is not available at prediction time, PM-4's plan B
 | Features | Macro F1 | Accuracy | Repair recall | Repair precision | False repair alarms |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | full (combined groups) | **0.683 ± 0.005** | 0.779 | 0.489 | 0.383 | 545 |
-| One field: quantity | 0.420 ± 0.006 | 0.507 | 0.432 | 0.097 | 2,765 |
+| Quantity only (quantity and quantity_group) | 0.420 ± 0.006 | 0.507 | 0.432 | 0.097 | 2,765 |
 | One field: waterpoint type | 0.315 ± 0.005 | 0.321 | 0.691 | 0.084 | 5,184 |
 
 The two single fields were chosen as the strongest one-field associations in
