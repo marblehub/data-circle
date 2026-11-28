@@ -172,7 +172,7 @@ def build_preprocessor(X_train: pd.DataFrame) -> ColumnTransformer:
 
 
 def categories_as_text(features):
-    """Turn True/False values into "True"/"False" text; keep missing values.
+    """Support category conversion in previously saved pipelines and notebooks.
 
     The encoder cannot mix True/False with text such as "__MISSING__".
     This step learns nothing, so it is safe inside cross-validation.
@@ -189,14 +189,15 @@ def categories_as_text(features):
 
 
 def build_pipeline(fit_features, model):
-    """Join the preparation steps and the model into one unfitted Pipeline.
+    """Join the preprocessor and model into one unfitted Pipeline.
+
+    The preprocessor normalizes categorical values in its as_text step.
 
     Learned steps (filling missing values, scaling, encoding) are fitted only
     when Pipeline.fit is called, which we do on the fitting rows only.
     """
     return Pipeline(
         steps=[
-            ("categories_as_text", FunctionTransformer(categories_as_text)),
             ("preprocessor", build_preprocessor(fit_features)),
             ("model", model),
         ]

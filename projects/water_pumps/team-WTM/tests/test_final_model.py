@@ -58,4 +58,4 @@ def test_saved_pipeline_gives_the_same_predictions(training, tmp_path):
     assert check == {"same_predictions": True, "same_probabilities": True,
                      "rows_checked": len(features)}
     # The reloaded pipeline still contains every step, not just the model.
-    assert list(reloaded.named_steps) == ["categories_as_text", "preprocessor", "model"]
+    assert list(reloaded.named_steps) == ["preprocessor", "model"]

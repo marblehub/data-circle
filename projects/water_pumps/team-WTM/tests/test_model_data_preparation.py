@@ -3,9 +3,11 @@ import numpy as np
 import pandas as pd
 import pytest
 from sklearn.compose import ColumnTransformer
+from sklearn.linear_model import LogisticRegression
 
 from team_wtm.features import FEATURE_OPTIONS
 from team_wtm.model_data_preparation import (
+    build_pipeline,
     build_preprocessor,
     merge_training_data,
     prepare_model_inputs,
@@ -241,3 +243,28 @@ def test_training_and_prediction_preparation_match(training, option):
     pd.testing.assert_frame_equal(records, before)
     assert target is None
     pd.testing.assert_series_equal(ids, records["id"])
+
+
+@pytest.mark.parametrize("missing_value", [np.nan, None, pd.NA])
+def test_pipeline_handles_missing_categories_and_reload(tmp_path, missing_value):
+    training = _feature_data()
+    training["permit"] = pd.Series([True, missing_value, False], dtype=object)
+    columns, target, _ = prepare_model_inputs(training, option="full")
+    supplied = _feature_data(include_target=False)
+    supplied.loc[0, "source_type"] = "new_source"
+    supplied["permit"] = pd.Series([False, True, missing_value], dtype=object)
+    validation, _, _ = prepare_model_inputs(
+        supplied, option="full", require_target=False
+    )
+
+    pipeline = build_pipeline(columns, LogisticRegression(random_state=42))
+    pipeline.fit(columns, target)
+    predictions = pipeline.predict(validation)
+    probabilities = pipeline.predict_proba(validation)
+    assert len(predictions) == len(validation)
+    assert np.isfinite(probabilities).all()
+    path = tmp_path / "pipeline.joblib"
+    joblib.dump(pipeline, path)
+    reloaded = joblib.load(path)
+    np.testing.assert_array_equal(reloaded.predict(validation), predictions)
+    np.testing.assert_allclose(reloaded.predict_proba(validation), probabilities)

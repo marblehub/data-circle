@@ -284,9 +284,14 @@ team-WTM/
 │   └── team_wtm/
 │       ├── __init__.py
 │       ├── cleaning.py
-│       ├── data.py
+│       ├── config.py
+│       ├── cli.py
+│       ├── model_data_preparation.py
 │       ├── features.py
-│       ├── modeling.py
+│       ├── model_comparison.py
+│       ├── final_model.py
+│       ├── predict.py
+│       ├── artifacts.py
 │       └── evaluation.py
 │
 ├── tests/
@@ -298,7 +303,6 @@ team-WTM/
 ├── README.md
 ├── workflow.md
 ├── pyproject.toml
-├── requirements.txt
 └── uv.lock
 ```
 
@@ -491,6 +495,13 @@ Install the project environment:
 uv sync
 ```
 
+Dependency versions are declared in `pyproject.toml` and locked in `uv.lock`.
+To generate a requirements file for a tool that needs one, run
+
+```bash
+uv export --locked --all-groups --format requirements-txt --no-hashes --no-annotate -o /tmp/team-wtm-requirements.txt
+```
+
 Check the Python version:
 
 ```bash
@@ -607,173 +618,9 @@ supports loading saved pipelines that refer to the earlier module path.
 
 # Git and GitHub Workflow
 
-The team uses a **feature-branch workflow**.
-
-The `main` branch represents the stable integrated version of the project.
-
-Team members should normally **not develop directly on `main`**.
-
----
-
-## 1. Start From an Updated `main`
-
-Before starting new work:
-
-```bash
-git switch main
-git pull origin main
-```
-
----
-
-## 2. Work From a GitHub Issue
-
-Each meaningful task should first exist as a GitHub Issue.
-
-Example:
-
-```text
-Issue #5
-Analyse pump age versus functionality
-```
-
----
-
-## 3. Create a Branch for the Issue
-
-Use:
-
-```text
-feature/<issue-number>-<description>
-```
-
-Example:
-
-```bash
-git switch -c feature/5-pump-age-analysis
-```
-
-Other examples:
-
-```text
-feature/7-geospatial-analysis
-feature/10-data-cleaning
-docs/12-update-data-dictionary
-fix/15-construction-year-handling
-```
-
-Note:
-Branches should describe the work, not the person performing it.
-
----
-
-## 4. Make Small Commits
-
-Example:
-
-```bash
-git add .
-git commit -m "feat: analyse pump age and functionality"
-```
-
-Recommended prefixes include:
-
-```text
-feat:     new functionality or analysis
-fix:      bug or data-handling correction
-docs:     documentation
-test:     tests
-refactor: code restructuring
-chore:    project maintenance
-```
-
----
-
-## 5. Push the Branch
-
-```bash
-git push -u origin feature/5-pump-age-analysis
-```
-
----
-
-## 6. Create a Pull Request
-
-The Pull Request should target:
-
-```text
-marblehub/data-circle:main
-```
-
-not the original:
-
-```text
-ReDI-School/data-circle:main
-```
-
-unless the ReDI instructors explicitly request a submission to their repository.
-
-Each Pull Request should:
-
-- explain what changed;
-- reference the corresponding Issue;
-- describe how the work was validated;
-- be reviewed by at least one other team member.
-
-Example:
-
-```text
-Closes #5
-```
-
-can be added to the PR description so the Issue closes automatically after merging.
-
----
-
-## 7. Peer Review
-
-Every meaningful Pull Request should be reviewed by another team member.
-
-Suggested review rotation:
-
-```text
-PM-1 -> PM-2
-PM-2 -> PM-3
-PM-3 -> PM-4
-PM-4 -> PM-1 or PM-2
-```
-
-Reviewers should check:
-
-- correctness;
-- clarity;
-- reproducibility;
-- documentation;
-- unnecessary duplication;
-- whether acceptance criteria are satisfied.
-
----
-
-## 8. Merge
-
-Prefer:
-
-```text
-Squash and merge
-```
-
-for feature branches.
-
-After merging:
-
-```bash
-git switch main
-git pull origin main
-git branch -d feature/5-pump-age-analysis
-git fetch --prune
-```
-
----
+Follow the team workflow for issue-based branches, commits, pull requests,
+peer review, squash merges and project-board updates. The full instructions
+are maintained in the [team workflow guide](workflow.md).
 
 # Upstream Synchronisation
 
