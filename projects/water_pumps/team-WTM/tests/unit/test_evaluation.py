@@ -4,8 +4,8 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from team_wtm.baseline import run_baseline
-from team_wtm.evaluation import (
+from team_wtm.evaluation.baseline import run_baseline
+from team_wtm.evaluation.splits import (
     development_folds,
     make_split_plan,
     score_predictions,

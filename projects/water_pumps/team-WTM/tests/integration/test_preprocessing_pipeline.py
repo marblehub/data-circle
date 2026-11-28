@@ -6,12 +6,9 @@ import pandas as pd
 import pytest
 from sklearn.linear_model import LogisticRegression
 
-from team_wtm.features import FEATURE_OPTIONS
-from team_wtm.model_data_preparation import (
-    build_pipeline,
-    build_preprocessor,
-    prepare_model_inputs,
-)
+from team_wtm.data.preparation import prepare_model_inputs
+from team_wtm.modeling.features import FEATURE_OPTIONS
+from team_wtm.modeling.preprocessing import build_pipeline, build_preprocessor
 
 
 def test_preprocessor_with_boolean_categories_can_be_saved_and_reloaded(feature_data, tmp_path):
@@ -32,7 +29,9 @@ def test_preprocessor_with_boolean_categories_can_be_saved_and_reloaded(feature_
 
 @pytest.mark.parametrize("option", FEATURE_OPTIONS)
 def test_training_and_prediction_preparation_match(training, option):
-    from team_wtm.predict import prepare_features as prepare_prediction_features
+    from team_wtm.modeling.predict import (
+        prepare_features as prepare_prediction_features,
+    )
 
     # Preserve a non-default index and row order through both entry points.
     records = training.iloc[::-1].drop(columns="status_group")

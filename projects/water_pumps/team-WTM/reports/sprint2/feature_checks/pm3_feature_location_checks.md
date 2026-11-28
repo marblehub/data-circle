@@ -6,8 +6,9 @@ Run on 15 November 2026 with the #17 final setup: Random Forest,
 (47,520 in five shared folds from `sprint2_splits.csv`). The labelled holdout
 was not scored.
 
-Code: `src/team_wtm/feature_checks.py` (reuses PM-1 `evaluation.py`, PM-4
-`model_comparison.py`, PM-3 `features.py`) and `feature_check_charts.py`.
+Code: `src/team_wtm/analysis/feature_checks.py` reuses the shared splits in
+`evaluation/splits.py`, comparisons in `evaluation/comparison.py`, and column
+definitions in `modeling/features.py`. Charts are in `analysis/charts.py`.
 
 ## Result in short
 

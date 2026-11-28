@@ -5,8 +5,8 @@ from dataclasses import replace
 
 import pandas as pd
 
-from team_wtm import cleaning
 from team_wtm.config import SETTINGS
+from team_wtm.data import cleaning
 from team_wtm.logging_config import configure_logging
 from team_wtm.runtime import track_workflow
 
@@ -103,6 +103,6 @@ def test_cleaning_workflow_logs_process_milestones(training, tmp_path, monkeypat
     pd.testing.assert_frame_equal(result, expected)
     record = next((tmp_path / "runs").glob("*/run.log"))
     text = record.read_text()
-    assert "team_wtm.cleaning" in text
+    assert "team_wtm.data.cleaning" in text
     assert "Loading training values and labels" in text
     assert "Cleaning complete" in text

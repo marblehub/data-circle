@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from team_wtm.additional_eda import (
+from team_wtm.analysis.numeric import (
     AGE_GROUPS,
     NUMERIC,
     STATUS,

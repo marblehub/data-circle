@@ -282,18 +282,16 @@ team-WTM/
 │
 ├── src/
 │   └── team_wtm/
-│       ├── __init__.py
-│       ├── cleaning.py
-│       ├── config.py
-│       ├── cli.py
-│       ├── model_data_preparation.py
-│       ├── features.py
-│       ├── model_comparison.py
-│       ├── final_model.py
-│       ├── predict.py
-│       ├── artifacts.py
-│       ├── runtime.py
-│       └── evaluation.py
+│       ├── data/           # loading, cleaning, record preparation and export
+│       ├── modeling/       # columns, preprocessing, estimators, fitting and prediction
+│       ├── evaluation/     # shared splits, baseline, comparisons and scores
+│       ├── analysis/       # EDA, feature investigations and charts
+│       ├── config.py       # central configuration
+│       ├── cli.py          # terminal arguments and presentation
+│       ├── artifacts.py    # model/report identity and checksums
+│       ├── runtime.py      # workflow history
+│       ├── logging_config.py
+│       └── ...             # small compatibility modules for previous imports
 │
 ├── tests/
 │   ├── conftest.py
@@ -332,14 +330,13 @@ Exploratory notebooks should not become the permanent home of reusable project l
 
 ### `src/team_wtm/`
 
-Contains reusable Python code for:
+Contains reusable workflows grouped by responsibility. The CLI, notebooks and
+dashboard call the same functions. See the [source and deployment guide](src/team_wtm/README.md)
+for the module map, reading order and application examples.
 
-- loading data;
-- cleaning;
-- feature engineering;
-- preprocessing;
-- modelling;
-- evaluation.
+Small modules at the package root preserve earlier imports and module commands.
+They forward to the grouped implementation. Keep them when deploying: existing
+saved pipelines also contain references to these earlier import paths.
 
 ### `reports/`
 
@@ -377,7 +374,7 @@ results at pinned revisions, including work from separate PRs.
 
 [`notebooks/data_audit.ipynb`](notebooks/data_audit.ipynb) presents the audit and
 explains cleaning decisions. It imports its reusable logic from
-[`src/team_wtm/cleaning.py`](src/team_wtm/cleaning.py), which also provides a standalone
+[`src/team_wtm/data/cleaning.py`](src/team_wtm/data/cleaning.py), which also provides a standalone
 pipeline. Update shared rules in the script so both entry points stay consistent.
 
 | Function | Responsibility |
@@ -431,7 +428,7 @@ The expected filenames are `Training_set_values.csv` and
 uv run jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.timeout=300 notebooks/data_audit.ipynb
 ```
 
-For a quieter programmatic inspection, import from `team_wtm.cleaning` and use
+For a quieter programmatic inspection, import from `team_wtm.data.cleaning` and use
 `run_pipeline(run_inspection=False)`. Notebook displays use `verbose=False` on
 the audit functions to avoid duplicating their console output. The notebook can
 run with either the project root or `notebooks/` as its working directory.
@@ -440,7 +437,7 @@ Run the regression checks with:
 
 ```bash
 uv run pytest
-uv run ruff check src/team_wtm/cleaning.py tests notebooks/data_audit.ipynb
+uv run ruff check src/team_wtm/data/cleaning.py tests notebooks/data_audit.ipynb
 ```
 
 ---
@@ -567,11 +564,11 @@ with its manifest. Use `--model-report FILE` when supplying a manifest
 at a different location.
 
 For a notebook or dashboard, pass a DataFrame of pump records directly to
-`predict_records(records, load_model())` from `team_wtm.predict`. It returns
+`predict_records(records, load_model())` from `team_wtm.modeling.predict`. It returns
 the predictions in memory. For a batch file, `run_prediction(...)` saves the
 output and returns its row count and any completion checks. A caller can
 inspect `all_checks_passed` when those checks are requested.
-`run_comparison("models")` from `team_wtm.model_comparison` runs the experiment,
+`run_comparison("models")` from `team_wtm.evaluation.comparison` runs the experiment,
 writes its reports, and returns the ranked table. To display past results,
 read the saved comparison table.
 
@@ -635,13 +632,13 @@ A forcibly terminated invocation can retain a `running` status in its record.
 
 For Python callers, the reusable workflow functions are
 
-- `baseline.run_baseline_workflow()`, returning the baseline summary.
-- `model_comparison.run_comparison(experiment)`, returning the comparison table.
-- `final_model.run_final_model()`, returning the model manifest and holdout scores.
-- `feature_checks.run_feature_checks(experiment)`, returning tables or chart paths.
-- `per_class_scores.run_per_class_report()`, returning the per-condition table.
-- `predict.run_prediction(...)`, returning prediction totals and requested checks.
-- `export_cleaned.export_cleaned_dataset(...)`, returning snapshot metadata.
+- `evaluation.baseline.run_baseline_workflow()`, returning the baseline summary.
+- `evaluation.comparison.run_comparison(experiment)`, returning the comparison table.
+- `modeling.training.run_final_model()`, returning the model manifest and holdout scores.
+- `analysis.feature_checks.run_feature_checks(experiment)`, returning tables or chart paths.
+- `evaluation.per_condition.run_per_class_report()`, returning the per-condition table.
+- `modeling.predict.run_prediction(...)`, returning prediction totals and requested checks.
+- `data.export.export_cleaned_dataset(...)`, returning snapshot metadata.
 
 `predict_records(records, model)` remains the in-memory prediction function for
 an interactive dashboard. Use the workflow wrapper when a saved batch and a
@@ -696,11 +693,8 @@ diagnostics record counts and summaries. Inspection functions return their cardi
 Use the preparation module from notebooks, scripts or a dashboard.
 
 ```python
-from team_wtm.model_data_preparation import (
-    build_pipeline,
-    load_training_data,
-    prepare_model_inputs,
-)
+from team_wtm.data.preparation import load_training_data, prepare_model_inputs
+from team_wtm.modeling.preprocessing import build_pipeline
 
 training = load_training_data()
 columns, target, record_ids = prepare_model_inputs(training, option="full")

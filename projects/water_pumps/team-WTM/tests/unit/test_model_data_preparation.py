@@ -5,11 +5,8 @@ import pandas as pd
 import pytest
 from sklearn.compose import ColumnTransformer
 
-from team_wtm.model_data_preparation import (
-    build_preprocessor,
-    merge_training_data,
-    prepare_model_inputs,
-)
+from team_wtm.data.preparation import merge_training_data, prepare_model_inputs
+from team_wtm.modeling.preprocessing import build_preprocessor
 
 
 def test_merge_rejects_duplicate_ids():
@@ -127,7 +124,7 @@ def test_full_preparation_handles_missing_boolean_categories(feature_data, missi
 
 
 def test_load_training_uses_complete_id_join_and_keeps_alignment(tmp_path):
-    from team_wtm.model_data_preparation import load_training_data
+    from team_wtm.data.preparation import load_training_data
 
     values = pd.DataFrame({"id": [3, 1, 2], "population": [30, 10, 20]})
     labels = pd.DataFrame(
@@ -160,7 +157,7 @@ def test_load_training_uses_complete_id_join_and_keeps_alignment(tmp_path):
     ],
 )
 def test_load_training_rejects_invalid_id_relationships(tmp_path, ids, message):
-    from team_wtm.model_data_preparation import load_training_data
+    from team_wtm.data.preparation import load_training_data
 
     pd.DataFrame({"id": ids}).to_csv(tmp_path / "values.csv", index=False)
     labels = pd.DataFrame(

@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import platform
 import shutil
 from dataclasses import asdict
 from pathlib import Path
@@ -42,7 +43,9 @@ def text_digest(content):
 
 def report_ref(path, *, relative_to=None):
     """Record a report path relative to its manifest directory."""
-    name = path.name if relative_to is None else path.relative_to(relative_to).as_posix()
+    name = (
+        path.name if relative_to is None else path.relative_to(relative_to).as_posix()
+    )
     return {"file": name, "sha256": text_digest(path.read_bytes())}
 
 
@@ -123,3 +126,18 @@ def read_prediction_check(manifest_path, check_path):
         if not manifest.get(key) or check.get(key) != manifest[key]:
             raise ValueError(f"Prediction check has a different {key}.")
     return check
+
+
+def versions():
+    import joblib
+    import numpy as np
+    import pandas as pd
+    import sklearn
+
+    return {
+        "python": platform.python_version(),
+        "pandas": pd.__version__,
+        "numpy": np.__version__,
+        "scikit_learn": sklearn.__version__,
+        "joblib": joblib.__version__,
+    }

@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import team_wtm.per_class_scores as pcs
-from team_wtm.evaluation import CLASS_NAMES
+import team_wtm.evaluation.per_condition as pcs
+from team_wtm.evaluation.splits import CLASS_NAMES
 
 
 def make_scores(model="random_forest_balanced", features="full", folds=3):

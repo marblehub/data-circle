@@ -36,7 +36,7 @@ compares against the [majority baseline](../baseline/baseline_results.md).
   (300 trees), each with and without `class_weight="balanced"`.
   No hyperparameters were tuned.
 
-Code: `src/team_wtm/model_comparison.py` and `src/team_wtm/final_model.py`.
+Code: `src/team_wtm/evaluation/comparison.py` and `src/team_wtm/modeling/training.py`.
 
 ## 1. Models on the `base` features (13 columns)
 
@@ -93,7 +93,7 @@ Only this pair isolates the effect of quantity.
 ## 4. Scores for each pump condition
 
 From the saved fold scores above; no model was refitted. Mean ± sample std
-over five folds. Code: `src/team_wtm/per_class_scores.py`.
+over five folds. Code: `src/team_wtm/evaluation/per_condition.py`.
 
 Final setup (RF balanced, `full`):
 

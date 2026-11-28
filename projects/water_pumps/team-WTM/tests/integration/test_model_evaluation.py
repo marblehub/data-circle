@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-import team_wtm.model_comparison as mc
-from team_wtm.evaluation import RESULT_COLUMNS, make_split_plan
+import team_wtm.evaluation.comparison as mc
+from team_wtm.evaluation.splits import RESULT_COLUMNS, make_split_plan
 
 
 @pytest.mark.parametrize("model_name", list(mc.MODELS))

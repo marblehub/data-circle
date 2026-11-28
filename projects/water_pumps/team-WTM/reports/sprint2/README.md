@@ -144,3 +144,6 @@ same workflows. See the [project usage guide](../../README.md#workflow-history-a
 Project entry points also write a rotating log at `paths.log_file`, normally
 `artifacts/logs/project.log`. Messages include UTC time, severity, module and
 workflow/run IDs. See the [logging guide](../../README.md#standard-project-logging).
+
+For canonical Python imports and the deployment checklist, see the
+[source and deployment guide](../../src/team_wtm/README.md).

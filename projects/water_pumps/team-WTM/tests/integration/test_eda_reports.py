@@ -2,10 +2,7 @@
 
 import json
 
-from team_wtm.additional_eda import (
-    NUMERIC,
-    run_analysis,
-)
+from team_wtm.analysis.numeric import NUMERIC, run_analysis
 
 
 def test_analysis_writes_summary_and_figures_to_separate_directories(sample_raw, tmp_path):

@@ -4,12 +4,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal, assert_series_equal
 
-from team_wtm.cleaning import (
-    clean_data,
-    load_data,
-    merge_data,
-    run_pipeline,
-)
+from team_wtm.data.cleaning import clean_data, load_data, merge_data, run_pipeline
 
 
 @pytest.mark.parametrize("run_inspection", [True, False])

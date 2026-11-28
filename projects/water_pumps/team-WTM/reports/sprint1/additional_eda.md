@@ -12,14 +12,14 @@ Analysis run: 30 October 2026; original analysis dated 15 October 2026. Scope: n
 
 ## What was added
 
-- A reusable analysis module: [additional_eda.py](../../src/team_wtm/additional_eda.py).
+- A reusable analysis module: [additional_eda.py](../../src/team_wtm/analysis/numeric.py).
 - An executed notebook: [04_additional_numeric_missingness_age_eda.ipynb](../../notebooks/04_additional_numeric_missingness_age_eda.ipynb).
 - Eight figures and an [aggregate JSON summary](additional_eda/summary.json).
 - Tests for age boundaries and exclusions, missingness denominators, pairwise correlation counts, elevation sensitivity, absent age strata, sample thresholds, and standardization, plus pooled outlier fences, strict boundaries, valid denominators, zero-IQR cases and source preservation.
 
 ## Data and preparation
 
-The original training features and labels are joined by validated, unique IDs. All 59,400 records are retained. The existing [shared cleaner](../../src/team_wtm/cleaning.py) converts zero population and construction year to missing values and parses the recording date. Its defaults are reused without changes. Duplicate observations remain under the [audit policy](data_quality_findings.md).
+The original training features and labels are joined by validated, unique IDs. All 59,400 records are retained. The existing [shared cleaner](../../src/team_wtm/data/cleaning.py) converts zero population and construction year to missing values and parses the recording date. Its defaults are reused without changes. Duplicate observations remain under the [audit policy](data_quality_findings.md).
 
 Age is the recording year minus construction year. Unknown or nonpositive construction years, missing/unparseable recording dates, and negative derived ages cannot supply usable ages. The raw input is preserved. Nonzero construction years are not rewritten; only the derived age is missing for these cases.
 
@@ -203,7 +203,7 @@ uv sync
 uv run python -m team_wtm.additional_eda
 uv run jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.timeout=300 notebooks/04_additional_numeric_missingness_age_eda.ipynb
 uv run pytest
-uv run ruff check src/team_wtm/additional_eda.py tests/unit/test_additional_eda.py tests/integration/test_eda_reports.py notebooks/04_additional_numeric_missingness_age_eda.ipynb
+uv run ruff check src/team_wtm/analysis/numeric.py tests/unit/test_additional_eda.py tests/integration/test_eda_reports.py notebooks/04_additional_numeric_missingness_age_eda.ipynb
 ```
 
 The CLI supports --values, --labels, --output-dir, --figures-dir and --min-cell-n.

@@ -26,26 +26,26 @@ def print_comparison(table, report_dir):
 
 
 def _compare(args):
-    from team_wtm.model_comparison import run_comparison
+    from team_wtm.evaluation.comparison import run_comparison
 
     table = run_comparison(args.experiment)
     print_comparison(table, SETTINGS.report_dir)
 
 
 def _baseline(args):
-    from team_wtm.baseline import run_baseline_workflow
+    from team_wtm.evaluation.baseline import run_baseline_workflow
 
     run_baseline_workflow()
 
 
 def _final_model(args):
-    from team_wtm.final_model import run_final_model
+    from team_wtm.modeling.training import run_final_model
 
     run_final_model()
 
 
 def _features(args):
-    from team_wtm.feature_checks import run_feature_checks
+    from team_wtm.analysis.feature_checks import run_feature_checks
 
     result = run_feature_checks(args.experiment)
     if args.experiment == "charts":
@@ -59,13 +59,13 @@ def _features(args):
 
 
 def _scores(args):
-    from team_wtm.per_class_scores import markdown_table, run_per_class_report
+    from team_wtm.evaluation.per_condition import markdown_table, run_per_class_report
 
     print(markdown_table(run_per_class_report()))
 
 
 def _export(args):
-    from team_wtm.export_cleaned import export_cleaned_dataset
+    from team_wtm.data.export import export_cleaned_dataset
 
     metadata = export_cleaned_dataset(
         args.values,
@@ -90,7 +90,7 @@ def _export(args):
 
 
 def _predict(args):
-    from team_wtm.predict import run_prediction
+    from team_wtm.modeling.predict import run_prediction
 
     result = run_prediction(
         args.records,

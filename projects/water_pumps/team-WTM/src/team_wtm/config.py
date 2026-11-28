@@ -5,7 +5,8 @@ import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 
-DEFAULT_CONFIG = Path(__file__).resolve().parents[2] / "configs" / "project.toml"
+PACKAGE_DIR = Path(__file__).resolve().parent
+DEFAULT_CONFIG = PACKAGE_DIR.parents[1] / "configs" / "project.toml"
 
 
 @dataclass(frozen=True)
@@ -193,9 +194,14 @@ def load_settings(path=None):
             final_features=_text(final, "features"),
             minimum_category_frequency=float(frequency),
             log_level=level,
-            log_file=root / _text({"log_file": "artifacts/logs/project.log", **paths}, "log_file"),
-            log_max_bytes=_integer({"max_bytes": 5000000, **data.get("logging", {})}, "max_bytes", 1),
-            log_backup_count=_integer({"backup_count": 3, **data.get("logging", {})}, "backup_count", 1),
+            log_file=root
+            / _text({"log_file": "artifacts/logs/project.log", **paths}, "log_file"),
+            log_max_bytes=_integer(
+                {"max_bytes": 5000000, **data.get("logging", {})}, "max_bytes", 1
+            ),
+            log_backup_count=_integer(
+                {"backup_count": 3, **data.get("logging", {})}, "backup_count", 1
+            ),
             eda_min_cell_records=_integer(
                 {"min_cell_records": 30, **data.get("eda", {})}, "min_cell_records", 1
             ),

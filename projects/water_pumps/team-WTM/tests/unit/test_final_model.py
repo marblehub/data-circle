@@ -2,8 +2,8 @@
 
 import numpy as np
 
-import team_wtm.final_model as fm
-from team_wtm.evaluation import make_split_plan
+import team_wtm.modeling.training as fm
+from team_wtm.evaluation.splits import make_split_plan
 
 
 def test_split_positions_cover_every_row_once(training):

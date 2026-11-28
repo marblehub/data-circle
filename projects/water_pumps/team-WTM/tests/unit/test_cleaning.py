@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from team_wtm.cleaning import (
+from team_wtm.data.cleaning import (
     build_data_dictionary,
     check_data_quality,
     check_suspicious_values,

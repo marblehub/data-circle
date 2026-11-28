@@ -36,3 +36,8 @@ checks. Synthetic final-model fixtures support inference and reload checks.
 Test module filenames are distinct across the two groups, which supports
 pytest's default import mode. New checks belong beside the component or
 workflow they exercise.
+
+Component tests import the grouped source packages.
+`integration/test_package_compatibility.py` also checks the earlier imports and
+module commands, saved-pipeline function references, and independent dashboard
+prediction/report imports.

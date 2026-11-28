@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from team_wtm.feature_checks import group_results, region_folds
+from team_wtm.analysis.feature_checks import group_results, region_folds
 
 REPAIR = "functional needs repair"
 

@@ -8,7 +8,6 @@ import joblib
 import pandas as pd
 import pytest
 
-from team_wtm import predict
 from team_wtm.artifacts import (
     read_json,
     read_prediction_check,
@@ -17,8 +16,9 @@ from team_wtm.artifacts import (
     write_json,
 )
 from team_wtm.config import DEFAULT_CONFIG
-from team_wtm.features import select_features
-from team_wtm.model_comparison import MODELS, add_model_columns, build_pipeline
+from team_wtm.evaluation.comparison import MODELS, add_model_columns, build_pipeline
+from team_wtm.modeling import predict
+from team_wtm.modeling.features import select_features
 
 
 def test_custom_model_identity_and_corrupt_manifest(training, tmp_path):

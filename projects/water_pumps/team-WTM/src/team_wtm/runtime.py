@@ -10,7 +10,7 @@ from shutil import copyfile
 from uuid import uuid4
 
 from team_wtm.artifacts import sha256_file, write_json
-from team_wtm.config import SETTINGS
+from team_wtm.config import PACKAGE_DIR, SETTINGS
 from team_wtm.logging_config import workflow_logging
 
 
@@ -35,8 +35,8 @@ class WorkflowRun:
                 for name in ("pandas", "numpy", "scikit-learn", "joblib", "pyarrow")
             },
             "code_sha256": {
-                path.name: sha256_file(path)
-                for path in sorted(Path(__file__).parent.glob("*.py"))
+                path.relative_to(PACKAGE_DIR).as_posix(): sha256_file(path)
+                for path in sorted(PACKAGE_DIR.rglob("*.py"))
             },
             "inputs": {},
             "outputs": {},
@@ -103,7 +103,9 @@ def track_workflow(name, *, config=None, on_progress=None, report_dir=None):
             yield run
             for entry in run.details["inputs"].values():
                 if sha256_file(Path(entry["path"])) != entry["sha256"]:
-                    raise RuntimeError(f"Input changed during workflow: {entry['path']}")
+                    raise RuntimeError(
+                        f"Input changed during workflow: {entry['path']}"
+                    )
             run.progress(f"Finished {name}")
         except BaseException as error:
             run.details["status"] = "failed"

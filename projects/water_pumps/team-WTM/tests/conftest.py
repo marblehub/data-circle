@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from team_wtm.evaluation import TARGET_CLASSES
+from team_wtm.evaluation.splits import TARGET_CLASSES
 
 
 @pytest.fixture
@@ -142,7 +142,7 @@ def snapshot_inputs(tmp_path):
 @pytest.fixture
 def sample_raw():
     """Return an EDA table factory with controlled synthetic pump ages."""
-    from team_wtm.additional_eda import MISSING_FEATURES, STATUS
+    from team_wtm.analysis.numeric import MISSING_FEATURES, STATUS
 
     def make_raw(ages):
         count = len(ages)
@@ -211,9 +211,9 @@ def feature_data():
 @pytest.fixture
 def full_features(training):
     """Prepare the configured final-model columns from synthetic records."""
-    from team_wtm.features import select_features
-    from team_wtm.final_model import FINAL_FEATURES
-    from team_wtm.model_comparison import add_model_columns
+    from team_wtm.evaluation.comparison import add_model_columns
+    from team_wtm.modeling.features import select_features
+    from team_wtm.modeling.training import FINAL_FEATURES
 
     return select_features(add_model_columns(training), FINAL_FEATURES)
 
@@ -221,7 +221,7 @@ def full_features(training):
 @pytest.fixture
 def model(training, full_features):
     """Fit the configured final model on synthetic records for prediction checks."""
-    from team_wtm.final_model import fit_final_pipeline
+    from team_wtm.modeling.training import fit_final_pipeline
 
     return fit_final_pipeline(full_features, training["status_group"])
 

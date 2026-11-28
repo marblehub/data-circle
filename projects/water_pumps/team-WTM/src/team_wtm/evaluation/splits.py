@@ -5,8 +5,8 @@ import pandas as pd
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.model_selection import StratifiedGroupKFold
 
-from team_wtm.cleaning import clean_data
 from team_wtm.config import SETTINGS
+from team_wtm.data.cleaning import clean_data
 
 RANDOM_SEED = SETTINGS.random_seed
 N_FOLDS = SETTINGS.folds

@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-import team_wtm.model_comparison as mc
+import team_wtm.evaluation.comparison as mc
 
 
 def made_up_results():

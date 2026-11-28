@@ -1,6 +1,6 @@
 """Integration tests for model reload."""
 
-import team_wtm.final_model as fm
+import team_wtm.modeling.training as fm
 
 
 def test_saved_pipeline_gives_the_same_predictions(full_features, training, tmp_path):

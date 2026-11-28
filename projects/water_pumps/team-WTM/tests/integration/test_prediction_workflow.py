@@ -7,7 +7,7 @@ import sys
 import pandas as pd
 import pytest
 
-import team_wtm.predict as pr
+import team_wtm.modeling.predict as pr
 
 
 class NoFitModel:

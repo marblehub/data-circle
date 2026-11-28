@@ -7,9 +7,9 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-import team_wtm.final_model as fm
-import team_wtm.predict as pr
-from team_wtm.features import FEATURE_OPTIONS
+import team_wtm.modeling.predict as pr
+import team_wtm.modeling.training as fm
+from team_wtm.modeling.features import FEATURE_OPTIONS
 
 
 def test_source_has_no_fit_or_holdout():

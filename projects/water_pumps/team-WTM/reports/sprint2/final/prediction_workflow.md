@@ -1,6 +1,6 @@
 # Prediction workflow (Issue #17)
 
-Code: `src/team_wtm/predict.py` · Tests: `tests/unit/test_predict.py` and `tests/integration/test_prediction_workflow.py` ·
+Code: `src/team_wtm/modeling/predict.py` · Tests: `tests/unit/test_predict.py` and `tests/integration/test_prediction_workflow.py` ·
 Check report: `reports/sprint2/final/prediction_check.json`
 
 This workflow predicts the pump status of new records using the saved
@@ -71,7 +71,7 @@ From Python (for example a notebook or the app):
 
 ```python
 import pandas as pd
-from team_wtm.predict import load_model, predict_records
+from team_wtm.modeling.predict import load_model, predict_records
 
 model = load_model()                      # models/final_pipeline.joblib
 records = pd.read_csv("data/raw/Test_set_values.csv")
@@ -118,8 +118,8 @@ gives no score; the model's score is in `holdout_result.json`.
 ## Automated checks
 
 ```powershell
-.venv\Scripts\python.exe -m ruff check src/team_wtm/predict.py tests/unit/test_predict.py tests/integration/test_prediction_workflow.py
-.venv\Scripts\python.exe -m ruff format --check src/team_wtm/predict.py tests/unit/test_predict.py tests/integration/test_prediction_workflow.py
+.venv\Scripts\python.exe -m ruff check src/team_wtm/modeling/predict.py tests/unit/test_predict.py tests/integration/test_prediction_workflow.py
+.venv\Scripts\python.exe -m ruff format --check src/team_wtm/modeling/predict.py tests/unit/test_predict.py tests/integration/test_prediction_workflow.py
 .venv\Scripts\python.exe -m pytest tests/unit/test_predict.py tests/integration/test_prediction_workflow.py
 ```
 

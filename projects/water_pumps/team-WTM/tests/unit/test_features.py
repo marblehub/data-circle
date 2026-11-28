@@ -3,8 +3,12 @@
 import pandas as pd
 import pytest
 
-from team_wtm.cleaning import clean_data
-from team_wtm.features import FEATURE_OPTIONS, add_feature_columns, select_features
+from team_wtm.data.cleaning import clean_data
+from team_wtm.modeling.features import (
+    FEATURE_OPTIONS,
+    add_feature_columns,
+    select_features,
+)
 
 
 @pytest.fixture

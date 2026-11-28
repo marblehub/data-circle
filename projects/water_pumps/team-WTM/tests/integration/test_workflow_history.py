@@ -23,6 +23,8 @@ def test_successful_and_failed_runs_preserve_their_own_reports(tmp_path, capsys)
     old = read_json(first.directory / "run.json")
     assert old["status"] == "completed"
     assert old["schema_version"] == 1
+    assert "modeling/predict.py" in old["code_sha256"]
+    assert "data/cleaning.py" in old["code_sha256"]
     assert old["inputs"]["scores"]["path"] == str(source.resolve())
     assert old["inputs"]["scores"]["sha256"] == sha256_file(source)
     assert (first.directory / "reports/source.csv").read_text() == "score\n0.5\n"

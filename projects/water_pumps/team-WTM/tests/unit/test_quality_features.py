@@ -2,11 +2,8 @@
 
 from pandas.testing import assert_frame_equal
 
-from team_wtm.cleaning import clean_data, load_data, merge_data
-from team_wtm.export_cleaned import (
-    QUALITY_FLAGS,
-    add_quality_features,
-)
+from team_wtm.data.cleaning import clean_data, load_data, merge_data
+from team_wtm.data.export import QUALITY_FLAGS, add_quality_features
 
 
 def test_quality_features_are_additive_and_leave_source_values_unchanged(snapshot_inputs):

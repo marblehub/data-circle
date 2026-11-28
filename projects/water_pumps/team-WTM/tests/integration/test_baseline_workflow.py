@@ -9,7 +9,7 @@ def test_baseline_command_saves_results_without_git_and_keeps_existing_template(
     import json
     import subprocess
 
-    from team_wtm import baseline
+    from team_wtm.evaluation import baseline
 
     report_dir = tmp_path / "reports"
     report_dir.mkdir()
