@@ -22,11 +22,13 @@ from team_wtm.features import select_features
 from team_wtm.model_comparison import MODELS, add_model_columns, build_pipeline
 
 
-def test_verified_report_rejects_drift_and_accepts_windows_line_endings(tmp_path):
-    table = tmp_path / "scores.csv"
+@pytest.mark.parametrize("name", ["scores.csv", "comparisons/scores.csv"])
+def test_verified_report_rejects_drift_and_accepts_windows_line_endings(tmp_path, name):
+    table = tmp_path / name
+    table.parent.mkdir(parents=True, exist_ok=True)
     table.write_bytes(b"score\n0.5\n")
     manifest = tmp_path / "model.json"
-    write_json(manifest, {"reports": {"scores": report_ref(table)}})
+    write_json(manifest, {"reports": {"scores": report_ref(table, relative_to=tmp_path)}})
     table.write_bytes(b"score\r\n0.5\r\n")
     assert verified_report(manifest, "scores") == table.read_bytes()
     table.write_text("score\n0.7\n")
@@ -141,7 +143,7 @@ def test_final_run_archive_and_holdout_guards(training, tmp_path):
     run("final_model")
     reports = root / "reports/sprint2"
     public = reports / "final_model.json"
-    holdout = reports / "holdout_result.json"
+    holdout = reports / "final/holdout_result.json"
     original_holdout = holdout.read_bytes()
     first = read_json(public)
     archived = root / "artifacts/runs" / first["run_id"]
@@ -178,3 +180,11 @@ def test_final_run_archive_and_holdout_guards(training, tmp_path):
     assert holdout.read_bytes() == original_holdout
     assert read_json(public) == second
     assert sha256_file(root / second["model_file"]) == second["model_sha256"]
+
+
+@pytest.mark.parametrize("name", ["../outside.csv", "/tmp/outside.csv"])
+def test_verified_report_rejects_paths_outside_manifest(tmp_path, name):
+    manifest = tmp_path / "model.json"
+    write_json(manifest, {"reports": {"scores": {"file": name, "sha256": "unused"}}})
+    with pytest.raises(ValueError, match="within the manifest directory"):
+        verified_report(manifest, "scores")

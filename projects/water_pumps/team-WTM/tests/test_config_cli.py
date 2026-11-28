@@ -63,13 +63,13 @@ def test_configured_comparison_from_outside_the_project(training, tmp_path):
     output = run(cli, "compare").stdout
     assert "Training random_forest" in output
     assert "macro_f1_mean" in output
-    scores_path = settings.report_dir / "model_cv_scores.csv"
+    scores_path = settings.report_dir / "comparisons/model_cv_scores.csv"
     scores = pd.read_csv(scores_path)
     assert set(scores["model"]) == {"majority_baseline", "random_forest"}
     assert set(scores["fold"]) == {0, 1, 2}
     assert set(scores["random_seed"]) == {19}
     summary = json.loads(
-        (settings.report_dir / "model_comparison_summary.json").read_text()
+        (settings.report_dir / "comparisons/model_comparison_summary.json").read_text()
     )
     assert summary["holdout_scored"] is False
 
@@ -85,5 +85,5 @@ def test_configured_comparison_from_outside_the_project(training, tmp_path):
     assert direct.stdout == ""
     pd.testing.assert_frame_equal(
         pd.read_csv(tmp_path / "returned_table.csv"),
-        pd.read_csv(settings.report_dir / "model_comparison_table.csv"),
+        pd.read_csv(settings.report_dir / "comparisons/model_comparison_table.csv"),
     )

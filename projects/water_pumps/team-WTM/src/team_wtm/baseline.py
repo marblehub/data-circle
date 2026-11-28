@@ -88,11 +88,12 @@ def main():
     # 3. Keep ID-level assignments local and save aggregate scores for the team.
     SPLIT_PATH.parent.mkdir(parents=True, exist_ok=True)
     plan.to_csv(SPLIT_PATH, index=False)
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    results.to_csv(REPORT_DIR / "baseline_cv_scores.csv", index=False)
+    (REPORT_DIR / "baseline").mkdir(parents=True, exist_ok=True)
+    (REPORT_DIR / "comparisons").mkdir(parents=True, exist_ok=True)
+    results.to_csv(REPORT_DIR / "baseline/baseline_cv_scores.csv", index=False)
 
     # Keep any changes teammates have made to the comparison template.
-    template_path = REPORT_DIR / "model_comparison_template.csv"
+    template_path = REPORT_DIR / "comparisons/model_comparison_template.csv"
     if not template_path.exists():
         pd.DataFrame(columns=RESULT_COLUMNS).to_csv(template_path, index=False)
 
@@ -138,7 +139,7 @@ def main():
             "scikit_learn": sklearn.__version__,
         },
     }
-    summary_path = REPORT_DIR / "baseline_summary.json"
+    summary_path = REPORT_DIR / "baseline/baseline_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n")
 
     print(f"Saved {len(results)} development-fold results to {REPORT_DIR}")

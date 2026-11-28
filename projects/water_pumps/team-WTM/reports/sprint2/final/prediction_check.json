@@ -33,5 +33,5 @@
     "joblib": "1.6.0"
   },
   "predictions_sha256": "31c608ccddedd5581ef8ecacc7165fcb6cbfcad8d2f57dfc41cd90a3b19fcdfd",
-  "report_file": "reports/sprint2/prediction_check.json"
+  "report_file": "reports/sprint2/final/prediction_check.json"
 }

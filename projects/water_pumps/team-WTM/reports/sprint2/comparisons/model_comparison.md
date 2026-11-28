@@ -1,8 +1,8 @@
 # Model comparison and final setup
 
 PM-4, issue [#17](https://github.com/marblehub/data-circle/issues/17). Run on
-11 November 2026. Follows the [evaluation plan](evaluation_plan.md) and
-compares against the [majority baseline](baseline_results.md).
+11 November 2026. Follows the [evaluation plan](../evaluation_plan.md) and
+compares against the [majority baseline](../baseline/baseline_results.md).
 
 ## Result in short
 
@@ -137,7 +137,7 @@ F1 for each pump condition, all setups:
    in the data. With whole regions held out, macro F1 falls from 0.683 to
    0.489 and repair recall from 0.49 to 0.04 (163 of 3,454 repairs found).
    Location also lowers repair recall slightly (0.529 → 0.489) while it cuts
-   false alarms (949 → 545 per fold). See `pm3_feature_location_checks.md`,
+   false alarms (949 → 545 per fold). See [the regional findings](../feature_checks/pm3_feature_location_checks.md),
    sections 1 and 4.
 
 The costs of a missed repair and a false alarm have not been quantified. If
@@ -196,13 +196,14 @@ Holdout confusion matrix (rows: actual, columns: predicted):
 
 ## Output files
 
-All in `reports/sprint2/`; scores and counts only, no record-level data.
+Comparison tables are in `reports/sprint2/comparisons/`. See the
+[report index](../README.md) for the complete directory guide.
 
 - `model_*`, `quantity_*`, `location_*`: `_cv_scores.csv` (one row per fold,
   shared template columns), `_comparison_table.csv` (mean and std),
   `_comparison_summary.json` (confusion matrices per fold, settings, versions).
-- `holdout_result.json`: the one-time holdout score.
-- `final_model.json`: final settings and the reload check.
+- [Reserved holdout](../final/holdout_result.json): the one-time holdout score.
+- [Model manifest](../final_model.json): final settings and the reload check.
 - `per_class_scores.csv`: precision, recall and F1 for each pump condition,
   mean and std over folds, for every setup above (from the saved fold scores).
 

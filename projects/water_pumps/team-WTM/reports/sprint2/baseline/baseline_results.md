@@ -1,6 +1,6 @@
 # Majority-class baseline results
 
-PM-1 task 03, rerun on 29 October 2026. See the [evaluation plan](evaluation_plan.md)
+PM-1 task 03, rerun on 29 October 2026. See the [evaluation plan](../evaluation_plan.md)
 for the scope, split settings and instructions.
 
 ## Data and method
@@ -35,7 +35,7 @@ The low macro F1 shows why model selection must consider every class.
 - [Fold scores](baseline_cv_scores.csv): all required class scores and counts.
 - [Summary and confusion matrices](baseline_summary.json): settings, averages,
   score spread and package versions.
-- [Results template](model_comparison_template.csv): one row per validation fold.
+- [Results template](../comparisons/model_comparison_template.csv): one row per validation fold.
 - `data/processed/sprint2_splits.csv`: ignored local ID-level split assignments.
 
 These scores are a reference for Logistic Regression, Random Forest and feature

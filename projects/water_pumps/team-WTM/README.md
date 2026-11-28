@@ -537,7 +537,9 @@ order. `--model`, `--output` and `--format` still work. The original
 commands use the same workflows.
 
 For the approved model, report definitions, and a dashboard loading example,
-see the [Sprint 2 results index](reports/sprint2/README.md). The model travels
+see the [Sprint 2 results index](reports/sprint2/README.md). Reports are grouped
+under `baseline/`, `comparisons/`, `feature_checks/` and `final/`.
+The approved manifest stays at the report root. The model travels
 with its manifest. Use `--model-report FILE` when supplying a manifest
 at a different location.
 

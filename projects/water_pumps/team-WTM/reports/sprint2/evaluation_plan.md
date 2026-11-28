@@ -114,18 +114,18 @@ labels only. Numeric zeros supply row counts; no feature values are learned.
 
 Outputs:
 
-- `reports/sprint2/baseline_cv_scores.csv`: one aggregate row per validation fold.
-- `reports/sprint2/baseline_summary.json`: mean/spread, labelled confusion matrices,
+- `reports/sprint2/baseline/baseline_cv_scores.csv`: one aggregate row per validation fold.
+- `reports/sprint2/baseline/baseline_summary.json`: mean/spread, labelled confusion matrices,
   settings and package versions. Matrix row and column labels
   are given by `class_order`; rows are actual and columns are predicted labels.
-- `reports/sprint2/model_comparison_template.csv`: the shared CSV header. Existing
+- `reports/sprint2/comparisons/model_comparison_template.csv`: the shared CSV header. Existing
   template edits are not overwritten when rerunning the baseline.
 - `data/processed/sprint2_splits.csv`: local ID-level assignments; do not commit.
 
 Rerunning replaces the generated baseline report and local split file. Use the
 same training files when comparing results. Raw CSVs are not edited.
 
-The [baseline results](baseline_results.md) explain the completed run.
+The [baseline results](baseline/baseline_results.md) explain the completed run.
 
 The two Python files have separate jobs:
 

@@ -40,8 +40,12 @@ def _style(ax):
 def _feature_table():
     """Macro F1 per option for the final model, from all saved comparisons."""
     frames = [
-        pd.read_csv(REPORT_DIR / f"{name}_comparison_table.csv")
-        for name in ("pm3_h6", "pm3_ladder", "quantity")
+        pd.read_csv(REPORT_DIR / folder / f"{name}_comparison_table.csv")
+        for folder, name in (
+            ("feature_checks", "pm3_h6"),
+            ("feature_checks", "pm3_ladder"),
+            ("comparisons", "quantity"),
+        )
     ]
     table = pd.concat(frames)
     table = table[table["model"].eq("random_forest_balanced")]
@@ -84,7 +88,7 @@ def chart_feature_options(path):
 
 
 def chart_region_transfer(path):
-    data = pd.read_csv(REPORT_DIR / "pm3_region_transfer_by_region.csv")
+    data = pd.read_csv(REPORT_DIR / "feature_checks/pm3_region_transfer_by_region.csv")
     data = data.sort_values("repair_recall_main")
     fig, ax = plt.subplots(figsize=(8, 7), facecolor=SURFACE)
     _style(ax)

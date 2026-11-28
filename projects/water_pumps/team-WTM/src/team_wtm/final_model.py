@@ -41,7 +41,7 @@ from team_wtm.model_comparison import (
 
 FINAL_MODEL = "random_forest_balanced"
 FINAL_FEATURES = "full"
-HOLDOUT_PATH = REPORT_DIR / "holdout_result.json"
+HOLDOUT_PATH = REPORT_DIR / "final/holdout_result.json"
 FINAL_MODEL_REPORT = REPORT_DIR / "final_model.json"
 # models/**/*.joblib is ignored by Git, so the model file is never committed.
 MODEL_PATH = SETTINGS.model_file
@@ -146,7 +146,7 @@ def _publish_final_model():
             "The previous final-model report exists but its reserved holdout result is missing."
         )
     prior_holdout = previous.get("reports", {}).get("holdout")
-    if prior_holdout is not None and prior_holdout != report_ref(HOLDOUT_PATH):
+    if prior_holdout is not None and prior_holdout != report_ref(HOLDOUT_PATH, relative_to=REPORT_DIR):
         raise ValueError(
             "Reserved holdout file differs from the previous model manifest."
         )
@@ -162,7 +162,7 @@ def _publish_final_model():
         saved_inputs = holdout.get("evaluation_inputs")
         if saved_inputs is None and previous.get("reports", {}).get(
             "holdout"
-        ) == report_ref(HOLDOUT_PATH):
+        ) == report_ref(HOLDOUT_PATH, relative_to=REPORT_DIR):
             # The original Sprint 2 holdout predates input fingerprints.
             saved_inputs = previous.get("evaluation_inputs")
         if saved_inputs != inputs:
@@ -185,7 +185,7 @@ def _publish_final_model():
         }
         write_json(HOLDOUT_PATH, holdout)
 
-    reports = {"holdout": report_ref(HOLDOUT_PATH)}
+    reports = {"holdout": report_ref(HOLDOUT_PATH, relative_to=REPORT_DIR)}
     if (
         previous.get("evaluation_inputs") == inputs
         and previous.get("settings") == settings

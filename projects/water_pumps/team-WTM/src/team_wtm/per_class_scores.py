@@ -12,7 +12,7 @@ import pandas as pd
 from team_wtm.config import SETTINGS
 from team_wtm.evaluation import CLASS_NAMES
 
-REPORT_DIR = SETTINGS.report_dir
+REPORT_DIR = SETTINGS.report_dir / "comparisons"
 SCORE_FILES = [
     "model_cv_scores.csv",
     "quantity_cv_scores.csv",

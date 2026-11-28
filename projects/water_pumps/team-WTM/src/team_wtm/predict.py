@@ -48,7 +48,7 @@ RECORD_FILE_NAMES = SETTINGS.test_records
 SUBMISSION_PATH = SETTINGS.submission_format
 # data/**/*.csv is ignored by Git, so predictions stay local.
 PREDICTIONS_PATH = SETTINGS.predictions_file
-CHECK_REPORT_PATH = REPORT_DIR / "prediction_check.json"
+CHECK_REPORT_PATH = REPORT_DIR / "final/prediction_check.json"
 
 # Package versions compared with the ones saved when the model was trained.
 CHECKED_PACKAGES = ["pandas", "numpy", "scikit_learn", "joblib"]

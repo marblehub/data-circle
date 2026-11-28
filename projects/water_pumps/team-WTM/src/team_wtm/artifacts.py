@@ -40,8 +40,10 @@ def text_digest(content):
     return hashlib.sha256(content.replace(b"\r\n", b"\n")).hexdigest()
 
 
-def report_ref(path):
-    return {"file": path.name, "sha256": text_digest(path.read_bytes())}
+def report_ref(path, *, relative_to=None):
+    """Record a report path relative to its manifest directory."""
+    name = path.name if relative_to is None else path.relative_to(relative_to).as_posix()
+    return {"file": name, "sha256": text_digest(path.read_bytes())}
 
 
 def verified_report(manifest_path, name):
@@ -52,9 +54,15 @@ def verified_report(manifest_path, name):
 
 
 def _report_bytes(directory, entry):
-    if Path(entry["file"]).name != entry["file"]:
-        raise ValueError("Expected a report filename in the manifest directory")
-    content = (directory / entry["file"]).read_bytes()
+    relative = Path(entry["file"])
+    path = directory / relative
+    if (
+        relative.is_absolute()
+        or ".." in relative.parts
+        or not path.resolve().is_relative_to(directory.resolve())
+    ):
+        raise ValueError("Expected a report path within the manifest directory")
+    content = path.read_bytes()
     if text_digest(content) != entry["sha256"]:
         raise ValueError(f"Report checksum mismatch for {entry['file']}")
     return content
@@ -89,7 +97,10 @@ def archive_run(manifest, model_path, report_dir, config, *, reused_holdout):
         shutil.copyfile(model_path, bundle / "model.joblib")
         write_json(bundle / "model.json", {**manifest, "model_file": "model.joblib"})
         for entry in manifest["reports"].values():
-            (bundle / entry["file"]).write_bytes(_report_bytes(report_dir, entry))
+            content = _report_bytes(report_dir, entry)
+            destination = bundle / entry["file"]
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(content)
         effective = {
             k: str(v) if isinstance(v, Path) else v for k, v in asdict(config).items()
         }

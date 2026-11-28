@@ -68,7 +68,7 @@ Sprint 1 (Cramér's V 0.31 and 0.25). Combined groups beat both by more than
 alone is not useful: balanced class weights make the model call many pumps
 "needs repair", which gives about 5,200 false alarms per fold.
 
-![Feature options](../figures/sprint2/pm3_feature_options.png)
+![Feature options](../../figures/sprint2/pm3_feature_options.png)
 
 ## 4. Train on some regions, validate on others (card 17)
 
@@ -100,7 +100,7 @@ during fitting. Only development records are used.
   region has no learned region category; and nearby pumps look alike. No causal
   claim is made.
 
-![Region transfer](../figures/sprint2/pm3_region_transfer.png)
+![Region transfer](../../figures/sprint2/pm3_region_transfer.png)
 
 ## 5. Results by region and by age (card 16)
 
@@ -150,7 +150,7 @@ and age (H1) cannot be assessed in Dodoma, Kagera, Mbeya and Tabora at all.
 
 ## Files
 
-Aggregate tables in `reports/sprint2/`: `pm3_ladder_*`, `pm3_h6_*`,
+Aggregate tables in `reports/sprint2/feature_checks/`: `pm3_ladder_*`, `pm3_h6_*`,
 `pm3_groups_by_region.csv`, `pm3_groups_by_age.csv`,
 `pm3_groups_by_region_age.csv`, `pm3_groups_summary.json`,
 `pm3_region_cv_scores.csv`, `pm3_region_comparison_table.csv`,

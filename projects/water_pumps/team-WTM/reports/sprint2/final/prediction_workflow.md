@@ -1,7 +1,7 @@
 # Prediction workflow (Issue #17)
 
 Code: `src/team_wtm/predict.py` · Tests: `tests/test_predict.py` ·
-Check report: `reports/sprint2/prediction_check.json`
+Check report: `reports/sprint2/final/prediction_check.json`
 
 This workflow predicts the pump status of new records using the saved
 final model. It **only predicts**. It never fits or retrains the model, and it
@@ -13,8 +13,8 @@ command line, notebooks and the app can all call the same functions.
 | Item | Value | Where it comes from |
 |---|---|---|
 | Model file | `models/final_pipeline.joblib` (~104 MB, git-ignored) | `final_model.MODEL_PATH` |
-| Model | `random_forest_balanced` | `final_model.json → settings.model` |
-| Features | `full` (22 columns) | `final_model.json → settings.features` |
+| Model | `random_forest_balanced` | `../final_model.json → settings.model` |
+| Features | `full` (22 columns) | `../final_model.json → settings.features` |
 | Cleaning + feature columns | `clean_data` → `add_feature_columns` | `model_comparison.add_model_columns` |
 | Feature selection | `select_features(..., "full")` | `features.py` |
 | Column order | `model.feature_names_in_` | saved pipeline |
@@ -94,8 +94,8 @@ Without `--records`, the command looks for the test records in `data/raw`
 
 Predictions are written to `data/processed/test_predictions.csv`
 (git-ignored, local only). A totals-only report (counts and PASS/FAIL, no
-individual records) is written to `reports/sprint2/prediction_check.json`.
-Custom-model completion checks use a separate totals file next to the predictions (the output filename plus `.check.json`). The command exits with an error if any check fails. See the [dashboard results index](README.md) for run IDs and report verification.
+individual records) is written to `reports/sprint2/final/prediction_check.json`.
+Custom-model completion checks use a separate totals file next to the predictions (the output filename plus `.check.json`). The command exits with an error if any check fails. See the [dashboard results index](../README.md) for run IDs and report verification.
 
 Result of the last run:
 

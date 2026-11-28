@@ -138,7 +138,8 @@ def test_baseline_command_saves_results_without_git_and_keeps_existing_template(
 
     report_dir = tmp_path / "reports"
     report_dir.mkdir()
-    template = report_dir / "model_comparison_template.csv"
+    template = report_dir / "comparisons/model_comparison_template.csv"
+    template.parent.mkdir()
     template.write_text("team_note\nKeep this template edit\n")
     split_path = tmp_path / "data" / "splits.csv"
     values = training.drop(columns="status_group")
@@ -153,8 +154,8 @@ def test_baseline_command_saves_results_without_git_and_keeps_existing_template(
     monkeypatch.setattr(subprocess, "run", reject_external_command)
     baseline.main()
 
-    summary = json.loads((report_dir / "baseline_summary.json").read_text())
-    scores = pd.read_csv(report_dir / "baseline_cv_scores.csv")
+    summary = json.loads((report_dir / "baseline/baseline_summary.json").read_text())
+    scores = pd.read_csv(report_dir / "baseline/baseline_cv_scores.csv")
     assert len(scores) == 5
     assert summary["rows"]["all"] == len(training)
     assert summary["holdout_scored"] is False

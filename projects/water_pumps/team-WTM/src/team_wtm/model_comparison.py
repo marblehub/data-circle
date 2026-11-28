@@ -191,17 +191,20 @@ def comparison_table(results, metrics=SUMMARY_METRICS):
     return summary.sort_values("macro_f1_mean", ascending=False)
 
 
-def save_reports(results, matrices, name, feature_options):
+def save_reports(results, matrices, name, feature_options, *, folder="comparisons"):
     """Save fold rows (CSV), the comparison table (CSV) and a JSON summary.
 
     `matrices` maps "model / features" -> confusion matrices for each fold.
     """
+    directory = REPORT_DIR / folder
+    directory.mkdir(parents=True, exist_ok=True)
+
     # 1. One row per fold, in the shared template columns.
-    results.to_csv(REPORT_DIR / f"{name}_cv_scores.csv", index=False)
+    results.to_csv(directory / f"{name}_cv_scores.csv", index=False)
 
     # 2. Mean and std per model, best macro F1 first.
     table = comparison_table(results)
-    table.to_csv(REPORT_DIR / f"{name}_comparison_table.csv")
+    table.to_csv(directory / f"{name}_comparison_table.csv")
 
     # 3. Confusion matrices and settings go in JSON, as in PM-1's report.
     summary = {
@@ -227,7 +230,7 @@ def save_reports(results, matrices, name, feature_options):
             "scikit_learn": sklearn.__version__,
         },
     }
-    summary_path = REPORT_DIR / f"{name}_comparison_summary.json"
+    summary_path = directory / f"{name}_comparison_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n")
 
     return table
@@ -236,8 +239,8 @@ def save_reports(results, matrices, name, feature_options):
 def run_models(training, plan, *, on_progress=logger.info):
     """All four models on the 'base' option, next to PM-1's baseline."""
     # Start with PM-1's baseline rows so the table includes the baseline.
-    all_rows = [pd.read_csv(REPORT_DIR / "baseline_cv_scores.csv")]
-    baseline_summary = json.loads((REPORT_DIR / "baseline_summary.json").read_text())
+    all_rows = [pd.read_csv(REPORT_DIR / "baseline/baseline_cv_scores.csv")]
+    baseline_summary = json.loads((REPORT_DIR / "baseline/baseline_summary.json").read_text())
     matrices = {"majority_baseline / none": baseline_summary["fold_details"]}
 
     for model_name in SETTINGS.candidates:
@@ -259,10 +262,10 @@ def run_quantity_check(training, plan, *, on_progress=logger.info):
     'full' vs 'full_no_quantity' differ only in quantity/quantity_group.
     The 'base' rows are reused from the model run, on the same folds.
     """
-    base_rows = pd.read_csv(REPORT_DIR / "model_cv_scores.csv")
+    base_rows = pd.read_csv(REPORT_DIR / "comparisons/model_cv_scores.csv")
     base_rows = base_rows[base_rows["model"].isin(QUANTITY_MODELS)]
     base_summary = json.loads(
-        (REPORT_DIR / "model_comparison_summary.json").read_text()
+        (REPORT_DIR / "comparisons/model_comparison_summary.json").read_text()
     )
     all_rows = [base_rows]
     missing = set(QUANTITY_MODELS) - set(base_rows["model"])
@@ -296,12 +299,12 @@ def run_location_check(training, plan, *, on_progress=logger.info):
     The 'base' and 'full' rows are reused from the quantity check, same folds.
     """
     model_name = "random_forest_balanced"
-    earlier = pd.read_csv(REPORT_DIR / "quantity_cv_scores.csv")
+    earlier = pd.read_csv(REPORT_DIR / "comparisons/quantity_cv_scores.csv")
     earlier = earlier[
         earlier["model"].eq(model_name) & earlier["features"].isin(["base", "full"])
     ]
     earlier_summary = json.loads(
-        (REPORT_DIR / "quantity_comparison_summary.json").read_text()
+        (REPORT_DIR / "comparisons/quantity_comparison_summary.json").read_text()
     )
     matrices = {
         f"{model_name} / {option}": earlier_summary["confusion_matrices"][

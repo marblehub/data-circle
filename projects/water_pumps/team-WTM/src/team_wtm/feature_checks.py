@@ -64,9 +64,9 @@ FIGURE_DIR = PROJECT_DIR / "reports" / "figures" / "sprint2"
 
 def reuse_rows(file_name, options):
     """Fold rows and confusion matrices already saved by #17 for the final model."""
-    rows = pd.read_csv(REPORT_DIR / f"{file_name}_cv_scores.csv")
+    rows = pd.read_csv(REPORT_DIR / f"comparisons/{file_name}_cv_scores.csv")
     rows = rows[rows["model"].eq(MODEL_NAME) & rows["features"].isin(options)]
-    summary = json.loads((REPORT_DIR / f"{file_name}_comparison_summary.json").read_text())
+    summary = json.loads((REPORT_DIR / f"comparisons/{file_name}_comparison_summary.json").read_text())
     matrices = {
         f"{MODEL_NAME} / {option}": summary["confusion_matrices"][f"{MODEL_NAME} / {option}"]
         for option in options
@@ -86,7 +86,10 @@ def run_options(training, plan, new_options, reused_file, reused_options, name):
         all_rows.append(option_rows)
         matrices[f"{MODEL_NAME} / {option}"] = option_matrices
     results = pd.concat(all_rows, ignore_index=True)[RESULT_COLUMNS]
-    return save_reports(results, matrices, name, [*reused_options, *new_options])
+    return save_reports(
+        results, matrices, name, [*reused_options, *new_options],
+        folder="feature_checks",
+    )
 
 
 def run_ladder(training, plan):
@@ -193,8 +196,9 @@ def run_groups(training, plan):
         "age": group_results(predictions, "age"),
         "region_age": group_results(predictions, ["region", "age"]),
     }
+    (REPORT_DIR / "feature_checks").mkdir(parents=True, exist_ok=True)
     for name, table in tables.items():
-        table.to_csv(REPORT_DIR / f"pm3_groups_by_{name}.csv", index=False)
+        table.to_csv(REPORT_DIR / f"feature_checks/pm3_groups_by_{name}.csv", index=False)
 
     folds = overall_fold_scores(predictions)
     summary = {
@@ -205,7 +209,7 @@ def run_groups(training, plan):
         "check_against_17_macro_f1_mean": float(folds["macro_f1"].mean()),
         "fold_scores": folds.to_dict(orient="records"),
     }
-    (REPORT_DIR / "pm3_groups_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    (REPORT_DIR / "feature_checks/pm3_groups_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(tables["age"].round(3).to_string(index=False))
     print(f"Mean macro F1 over folds: {folds['macro_f1'].mean():.4f} (should match #17)")
 
@@ -266,19 +270,20 @@ def run_regions(training, plan):
         }))
 
     results = pd.DataFrame(rows, columns=RESULT_COLUMNS)
-    results.to_csv(REPORT_DIR / "pm3_region_cv_scores.csv", index=False)
+    (REPORT_DIR / "feature_checks").mkdir(parents=True, exist_ok=True)
+    results.to_csv(REPORT_DIR / "feature_checks/pm3_region_cv_scores.csv", index=False)
     predictions = pd.concat(parts, ignore_index=True)
     predictions.to_csv(REGION_PREDICTION_PATH, index=False)  # local only
 
     # Per region: unseen-region scores next to the main-fold scores.
     unseen = group_results(predictions, "region")
-    main = pd.read_csv(REPORT_DIR / "pm3_groups_by_region.csv")
+    main = pd.read_csv(REPORT_DIR / "feature_checks/pm3_groups_by_region.csv")
     keep = ["region", "macro_f1", "repair_recall", "missed_repairs"]
     by_region = main[["region", "records", "repair_records", "too_small", *keep[1:]]].merge(
         unseen[keep], on="region", suffixes=("_main", "_unseen"))
-    by_region.to_csv(REPORT_DIR / "pm3_region_transfer_by_region.csv", index=False)
+    by_region.to_csv(REPORT_DIR / "feature_checks/pm3_region_transfer_by_region.csv", index=False)
 
-    main_folds = pd.read_csv(REPORT_DIR / "quantity_cv_scores.csv")
+    main_folds = pd.read_csv(REPORT_DIR / "comparisons/quantity_cv_scores.csv")
     main_folds = main_folds[main_folds["model"].eq(MODEL_NAME)
                             & main_folds["features"].eq(FINAL_OPTION)]
     metrics = ["macro_f1", "accuracy", "repair_recall", "repair_precision"]
@@ -288,7 +293,7 @@ def run_regions(training, plan):
         **{f"{m}_mean": [main_folds[m].mean(), results[m].mean()] for m in metrics},
         **{f"{m}_std": [main_folds[m].std(ddof=1), results[m].std(ddof=1)] for m in metrics},
     })
-    comparison.to_csv(REPORT_DIR / "pm3_region_comparison_table.csv", index=False)
+    comparison.to_csv(REPORT_DIR / "feature_checks/pm3_region_comparison_table.csv", index=False)
     summary = {
         "scope": "Development records only; holdout not scored.",
         "model": MODEL_NAME,
@@ -302,7 +307,7 @@ def run_regions(training, plan):
         "comparison": comparison.to_dict(orient="records"),
         "confusion_matrices": matrices,
     }
-    (REPORT_DIR / "pm3_region_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
+    (REPORT_DIR / "feature_checks/pm3_region_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(comparison.round(3).to_string(index=False))
 
 
