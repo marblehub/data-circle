@@ -35,7 +35,8 @@ from team_wtm.final_model import (
     MODEL_PATH,
     versions,
 )
-from team_wtm.model_comparison import MODELS, REPORT_DIR, add_model_columns
+from team_wtm.model_comparison import MODELS, REPORT_DIR
+from team_wtm.model_data_preparation import prepare_features as add_model_columns
 
 ID_COLUMN = "id"
 TARGET_COLUMN = "status_group"

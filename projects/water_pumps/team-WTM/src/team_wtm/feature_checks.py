@@ -37,12 +37,12 @@ from team_wtm.model_comparison import (
     MODELS,
     REPORT_DIR,
     SPLIT_PATH,
-    add_model_columns,
-    build_pipeline,
-    load_training,
     run_cross_validation,
     save_reports,
 )
+from team_wtm.model_data_preparation import build_pipeline
+from team_wtm.model_data_preparation import load_training_data as load_training
+from team_wtm.model_data_preparation import prepare_features as add_model_columns
 
 # The final setup chosen in #17. All PM-3 checks use it, so results are comparable.
 MODEL_NAME = "random_forest_balanced"

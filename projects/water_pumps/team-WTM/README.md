@@ -572,6 +572,39 @@ belong to the original settings.
 
 ---
 
+### Shared preparation for Python callers
+
+Use the preparation module from notebooks, scripts or a dashboard.
+
+```python
+from team_wtm.model_data_preparation import (
+    build_pipeline,
+    load_training_data,
+    prepare_model_inputs,
+)
+
+training = load_training_data()
+columns, target, record_ids = prepare_model_inputs(training, option="full")
+```
+
+`load_training_data()` reads the configured training CSVs, validates IDs and
+requires every ID to occur in both files. It sorts the joined records by ID,
+matching the training commands. Explicit CSV paths can be passed to load another
+dataset. The lower-level `cleaning.merge_data()` supports outer joins for audits.
+
+`prepare_model_inputs()` applies the cleaning and column-engineering rules,
+selects a named column set, and returns the columns, target and IDs with matching
+row indexes. Pass `require_target=False` for supplied test records.
+`build_pipeline(fitting_columns, estimator)` creates an unfitted preprocessing
+and model pipeline. Fit it on fitting records inside each development fold.
+The imputation, scaling and category encoding are learned during that fit.
+
+The training commands and prediction workflow use these preparation functions.
+Existing `model_comparison.load_training`, `add_model_columns`,
+`categories_as_text` and `build_pipeline` imports remain available. This also
+supports loading saved pipelines that refer to the earlier module path.
+
+
 # Git and GitHub Workflow
 
 The team uses a **feature-branch workflow**.

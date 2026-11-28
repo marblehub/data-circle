@@ -15,7 +15,13 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardScaler
 
-from team_wtm.cleaning import clean_data, merge_data
+from team_wtm.cleaning import (
+    DEFAULT_LABELS_PATH,
+    DEFAULT_VALUES_PATH,
+    clean_data,
+    load_data,
+    merge_data,
+)
 from team_wtm.features import add_feature_columns, select_features
 
 ID_COLUMN = "id"
@@ -38,8 +44,21 @@ def merge_training_data(
     return merged.drop(columns="_merge")
 
 
+def load_training_data(values_path=DEFAULT_VALUES_PATH, labels_path=DEFAULT_LABELS_PATH):
+    """Load the configured CSVs and require a complete one-to-one ID join.
+
+    The shared merge sorts by ID, matching the existing training workflows.
+    Pass explicit paths to load another dataset with the same validation.
+    """
+    values, labels = load_data(values_path, labels_path)
+    return merge_training_data(values, labels)
+
+
 def prepare_features(data: pd.DataFrame) -> pd.DataFrame:
-    """Apply shared cleaning, pump-age derivation and feature engineering."""
+    """Apply the row-by-row cleaning and column-engineering rules.
+
+    These steps learn nothing from the data and preserve row order and index.
+    """
     prepared = clean_data(data)
     # add_feature_columns delegates age and quality flags to the shared
     # export_cleaned.add_quality_features implementation.
@@ -150,3 +169,35 @@ def build_preprocessor(X_train: pd.DataFrame) -> ColumnTransformer:
     if not transformers:
         raise ValueError("X_train must contain at least one feature")
     return ColumnTransformer(transformers=transformers, remainder="drop")
+
+
+def categories_as_text(features):
+    """Turn True/False values into "True"/"False" text; keep missing values.
+
+    The encoder cannot mix True/False with text such as "__MISSING__".
+    This step learns nothing, so it is safe inside cross-validation.
+    """
+    output = features.copy()
+    for column in output.columns:
+        is_flag = pd.api.types.is_bool_dtype(output[column])
+        if is_flag or not pd.api.types.is_numeric_dtype(output[column]):
+            column_values = output[column]
+            output[column] = column_values.astype(object).where(
+                column_values.isna(), column_values.astype(str)
+            )
+    return output
+
+
+def build_pipeline(fit_features, model):
+    """Join the preparation steps and the model into one unfitted Pipeline.
+
+    Learned steps (filling missing values, scaling, encoding) are fitted only
+    when Pipeline.fit is called, which we do on the fitting rows only.
+    """
+    return Pipeline(
+        steps=[
+            ("categories_as_text", FunctionTransformer(categories_as_text)),
+            ("preprocessor", build_preprocessor(fit_features)),
+            ("model", model),
+        ]
+    )

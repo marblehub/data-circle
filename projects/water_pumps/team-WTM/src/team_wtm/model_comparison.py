@@ -7,7 +7,7 @@ Run with:
 
 Reuses team code instead of rewriting it:
 - PM-1 (evaluation.py): development folds and score_predictions.
-- PM-2 (model_data_preparation.py): build_preprocessor.
+- PM-2 (model_data_preparation.py): training join, preparation and pipeline builder.
 - PM-3 (features.py): add_feature_columns and select_features.
 
 Only the development folds are used here. The labelled holdout is not scored.
@@ -23,10 +23,8 @@ import pandas as pd
 import sklearn
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import FunctionTransformer
 
-from team_wtm.cleaning import clean_data, load_data, merge_data
+from team_wtm import model_data_preparation
 from team_wtm.config import SETTINGS
 from team_wtm.evaluation import (
     RANDOM_SEED,
@@ -35,13 +33,18 @@ from team_wtm.evaluation import (
     development_folds,
     score_predictions,
 )
-from team_wtm.features import FEATURE_OPTIONS, add_feature_columns, select_features
-from team_wtm.model_data_preparation import build_preprocessor
+from team_wtm.features import FEATURE_OPTIONS, select_features
 
 logger = logging.getLogger(__name__)
 
 SPLIT_PATH = SETTINGS.split_plan
 REPORT_DIR = SETTINGS.report_dir
+
+# Existing notebooks and saved pipelines refer to these names in this module.
+load_training = model_data_preparation.load_training_data
+add_model_columns = model_data_preparation.prepare_features
+categories_as_text = model_data_preparation.categories_as_text
+build_pipeline = model_data_preparation.build_pipeline
 
 # Scores summarised over folds for the comparison table.
 SUMMARY_METRICS = [
@@ -77,56 +80,6 @@ MODELS = {
         n_jobs=SETTINGS.forest_jobs,
     ),
 }
-
-
-def load_training():
-    """Join training values and labels by ID. Stop if any IDs do not match."""
-    values, labels = load_data()
-    training = merge_data(values, labels, keep_merge_indicator=True)
-    if not training["_merge"].eq("both").all():
-        raise ValueError("Training values and labels must have the same IDs.")
-    return training.drop(columns="_merge")
-
-
-def add_model_columns(training):
-    """Apply the fixed cleaning rules and add PM-3's feature columns.
-
-    These rules work row by row and learn nothing from the data, so they are
-    safe to apply before splitting. Row order is unchanged.
-    """
-    return add_feature_columns(clean_data(training))
-
-
-def categories_as_text(features):
-    """Turn True/False values into "True"/"False" text; keep missing values.
-
-    The encoder cannot mix True/False with text such as "__MISSING__".
-    This step learns nothing, so it is safe inside cross-validation.
-    """
-    output = features.copy()
-    for column in output.columns:
-        is_flag = pd.api.types.is_bool_dtype(output[column])
-        if is_flag or not pd.api.types.is_numeric_dtype(output[column]):
-            column_values = output[column]
-            output[column] = column_values.astype(object).where(
-                column_values.isna(), column_values.astype(str)
-            )
-    return output
-
-
-def build_pipeline(fit_features, model):
-    """Join the preparation steps and the model into one unfitted Pipeline.
-
-    Learned steps (filling missing values, scaling, encoding) are fitted only
-    when Pipeline.fit is called, which we do on the fitting rows only.
-    """
-    return Pipeline(
-        steps=[
-            ("categories_as_text", FunctionTransformer(categories_as_text)),
-            ("preprocessor", build_preprocessor(fit_features)),
-            ("model", model),
-        ]
-    )
 
 
 def run_cross_validation(training, plan, model_name, feature_option="base"):

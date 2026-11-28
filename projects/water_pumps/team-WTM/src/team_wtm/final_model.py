@@ -34,10 +34,10 @@ from team_wtm.model_comparison import (
     MODELS,
     REPORT_DIR,
     SPLIT_PATH,
-    add_model_columns,
-    build_pipeline,
-    load_training,
 )
+from team_wtm.model_data_preparation import build_pipeline
+from team_wtm.model_data_preparation import load_training_data as load_training
+from team_wtm.model_data_preparation import prepare_features as add_model_columns
 
 FINAL_MODEL = "random_forest_balanced"
 FINAL_FEATURES = "full"

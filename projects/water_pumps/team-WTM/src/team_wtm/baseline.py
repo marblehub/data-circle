@@ -8,7 +8,6 @@ import pandas as pd
 import sklearn
 from sklearn.dummy import DummyClassifier
 
-from team_wtm.cleaning import load_data, merge_data
 from team_wtm.config import SETTINGS
 from team_wtm.evaluation import (
     CLASS_NAMES,
@@ -20,6 +19,7 @@ from team_wtm.evaluation import (
     make_split_plan,
     score_predictions,
 )
+from team_wtm.model_data_preparation import load_training_data
 
 REPORT_DIR = SETTINGS.report_dir
 SPLIT_PATH = SETTINGS.split_plan
@@ -73,13 +73,7 @@ def run_baseline(training, plan):
 
 def main():
     # 1. Join training values and labels by ID. Stop if any IDs do not match.
-    values, labels = load_data()
-    training = merge_data(values, labels, keep_merge_indicator=True)
-    if not training["_merge"].eq("both").all():
-        raise ValueError(
-            "Training values and labels must contain exactly the same IDs."
-        )
-    training = training.drop(columns="_merge")
+    training = load_training_data()
 
     # 2. Make the shared splits and score only the development folds.
     plan = make_split_plan(training)

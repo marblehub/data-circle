@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 from sklearn.compose import ColumnTransformer
 
+from team_wtm.features import FEATURE_OPTIONS
 from team_wtm.model_data_preparation import (
     build_preprocessor,
     merge_training_data,
@@ -178,3 +179,65 @@ def test_preprocessor_with_boolean_categories_can_be_saved_and_reloaded(tmp_path
     np.testing.assert_array_equal(
         reloaded.get_feature_names_out(), preprocessor.get_feature_names_out()
     )
+
+
+def test_load_training_uses_complete_id_join_and_keeps_alignment(tmp_path):
+    from team_wtm.model_data_preparation import load_training_data
+
+    values = pd.DataFrame({"id": [3, 1, 2], "population": [30, 10, 20]})
+    labels = pd.DataFrame(
+        {
+            "id": [2, 3, 1],
+            "status_group": ["non functional", "functional", "functional needs repair"],
+        }
+    )
+    values_path = tmp_path / "values.csv"
+    labels_path = tmp_path / "labels.csv"
+    values.to_csv(values_path, index=False)
+    labels.to_csv(labels_path, index=False)
+
+    result = load_training_data(values_path, labels_path)
+    expected = merge_training_data(values, labels)
+    pd.testing.assert_frame_equal(result, expected)
+    assert result["id"].tolist() == [1, 2, 3]
+    assert result["population"].tolist() == [10, 20, 30]
+    assert result["status_group"].tolist() == [
+        "functional needs repair", "non functional", "functional"
+    ]
+
+
+@pytest.mark.parametrize(
+    ("ids", "message"),
+    [
+        ([1, 1], "duplicate IDs"),
+        ([1, None], "missing IDs"),
+        ([1, 3], "unmatched IDs"),
+    ],
+)
+def test_load_training_rejects_invalid_id_relationships(tmp_path, ids, message):
+    from team_wtm.model_data_preparation import load_training_data
+
+    pd.DataFrame({"id": ids}).to_csv(tmp_path / "values.csv", index=False)
+    labels = pd.DataFrame(
+        {"id": [1, 2], "status_group": ["functional", "non functional"]}
+    )
+    labels.to_csv(tmp_path / "labels.csv", index=False)
+    with pytest.raises(ValueError, match=message):
+        load_training_data(tmp_path / "values.csv", tmp_path / "labels.csv")
+
+
+@pytest.mark.parametrize("option", FEATURE_OPTIONS)
+def test_training_and_prediction_preparation_match(training, option):
+    from team_wtm.predict import prepare_features as prepare_prediction_features
+
+    # Preserve a non-default index and row order through both entry points.
+    records = training.iloc[::-1].drop(columns="status_group")
+    before = records.copy(deep=True)
+    expected, target, ids = prepare_model_inputs(
+        records, option=option, require_target=False
+    )
+    actual = prepare_prediction_features(records, FEATURE_OPTIONS[option], option)
+    pd.testing.assert_frame_equal(actual, expected)
+    pd.testing.assert_frame_equal(records, before)
+    assert target is None
+    pd.testing.assert_series_equal(ids, records["id"])
