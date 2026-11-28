@@ -23,9 +23,15 @@ def print_comparison(table, report_dir):
 
 
 def _predict(args):
-    from team_wtm.predict import CHECK_REPORT_PATH, relative, run_prediction
+    from team_wtm.predict import relative, run_prediction
 
-    result = run_prediction(args.records, args.model, args.output, args.format)
+    result = run_prediction(
+        args.records,
+        args.model,
+        args.output,
+        args.format,
+        model_report=args.model_report,
+    )
     rows = result["prediction_rows"]
     if "checks" not in result:
         print(f"Predicted {rows} records; saved to {args.output}")
@@ -35,7 +41,7 @@ def _predict(args):
         print(f"  {name}: {'PASS' if passed else 'FAIL'}")
     print(f"Label counts: {result['label_counts']}")
     print(f"Saved predictions to {relative(args.output)}")
-    print(f"Saved totals-only report to {relative(CHECK_REPORT_PATH)}")
+    print(f"Saved totals-only report to {result['report_file']}")
     if not result["all_checks_passed"]:
         raise SystemExit("Completion check failed.")
 
@@ -66,6 +72,11 @@ def main(argv=None):
         type=Path,
         default=SETTINGS.model_file,
         help="Saved pipeline to load (default: %(default)s).",
+    )
+    predict.add_argument(
+        "--model-report",
+        type=Path,
+        help="Matching model manifest; custom models can use a .json sidecar.",
     )
     predict.add_argument(
         "--output",

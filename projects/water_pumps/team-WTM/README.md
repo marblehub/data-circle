@@ -536,6 +536,11 @@ order. `--model`, `--output` and `--format` still work. The original
 `python -m team_wtm.predict` and `python -m team_wtm.model_comparison`
 commands use the same workflows.
 
+For the approved model, report definitions, and a dashboard loading example,
+see the [Sprint 2 results index](reports/sprint2/README.md). The model travels
+with its manifest. Use `--model-report FILE` when supplying a manifest
+at a different location.
+
 For a notebook or dashboard, pass a DataFrame of pump records directly to
 `predict_records(records, load_model())` from `team_wtm.predict`. It returns
 the predictions in memory. For a batch file, `run_prediction(...)` saves the

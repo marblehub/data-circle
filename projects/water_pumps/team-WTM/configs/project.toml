@@ -8,6 +8,7 @@ test_records = ["test_features.csv.csv", "Test_set_values.csv", "test_features.c
 submission_format = "Submission_format.csv"
 split_plan = "data/processed/sprint2_splits.csv"
 report_dir = "reports/sprint2"
+runs_dir = "artifacts/runs"
 model_file = "models/final_pipeline.joblib"
 predictions_file = "data/processed/test_predictions.csv"
 

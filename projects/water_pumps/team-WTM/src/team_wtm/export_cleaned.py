@@ -5,7 +5,6 @@ preserved. Learned imputation, encoding and scaling belong in training folds.
 """
 
 import argparse
-import hashlib
 import importlib.metadata
 import json
 import os
@@ -18,6 +17,7 @@ from tempfile import TemporaryDirectory
 import pandas as pd
 from pandas.testing import assert_frame_equal
 
+from team_wtm.artifacts import sha256_file
 from team_wtm.cleaning import (
     DEFAULT_LABELS_PATH,
     DEFAULT_VALUES_PATH,
@@ -39,12 +39,6 @@ QUALITY_FLAGS = (
     "coordinate_screen_failed",
 )
 RULES_VERSION = "sprint1-cleaned-snapshot-v1"
-
-
-def sha256_file(path: Path) -> str:
-    """Hash file bytes, with bounded memory use."""
-    with path.open("rb") as stream:
-        return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
 def add_quality_features(cleaned: pd.DataFrame) -> pd.DataFrame:

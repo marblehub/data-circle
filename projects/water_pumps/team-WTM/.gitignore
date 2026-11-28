@@ -51,6 +51,7 @@ data/**/*.xls
 # --------------------------------------------------
 models/**/*.pkl
 models/**/*.pickle
+artifacts/runs/
 models/**/*.joblib
 models/**/*.onnx
 

@@ -63,5 +63,54 @@
     "numpy": "2.5.3",
     "scikit_learn": "1.9.1",
     "joblib": "1.6.0"
+  },
+  "run_id": "sprint2-rf-419c9f7abddd",
+  "model_sha256": "419c9f7abdddd5fe5fb55313ebc8054bd038332078c48eda99ec26779f506f8f",
+  "evaluation_inputs": {
+    "training_values": "d8ebe40f49fe749a851c8ea28601115cd92442f7b20025fbc33881595ae75f5d",
+    "training_labels": "ae9b4f893e8e89df3a2187d38cade75c61dfb1d1e156ecd7615fee14fdbe0a24",
+    "split_plan": "7222b99b5fe6c458bd879434eec7d9798b18717866f6a8e697fb9df60a482ca8"
+  },
+  "reports": {
+    "holdout": {
+      "file": "holdout_result.json",
+      "sha256": "9a6492c3a886f6313fcbd467ac0abf94afea52b32c1d39780e65a1aac7c2f5fe"
+    },
+    "model_comparison": {
+      "file": "model_comparison_table.csv",
+      "sha256": "46242a56647c95669a086fb89355d0300cd4c27c1d18bdaef8bdc1bff23c409f"
+    },
+    "quantity": {
+      "file": "quantity_comparison_table.csv",
+      "sha256": "5611a54bb40985403b4ea2592523babd098d3ebe8af6ccda0e4d06fb281128b1"
+    },
+    "per_condition": {
+      "file": "per_class_scores.csv",
+      "sha256": "afcfbd37ed9df635a468452dc1e96ceab9e0524bb95917f3d48637d7f0436f5d"
+    },
+    "feature_groups": {
+      "file": "pm3_ladder_comparison_table.csv",
+      "sha256": "0aca84eac28f3fa7791baa3c6dd0e45584b639e11bb5fd868ad90065382e04e4"
+    },
+    "region_comparison": {
+      "file": "pm3_region_comparison_table.csv",
+      "sha256": "5177b9246221434a2c14324ef21f4e76bb09f42eb7b28b5f707401235cafb167"
+    },
+    "region_transfer": {
+      "file": "pm3_region_transfer_by_region.csv",
+      "sha256": "0c066eacdf97d00709709b389af30686984b94ab46954e70a15b1cff0a557b47"
+    },
+    "age_groups": {
+      "file": "pm3_groups_by_age.csv",
+      "sha256": "55f2e830bf073bdf367d1abec0a69322537ef0371bea220fd2d147354cdeb7dd"
+    },
+    "regional_groups": {
+      "file": "pm3_groups_by_region.csv",
+      "sha256": "02a57399a097d49526787465c4be92b846de60f4a95d8757cced43a042598772"
+    },
+    "region_age_groups": {
+      "file": "pm3_groups_by_region_age.csv",
+      "sha256": "3095141b70b2e1e37dc246f736ce398714d0d88523eb2c772c777d698bc46bee"
+    }
   }
 }

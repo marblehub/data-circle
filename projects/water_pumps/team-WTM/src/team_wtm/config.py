@@ -18,6 +18,7 @@ class Settings:
     submission_format: Path
     split_plan: Path
     report_dir: Path
+    runs_dir: Path
     model_file: Path
     predictions_file: Path
     random_seed: int
@@ -94,6 +95,7 @@ def load_settings(path=None):
             submission_format=raw / _text(paths, "submission_format"),
             split_plan=root / _text(paths, "split_plan"),
             report_dir=root / _text(paths, "report_dir"),
+            runs_dir=root / _text({"runs_dir": "artifacts/runs", **paths}, "runs_dir"),
             model_file=root / _text(paths, "model_file"),
             predictions_file=root / _text(paths, "predictions_file"),
             random_seed=seed,
