@@ -140,3 +140,7 @@ manifest to select the reviewed evidence for the dashboard.
 The CLI exposes `baseline`, `compare`, `features`, `scores`, `final-model`,
 `predict` and `export-cleaned`. Their existing Python module commands use the
 same workflows. See the [project usage guide](../../README.md#workflow-history-and-logs).
+
+Project entry points also write a rotating log at `paths.log_file`, normally
+`artifacts/logs/project.log`. Messages include UTC time, severity, module and
+workflow/run IDs. See the [logging guide](../../README.md#standard-project-logging).

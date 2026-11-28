@@ -1,6 +1,7 @@
 """Run the majority-class baseline with python -m team_wtm.baseline."""
 
 import json
+import logging
 import platform
 import sys
 
@@ -23,6 +24,8 @@ from team_wtm.evaluation import (
 )
 from team_wtm.model_data_preparation import load_training_data
 from team_wtm.runtime import track_workflow
+
+logger = logging.getLogger(__name__)
 
 REPORT_DIR = SETTINGS.report_dir
 SPLIT_PATH = SETTINGS.split_plan
@@ -161,6 +164,9 @@ def run_baseline_workflow(*, on_progress=None):
         run.details["split_plan"] = {
             "path": str(SPLIT_PATH), "sha256": sha256_file(SPLIT_PATH)
         }
+        logger.info("Saved baseline results to %s", REPORT_DIR / "baseline")
+        logger.info("Saved split plan to %s", SPLIT_PATH)
+        logger.info("Baseline accuracy %.4f; macro F1 %.4f", summary["cv_mean"]["accuracy"], summary["cv_mean"]["macro_f1"])
         return summary
 
 

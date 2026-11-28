@@ -10,6 +10,7 @@ split_plan = "data/processed/sprint2_splits.csv"
 report_dir = "reports/sprint2"
 runs_dir = "artifacts/runs"
 workflow_runs_dir = "artifacts/workflows"
+log_file = "artifacts/logs/project.log"
 processed_dir = "data/processed"
 figures_dir = "reports/figures"
 cleaned_snapshot = "data/processed/training_cleaned.parquet"
@@ -42,6 +43,8 @@ minimum_category_frequency = 0.01
 
 [logging]
 level = "INFO"
+max_bytes = 5000000
+backup_count = 3
 
 [eda]
 min_cell_records = 30

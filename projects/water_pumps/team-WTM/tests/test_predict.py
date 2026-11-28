@@ -300,7 +300,7 @@ def test_completion_check_fails_when_ids_differ(
 
     with pytest.raises(SystemExit, match="Completion check failed"):
         cli.main(["predict", "--model", str(model_file), "--output", str(output)])
-    assert "ids_match_in_order: FAIL" in capsys.readouterr().out
+    assert "ids_match_in_order: FAIL" in capsys.readouterr().err
 
 
 def test_predict_module_does_not_import_streamlit():

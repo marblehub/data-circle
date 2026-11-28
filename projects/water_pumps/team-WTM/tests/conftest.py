@@ -51,7 +51,7 @@ def isolate_default_workflow_history(tmp_path, monkeypatch):
     """Keep default test runs in temporary experiment directories."""
     from dataclasses import replace
 
-    from team_wtm import runtime
+    from team_wtm import logging_config, runtime
 
     original = runtime.WorkflowRun
     default_directory = runtime.SETTINGS.workflow_runs_dir
@@ -61,4 +61,18 @@ def isolate_default_workflow_history(tmp_path, monkeypatch):
             config = replace(config, workflow_runs_dir=tmp_path / "workflows")
         return original(name, config, on_progress)
 
+    original_configure = logging_config.configure_logging
+    default_log = runtime.SETTINGS.log_file
+
+    def configure_test_logging(config=None, *, console=True):
+        config = config or runtime.SETTINGS
+        if config.log_file == default_log:
+            config = replace(config, log_file=tmp_path / "project.log")
+        return original_configure(config, console=console)
+
     monkeypatch.setattr(runtime, "WorkflowRun", create_run)
+    monkeypatch.setattr(logging_config, "configure_logging", configure_test_logging)
+    try:
+        yield
+    finally:
+        logging_config.shutdown_logging()

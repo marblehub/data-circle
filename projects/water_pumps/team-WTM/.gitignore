@@ -53,6 +53,7 @@ models/**/*.pkl
 models/**/*.pickle
 artifacts/runs/
 artifacts/workflows/
+artifacts/logs/
 models/**/*.joblib
 models/**/*.onnx
 

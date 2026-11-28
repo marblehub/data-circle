@@ -16,6 +16,7 @@ totals-only report (no individual records) to reports/sprint2.
 """
 
 import hashlib
+import logging
 import sys
 import warnings
 from pathlib import Path
@@ -38,6 +39,8 @@ from team_wtm.final_model import (
 from team_wtm.model_comparison import MODELS, REPORT_DIR
 from team_wtm.model_data_preparation import prepare_features as add_model_columns
 from team_wtm.runtime import track_workflow
+
+logger = logging.getLogger(__name__)
 
 ID_COLUMN = "id"
 TARGET_COLUMN = "status_group"
@@ -422,6 +425,12 @@ def run_prediction(
         run.details["predictions"] = {
             "path": str(Path(output_path).resolve()), "sha256": sha256_file(Path(output_path))
         }
+        logger.info("Predicted %s records; saved to %s", result["prediction_rows"], Path(output_path).resolve())
+        if "checks" in result:
+            for name, passed in result["checks"].items():
+                logger.log(logging.INFO if passed else logging.ERROR, "%s: %s", name, "PASS" if passed else "FAIL")
+            logger.info("Prediction label counts: %s", result["label_counts"])
+            logger.info("Saved completion checks to %s", result["report_file"])
         return result
 
 

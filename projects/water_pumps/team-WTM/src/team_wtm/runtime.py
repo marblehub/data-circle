@@ -1,6 +1,5 @@
 """Persistent progress logs and reproducible records for workflow invocations."""
 
-import logging
 import platform
 from contextlib import contextmanager
 from dataclasses import asdict
@@ -12,6 +11,7 @@ from uuid import uuid4
 
 from team_wtm.artifacts import sha256_file, write_json
 from team_wtm.config import SETTINGS
+from team_wtm.logging_config import workflow_logging
 
 
 class WorkflowRun:
@@ -41,13 +41,6 @@ class WorkflowRun:
             "inputs": {},
             "outputs": {},
         }
-        # Independent loggers keep concurrent runs separate without a growing registry.
-        self.logger = logging.Logger("team_wtm.workflow", config.log_level)  # noqa: LOG001
-        self.handler = logging.FileHandler(self.directory / "run.log", encoding="utf-8")
-        self.handler.setFormatter(
-            logging.Formatter("%(asctime)s %(levelname)s %(message)s")
-        )
-        self.logger.addHandler(self.handler)
         settings = {
             name: str(value) if isinstance(value, Path) else value
             for name, value in asdict(config).items()
@@ -90,41 +83,43 @@ def track_workflow(name, *, config=None, on_progress=None, report_dir=None):
     """Record successful and failed workflows independently, including concurrent calls."""
     config = config or SETTINGS
     run = WorkflowRun(name, config, on_progress)
-    lock = None
-    try:
-        if report_dir is not None:
-            report_dir.mkdir(parents=True, exist_ok=True)
-            candidate = report_dir / ".workflow.lock"
-            try:
-                candidate.mkdir()
-            except FileExistsError:
-                raise RuntimeError(
-                    f"Another workflow is publishing reports at {report_dir}"
-                ) from None
-            lock = candidate
-        run.progress(f"Started {name}")
-        yield run
-        for entry in run.details["inputs"].values():
-            if sha256_file(Path(entry["path"])) != entry["sha256"]:
-                raise RuntimeError(f"Input changed during workflow: {entry['path']}")
-        run.progress(f"Finished {name}")
-    except BaseException as error:
-        run.details["status"] = "failed"
-        run.details["error"] = {
-            "type": type(error).__name__,
-            "message": str(error),
-        }
-        run.logger.exception("Workflow failed")
-        raise
-    else:
-        if run.details["status"] == "running":
-            run.details["status"] = "completed"
-    finally:
-        run.details["finished_at"] = datetime.now(UTC).isoformat()
+    with workflow_logging(
+        name, run.run_id, run.directory / "run.log", config.log_level
+    ) as logger:
+        run.logger = logger
+        lock = None
         try:
-            write_json(run.directory / "run.json", run.details)
+            if report_dir is not None:
+                report_dir.mkdir(parents=True, exist_ok=True)
+                candidate = report_dir / ".workflow.lock"
+                try:
+                    candidate.mkdir()
+                except FileExistsError:
+                    raise RuntimeError(
+                        f"Another workflow is publishing reports at {report_dir}"
+                    ) from None
+                lock = candidate
+            run.progress(f"Started {name}")
+            yield run
+            for entry in run.details["inputs"].values():
+                if sha256_file(Path(entry["path"])) != entry["sha256"]:
+                    raise RuntimeError(f"Input changed during workflow: {entry['path']}")
+            run.progress(f"Finished {name}")
+        except BaseException as error:
+            run.details["status"] = "failed"
+            run.details["error"] = {
+                "type": type(error).__name__,
+                "message": str(error),
+            }
+            run.logger.exception("Workflow failed")
+            raise
+        else:
+            if run.details["status"] == "running":
+                run.details["status"] = "completed"
         finally:
-            run.handler.close()
-            run.logger.removeHandler(run.handler)
-            if lock is not None:
-                lock.rmdir()
+            run.details["finished_at"] = datetime.now(UTC).isoformat()
+            try:
+                write_json(run.directory / "run.json", run.details)
+            finally:
+                if lock is not None:
+                    lock.rmdir()

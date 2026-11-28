@@ -7,6 +7,7 @@ Only aggregate summaries and figures are written; source records stay local.
 import argparse
 import hashlib
 import json
+import logging
 from pathlib import Path
 
 import matplotlib
@@ -17,6 +18,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from team_wtm import logging_config
 from team_wtm.cleaning import (
     DEFAULT_LABELS_PATH,
     DEFAULT_VALUES_PATH,
@@ -26,6 +28,9 @@ from team_wtm.cleaning import (
     merge_data,
 )
 from team_wtm.config import SETTINGS
+from team_wtm.runtime import track_workflow
+
+logger = logging.getLogger(__name__)
 
 STATUS = ("functional", "functional needs repair", "non functional")
 AGE_GROUPS = ("0-5", "6-10", "11-20", "21-30", "31+")
@@ -578,6 +583,7 @@ def run_analysis(
     figures_dir=DEFAULT_FIGURES,
 ):
     """Save aggregate JSON with the Sprint 1 reports and plots under figures_dir."""
+    logger.info("Starting numeric and missingness analysis")
     output = Path(output_dir)
     figures = Path(figures_dir)
     if min_n < 1:
@@ -647,6 +653,7 @@ def run_analysis(
     (output / "summary.json").write_text(
         json.dumps(serializable, indent=2, allow_nan=False) + "\n"
     )
+    logger.info("Saved EDA summary to %s and figures to %s", output / "summary.json", figures)
     return result
 
 
@@ -668,13 +675,16 @@ def main():
     )
     parser.add_argument("--min-cell-n", type=int, default=SETTINGS.eda_min_cell_records)
     args = parser.parse_args()
-    result = run_analysis(
-        args.values,
-        args.labels,
-        args.output_dir,
-        args.min_cell_n,
-        figures_dir=args.figures_dir,
-    )
+    logging_config.configure_logging(SETTINGS)
+    with track_workflow("additional-eda", config=SETTINGS) as run:
+        run.record_inputs({"training_values": args.values, "training_labels": args.labels})
+        run.details["parameters"] = {"min_cell_n": args.min_cell_n}
+        result = run_analysis(
+            args.values, args.labels, args.output_dir, args.min_cell_n,
+            figures_dir=args.figures_dir,
+        )
+        run.archive([args.output_dir / "summary.json"], args.output_dir)
+        run.details["counts"] = result["counts"]
     print(
         json.dumps(
             {

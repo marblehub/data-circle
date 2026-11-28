@@ -345,6 +345,7 @@ def run_feature_checks(experiment, *, on_progress=None):
             run.record_inputs({path.name: path for path in sources})
             paths = make_charts()
             run.archive(paths, SETTINGS.figures_dir)
+            logger.info("Saved charts to %s", FIGURE_DIR)
             return paths
         run.record_inputs({
             "training_values": SETTINGS.training_values,
@@ -365,6 +366,7 @@ def run_feature_checks(experiment, *, on_progress=None):
                   "groups": "pm3_groups", "regions": "pm3_region"}[experiment]
         paths = sorted((REPORT_DIR / "feature_checks").glob(f"{prefix}_*"))
         run.archive(paths, REPORT_DIR)
+        logger.info("Saved feature check %s to %s", experiment, REPORT_DIR / "feature_checks")
         return result
 
 

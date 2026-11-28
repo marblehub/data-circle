@@ -2,9 +2,13 @@
 
 import argparse
 import json
+import logging
 from pathlib import Path
 
+from team_wtm import logging_config
 from team_wtm.config import SETTINGS
+
+logger = logging.getLogger(__name__)
 
 
 def print_comparison(table, report_dir):
@@ -19,51 +23,34 @@ def print_comparison(table, report_dir):
         "false_repair_alarms_mean",
     ]
     print(table[shown].round(4).to_string())
-    print(f"Saved results to {report_dir}")
-    print("The labelled holdout was not scored.")
 
 
 def _compare(args):
     from team_wtm.model_comparison import run_comparison
 
-    table = run_comparison(args.experiment, on_progress=print)
+    table = run_comparison(args.experiment)
     print_comparison(table, SETTINGS.report_dir)
 
 
 def _baseline(args):
-    from team_wtm.baseline import REPORT_DIR, SPLIT_PATH, run_baseline_workflow
+    from team_wtm.baseline import run_baseline_workflow
 
-    summary = run_baseline_workflow(on_progress=print)
-    print(f"Saved baseline results to {REPORT_DIR / 'baseline'}")
-    print(f"Local split plan: {SPLIT_PATH}")
-    print(f"Accuracy: {summary['cv_mean']['accuracy']:.4f}")
-    print(f"Macro F1: {summary['cv_mean']['macro_f1']:.4f}")
-    print("The labelled holdout was not scored.")
+    run_baseline_workflow()
 
 
 def _final_model(args):
     from team_wtm.final_model import run_final_model
 
-    result = run_final_model(on_progress=print)
-    scores = result["holdout"]
-    print(f"Model run: {result['manifest']['run_id']}")
-    print(
-        f"Holdout macro F1: {scores['macro_f1']:.4f}  accuracy: {scores['accuracy']:.4f}"
-    )
-    print(
-        f"Holdout repair recall: {scores['repair_recall']:.4f}  precision: {scores['repair_precision']:.4f}"
-    )
-    print(f"Reload check: {result['manifest']['reload_check']}")
+    run_final_model()
 
 
 def _features(args):
     from team_wtm.feature_checks import run_feature_checks
 
-    result = run_feature_checks(args.experiment, on_progress=print)
+    result = run_feature_checks(args.experiment)
     if args.experiment == "charts":
-        for path in result:
-            print(f"Saved {path}")
-    elif isinstance(result, dict):
+        return
+    if isinstance(result, dict):
         print(result["age"].round(3).to_string(index=False))
     elif args.experiment == "regions":
         print(result.round(3).to_string(index=False))
@@ -72,17 +59,9 @@ def _features(args):
 
 
 def _scores(args):
-    from team_wtm.per_class_scores import (
-        OUTPUT_PATH,
-        markdown_table,
-        run_per_class_report,
-    )
+    from team_wtm.per_class_scores import markdown_table, run_per_class_report
 
-    summary = run_per_class_report(on_progress=print)
-    scores = summary.attrs["macro_f1"]
-    print(f"Macro F1: {scores['mean']:.4f} ± {scores['std']:.4f}")
-    print(markdown_table(summary))
-    print(f"Saved {OUTPUT_PATH}")
+    print(markdown_table(run_per_class_report()))
 
 
 def _export(args):
@@ -93,7 +72,6 @@ def _export(args):
         args.labels,
         args.output,
         overwrite=args.overwrite,
-        on_progress=print,
     )
     print(
         json.dumps(
@@ -112,7 +90,7 @@ def _export(args):
 
 
 def _predict(args):
-    from team_wtm.predict import relative, run_prediction
+    from team_wtm.predict import run_prediction
 
     result = run_prediction(
         args.records,
@@ -121,19 +99,8 @@ def _predict(args):
         args.format,
         model_report=args.model_report,
         check_report=args.check_report,
-        on_progress=print,
     )
-    rows = result["prediction_rows"]
-    if "checks" not in result:
-        print(f"Predicted {rows} records; saved to {args.output}")
-        return
-    print(f"Predicted {rows} records.")
-    for name, passed in result["checks"].items():
-        print(f"  {name}: {'PASS' if passed else 'FAIL'}")
-    print(f"Label counts: {result['label_counts']}")
-    print(f"Saved predictions to {relative(args.output)}")
-    print(f"Saved totals-only report to {result['report_file']}")
-    if not result["all_checks_passed"]:
+    if "checks" in result and not result["all_checks_passed"]:
         raise SystemExit("Completion check failed.")
 
 
@@ -223,4 +190,11 @@ def main(argv=None):
         "scores": _scores,
         "export-cleaned": _export,
     }
-    handlers[args.command](args)
+    logging_config.configure_logging(SETTINGS)
+    logger.info("Running command %s", args.command)
+    try:
+        handlers[args.command](args)
+    except Exception as error:
+        logger.error("Command %s failed: %s", args.command, error)
+        raise
+    logger.info("Command %s completed", args.command)

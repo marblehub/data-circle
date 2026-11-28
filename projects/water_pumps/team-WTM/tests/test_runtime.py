@@ -1,5 +1,6 @@
 """Check durable workflow records, failure recovery and concurrent logging."""
 
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from threading import Barrier
@@ -50,7 +51,7 @@ def test_concurrent_logs_stay_with_their_run(tmp_path):
     def execute(name):
         with track_workflow(name, config=config) as run:
             barrier.wait(timeout=10)
-            run.progress(name)
+            logging.getLogger("team_wtm.preparation").info(name)
             barrier.wait(timeout=10)
         return run.directory
 

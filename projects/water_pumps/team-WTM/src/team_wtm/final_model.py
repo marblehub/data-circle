@@ -9,6 +9,7 @@ Safety rule: the holdout is scored only once. If the holdout result file
 already exists, it is read back and the holdout is not scored again.
 """
 
+import logging
 import platform
 import sys
 from pathlib import Path
@@ -40,6 +41,8 @@ from team_wtm.model_data_preparation import build_pipeline
 from team_wtm.model_data_preparation import load_training_data as load_training
 from team_wtm.model_data_preparation import prepare_features as add_model_columns
 from team_wtm.runtime import track_workflow
+
+logger = logging.getLogger(__name__)
 
 FINAL_MODEL = SETTINGS.final_model
 FINAL_FEATURES = SETTINGS.final_features
@@ -146,6 +149,9 @@ def run_final_model(*, on_progress=None):
         run.details["model_sha256"] = result["manifest"]["model_sha256"]
         run.details["metrics"] = result["holdout"]
         run.archive([FINAL_MODEL_REPORT, HOLDOUT_PATH], REPORT_DIR)
+        logger.info("Published model run %s at %s", result["manifest"]["run_id"], MODEL_PATH)
+        logger.info("Holdout macro F1 %.4f; repair recall %.4f; repair precision %.4f", result["holdout"]["macro_f1"], result["holdout"]["repair_recall"], result["holdout"]["repair_precision"])
+        logger.info("Reload check: %s", result["manifest"]["reload_check"])
         return result
 
 

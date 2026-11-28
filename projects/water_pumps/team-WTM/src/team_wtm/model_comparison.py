@@ -318,6 +318,7 @@ def run_comparison(experiment="models", *, on_progress=None):
             REPORT_DIR / f"comparisons/{prefix}_comparison_summary.json",
         ], REPORT_DIR)
         run.details["comparison"] = table.reset_index().to_dict(orient="records")
+        logger.info("Saved development comparison %s to %s", experiment, REPORT_DIR / "comparisons")
         return table
 
 

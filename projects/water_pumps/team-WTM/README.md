@@ -616,7 +616,7 @@ reports are copied into the run directory. Prediction runs retain their
 completion checks and output checksum in `run.json`. An earlier run remains
 available after the next invocation replaces the current report tables.
 
-`run.log` records progress and exceptions. `logging.level` sets its minimum
+`run.log` records process messages, aggregate results and exceptions. `logging.level` sets its minimum
 severity. Reusable Python workflows are quiet by default; supply an
 `on_progress` callback for a dashboard progress display. The CLI displays progress.
 
@@ -654,6 +654,40 @@ uv run team-wtm predict --output /tmp/pump-predictions.csv --check-report /tmp/p
 Changing final-model or preprocessing settings triggers the existing holdout
 reuse checks. Historical Sprint 2 results used a category-frequency threshold of
 0.01. A different setup needs its own configured report directory and evaluation.
+
+### Standard project logging
+
+Application entry points call `logging_config.configure_logging()`. Named
+`team_wtm` module loggers then write timestamped messages with severity,
+module name, workflow name and run ID.
+
+- The rotating project log is configured by `paths.log_file`, normally
+  `artifacts/logs/project.log`.
+- Each workflow also captures its module messages in
+  `artifacts/workflows/<run-id>/run.log`.
+- CLI process logs use stderr. Result tables and export JSON use stdout.
+- `logging.level` controls severity. `logging.max_bytes` and
+  `logging.backup_count` control project-log rotation.
+
+For a notebook or dashboard, configure logging at application startup.
+
+```python
+import logging
+from team_wtm.logging_config import configure_logging
+
+configure_logging(console=False)
+logger = logging.getLogger("team_wtm.dashboard")
+logger.info("Preparing dashboard inputs")
+```
+
+Use `INFO` for process milestones and totals, `WARNING` for issues requiring
+review, `ERROR` for failed checks, and `DEBUG` for detailed aggregate
+diagnostics. Inside an exception handler, `logger.exception(...)` records
+the traceback. Workflow failures already record their exception.
+
+Module log messages inside a workflow receive that workflow's run ID.
+Simultaneous thread-based workflows use separate log routing. Cleaning
+diagnostics record counts and summaries. Inspection functions return their cardinality and numeric summaries for display.
 
 ### Shared preparation for Python callers
 

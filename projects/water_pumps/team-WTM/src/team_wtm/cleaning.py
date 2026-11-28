@@ -10,12 +10,16 @@ uses these same functions to explain the audit findings and compare raw and
 cleaned data.
 """
 
+import logging
 from collections.abc import Iterable
 from pathlib import Path
 
 import pandas as pd
 
+from team_wtm import logging_config
 from team_wtm.config import SETTINGS
+
+logger = logging.getLogger(__name__)
 
 # Resolve paths from this file, not from the current working directory.
 PROJECT_DIR = Path(__file__).resolve().parents[2]
@@ -101,7 +105,7 @@ def check_data_quality(
     """Return null counts, duplicate counts and the available target distribution.
 
     Duplicates exclude IDs by default but include all other columns, including
-    the target. Use verbose=False when displaying the returned values in a
+    the target. Use verbose=False to disable diagnostic logging when displaying the returned values in a
     notebook. Missing targets remain visible in the distribution.
     """
     missing = data.isna().sum().sort_values(ascending=False)
@@ -109,9 +113,9 @@ def check_data_quality(
     duplicate_count = data.drop(columns=excluded).duplicated().sum()
 
     if verbose:
-        print("Missing values by column:")
-        print(missing)
-        print(f"Duplicate rows (excluding {excluded}): {duplicate_count}")
+        logger.info("Missing cells: %s across %s columns", int(missing.sum()), len(missing))
+        logger.debug("Missing values by column\n%s", missing)
+        logger.info("Duplicate records excluding %s: %s", excluded, int(duplicate_count))
 
     summary: dict[str, pd.Series | int] = {
         "missing_values": missing,
@@ -121,8 +125,7 @@ def check_data_quality(
     if target_column in data.columns:
         target_distribution = data[target_column].value_counts(dropna=False)
         if verbose:
-            print(f"\nTarget distribution ({target_column}):")
-            print(target_distribution)
+            logger.info("Target distribution for %s: %s", target_column, target_distribution.to_dict())
         summary["target_distribution"] = target_distribution
 
     return summary
@@ -154,13 +157,9 @@ def inspect_columns(
         data[numeric_columns].describe() if numeric_columns else pd.DataFrame()
     )
     if verbose:
-        print("Categorical columns:")
-        print(categorical_columns)
-        for column in categorical_columns:
-            print(f"\n{column}:")
-            print(data[column].dropna().unique())
-        print("\nNumerical summary:")
-        print(numeric_summary)
+        logger.info("Inspected %s categorical and %s numeric columns", len(categorical_columns), len(numeric_columns))
+        logger.debug("Categorical cardinality\n%s", cardinality_summary)
+        logger.debug("Numeric summary\n%s", numeric_summary)
 
     return {
         "categorical_columns": categorical_columns,
@@ -423,26 +422,38 @@ def run_pipeline(
     labels_path: str | Path = DEFAULT_LABELS_PATH,
     merge_how: str = "outer",
     run_inspection: bool = True,
+    *,
+    on_progress=None,
 ) -> pd.DataFrame:
-    """Load, merge, report quality, optionally inspect, clean, and return data."""
-    values, labels = load_data(values_path, labels_path)
-    data = merge_data(values, labels, how=merge_how)
+    """Load, audit and clean records, recording aggregate diagnostics."""
+    from team_wtm.runtime import track_workflow
 
-    check_data_quality(data)
-    print("\nDuplicate investigation:")
-    print(investigate_duplicates(data)["summary"])
-    print("\nSuspicious-value screening (flags may overlap):")
-    print(check_suspicious_values(data))
-    if run_inspection:
-        inspect_columns(data)
-        print("\nCandidate categorical variants (first 20 groups):")
-        print(inspect_categorical_variants(data).head(20).to_string(index=False))
-
-    cleaned = clean_data(data)
-    print("\nCleaning complete.")
-    print(f"Rows: {len(cleaned):,}; columns: {len(cleaned.columns):,}")
-    return cleaned
+    with track_workflow("cleaning", config=SETTINGS, on_progress=on_progress) as run:
+        run.record_inputs({"training_values": values_path, "training_labels": labels_path})
+        run.details["parameters"] = {
+            "merge_how": merge_how, "run_inspection": run_inspection
+        }
+        logger.info("Loading training values and labels")
+        values, labels = load_data(values_path, labels_path)
+        data = merge_data(values, labels, how=merge_how)
+        logger.info("Joined %s records with %s columns", len(data), len(data.columns))
+        check_data_quality(data)
+        duplicates = investigate_duplicates(data)["summary"]
+        logger.debug("Duplicate investigation\n%s", duplicates)
+        screening = check_suspicious_values(data)
+        logger.info("Completed %s suspicious-value screening checks", len(screening))
+        logger.debug("Suspicious-value screening\n%s", screening)
+        if run_inspection:
+            inspect_columns(data)
+            variants = inspect_categorical_variants(data)
+            logger.info("Found %s candidate categorical spelling groups", len(variants))
+        cleaned = clean_data(data)
+        logger.info("Cleaning complete: %s records, %s columns", len(cleaned), len(cleaned.columns))
+        run.details["records"] = len(cleaned)
+        run.details["columns"] = len(cleaned.columns)
+        return cleaned
 
 
 if __name__ == "__main__":
+    logging_config.configure_logging(SETTINGS)
     train_data = run_pipeline()

@@ -20,6 +20,9 @@ from team_wtm.config import DEFAULT_CONFIG, load_settings
         ("random_seed = 42", "random_seed = true", "random_seed"),
         ("forest_trees = 300", "forest_trees = -1", "forest_trees"),
         ("region_folds = 5", "region_folds = 1", "region_folds"),
+        ("max_bytes = 5000000", "max_bytes = 0", "max_bytes"),
+        ("backup_count = 3", "backup_count = 0", "backup_count"),
+        ('log_file = "artifacts/logs/project.log"', 'log_file = ""', "log_file"),
         ("min_repairs = 30", "min_repairs = 0", "min_repairs"),
         (
             "minimum_category_frequency = 0.01",
@@ -73,8 +76,9 @@ def test_configured_comparison_from_outside_the_project(training, tmp_path):
         )
 
     run(python, "-m", "team_wtm.baseline")
-    output = run(cli, "compare").stdout
-    assert "Training random_forest" in output
+    comparison = run(cli, "compare")
+    output = comparison.stdout
+    assert "Training random_forest" in comparison.stderr
     assert "macro_f1_mean" in output
     scores_path = settings.report_dir / "comparisons/model_cv_scores.csv"
     scores = pd.read_csv(scores_path)

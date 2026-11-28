@@ -6,6 +6,7 @@ preserved. Learned imputation, encoding and scaling belong in training folds.
 
 import importlib.metadata
 import json
+import logging
 import os
 import platform
 import subprocess
@@ -29,6 +30,8 @@ from team_wtm.cleaning import (
 )
 from team_wtm.config import SETTINGS
 from team_wtm.runtime import track_workflow
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_OUTPUT = SETTINGS.cleaned_snapshot
 TARGET_CLASSES = ("functional", "functional needs repair", "non functional")
@@ -216,6 +219,7 @@ def export_cleaned_dataset(
         metadata_path = Path(output_path).with_suffix(".metadata.json").resolve()
         run.archive([metadata_path], metadata_path.parent)
         run.details["snapshot"] = metadata["output"]
+        logger.info("Exported %s records and %s columns to %s", metadata["output"]["rows"], metadata["output"]["columns"], Path(output_path).resolve())
         return metadata
 
 

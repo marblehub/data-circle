@@ -7,6 +7,7 @@ Reads the fold results already saved by model_comparison.py. No model is
 fitted and the labelled holdout is not used.
 """
 
+import logging
 import sys
 
 import pandas as pd
@@ -14,6 +15,8 @@ import pandas as pd
 from team_wtm.config import SETTINGS
 from team_wtm.evaluation import CLASS_NAMES
 from team_wtm.runtime import track_workflow
+
+logger = logging.getLogger(__name__)
 
 REPORT_DIR = SETTINGS.report_dir / "comparisons"
 SCORE_FILES = [
@@ -111,6 +114,8 @@ def run_per_class_report(*, on_progress=None):
         }
         summary.to_csv(OUTPUT_PATH, index=False)
         run.archive([OUTPUT_PATH], SETTINGS.report_dir)
+        logger.info("Per-condition macro F1 %.4f ± %.4f", summary.attrs["macro_f1"]["mean"], summary.attrs["macro_f1"]["std"])
+        logger.info("Saved per-condition scores to %s", OUTPUT_PATH)
         return summary
 
 
