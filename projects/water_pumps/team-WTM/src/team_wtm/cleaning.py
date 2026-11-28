@@ -15,11 +15,13 @@ from pathlib import Path
 
 import pandas as pd
 
+from team_wtm.config import SETTINGS
+
 # Resolve paths from this file, not from the current working directory.
 PROJECT_DIR = Path(__file__).resolve().parents[2]
-RAW_DATA_DIR = PROJECT_DIR / "data" / "raw"
-DEFAULT_VALUES_PATH = RAW_DATA_DIR / "Training_set_values.csv"
-DEFAULT_LABELS_PATH = RAW_DATA_DIR / "Training_set_labels.csv"
+RAW_DATA_DIR = SETTINGS.raw_dir
+DEFAULT_VALUES_PATH = SETTINGS.training_values
+DEFAULT_LABELS_PATH = SETTINGS.training_labels
 
 
 def _validate_ids(data: pd.DataFrame, name: str) -> None:

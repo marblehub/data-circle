@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.scripts]
-team-wtm = "team_wtm:main"
+team-wtm = "team_wtm.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.12.18,<0.13.0"]
@@ -38,3 +38,6 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+
+[tool.uv.build-backend]
+source-include = ["configs/project.toml"]

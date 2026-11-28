@@ -9,10 +9,10 @@ fitted and the labelled holdout is not used.
 
 import pandas as pd
 
-from team_wtm.cleaning import PROJECT_DIR
+from team_wtm.config import SETTINGS
 from team_wtm.evaluation import CLASS_NAMES
 
-REPORT_DIR = PROJECT_DIR / "reports" / "sprint2"
+REPORT_DIR = SETTINGS.report_dir
 SCORE_FILES = [
     "model_cv_scores.csv",
     "quantity_cv_scores.csv",

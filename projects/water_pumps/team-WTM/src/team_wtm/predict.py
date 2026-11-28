@@ -15,8 +15,8 @@ checks that a reloaded model gives identical predictions and writes a
 totals-only report (no individual records) to reports/sprint2.
 """
 
-import argparse
 import json
+import sys
 import warnings
 from pathlib import Path
 
@@ -24,7 +24,8 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from team_wtm.cleaning import PROJECT_DIR, RAW_DATA_DIR
+from team_wtm.cleaning import RAW_DATA_DIR
+from team_wtm.config import SETTINGS
 from team_wtm.evaluation import TARGET_CLASSES
 from team_wtm.features import FEATURE_OPTIONS, select_features
 from team_wtm.final_model import (
@@ -42,15 +43,11 @@ OUTPUT_COLUMNS = [ID_COLUMN, TARGET_COLUMN]
 ALLOWED_LABELS = set(TARGET_CLASSES)
 
 # The test file has had several names; the first one found is used.
-RECORD_FILE_NAMES = [
-    "test_features.csv.csv",
-    "Test_set_values.csv",
-    "test_features.csv",
-]
+RECORD_FILE_NAMES = SETTINGS.test_records
 
-SUBMISSION_PATH = RAW_DATA_DIR / "Submission_format.csv"
+SUBMISSION_PATH = SETTINGS.submission_format
 # data/**/*.csv is ignored by Git, so predictions stay local.
-PREDICTIONS_PATH = PROJECT_DIR / "data" / "processed" / "test_predictions.csv"
+PREDICTIONS_PATH = SETTINGS.predictions_file
 CHECK_REPORT_PATH = REPORT_DIR / "prediction_check.json"
 
 # Package versions compared with the ones saved when the model was trained.
@@ -232,7 +229,7 @@ def relative(path):
     """Show a path relative to the project if possible (forward slashes)."""
     path = Path(path).resolve()
     try:
-        return path.relative_to(PROJECT_DIR).as_posix()
+        return path.relative_to(SETTINGS.project_root).as_posix()
     except ValueError:
         return path.name
 
@@ -282,60 +279,42 @@ def run_completion_check(
         "versions": versions(),
     }
     save_predictions(predictions, output_path, file_format)
+    Path(report_path).parent.mkdir(parents=True, exist_ok=True)
     Path(report_path).write_text(json.dumps(report, indent=2) + "\n")
     return report
 
 
-def main(argv=None):
-    parser = argparse.ArgumentParser(
-        description="Predict pump status with the final model."
-    )
-    parser.add_argument(
-        "--records",
-        type=Path,
-        default=None,
-        help="CSV of records without status_group. "
-        "Default: the test records in data/raw (runs the completion check).",
-    )
-    parser.add_argument(
-        "--model",
-        type=Path,
-        default=MODEL_PATH,
-        help="Saved model file (default: models/final_pipeline.joblib).",
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=PREDICTIONS_PATH,
-        help="Where to write predictions "
-        "(default: data/processed/test_predictions.csv).",
-    )
-    parser.add_argument(
-        "--format",
-        choices=["csv", "json"],
-        default="csv",
-        help="Output file format (default: csv).",
-    )
-    args = parser.parse_args(argv)
-
-    if args.records is None:
+def run_prediction(
+    records_path=None,
+    model_path=MODEL_PATH,
+    output_path=PREDICTIONS_PATH,
+    file_format="csv",
+):
+    """Run the supplied-test check or predict a user-provided records file."""
+    if records_path is None:
         report = run_completion_check(
-            find_records_path(), args.model, args.output, args.format
+            find_records_path(), model_path, output_path, file_format
         )
         print(f"Predicted {report['prediction_rows']} records.")
         for name, passed in report["checks"].items():
             print(f"  {name}: {'PASS' if passed else 'FAIL'}")
         print(f"Label counts: {report['label_counts']}")
-        print(f"Saved predictions to {relative(args.output)}")
+        print(f"Saved predictions to {relative(output_path)}")
         print(f"Saved totals-only report to {relative(CHECK_REPORT_PATH)}")
         if not report["all_checks_passed"]:
             raise SystemExit("Completion check failed.")
         return
 
-    records = pd.read_csv(args.records)
-    predictions = predict_records(records, load_model(args.model))
-    save_predictions(predictions, args.output, args.format)
-    print(f"Predicted {len(predictions)} records; saved to {args.output}")
+    records = pd.read_csv(records_path)
+    predictions = predict_records(records, load_model(model_path))
+    save_predictions(predictions, output_path, file_format)
+    print(f"Predicted {len(predictions)} records; saved to {output_path}")
+
+
+def main(argv=None):
+    from team_wtm.cli import main as run_cli
+
+    run_cli(["predict", *(sys.argv[1:] if argv is None else argv)])
 
 
 if __name__ == "__main__":

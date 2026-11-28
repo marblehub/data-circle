@@ -515,6 +515,45 @@ Run Jupyter using:
 uv run jupyter lab
 ```
 
+### Run the model workflows
+
+From the team-WTM directory:
+
+```bash
+uv run team-wtm --help
+uv run team-wtm predict
+uv run team-wtm predict --records pumps.csv --output predictions.csv
+uv run team-wtm compare
+uv run team-wtm compare quantity
+uv run team-wtm compare location
+```
+
+`predict` loads the saved pipeline. With no arguments it checks all supplied
+test records against the submission template and saves predictions and a
+totals report. With `--records`, the input CSV must include `id` and the
+required pump columns. The output contains `id` and `status_group` in input
+order. `--model`, `--output` and `--format` still work. The original
+`python -m team_wtm.predict` and `python -m team_wtm.model_comparison`
+commands use the same workflows.
+
+Edit [configs/project.toml](configs/project.toml) to set input/output paths,
+the split seed and fold count, the candidate list for `compare models`, and
+the Logistic Regression and Random Forest settings. Each command reads the
+file at startup. Paths are relative to `project_root`, which is resolved from
+the TOML file. Raw filenames are relative to `raw_dir`. Command-line path
+overrides are relative to your current directory.
+
+For a separate experiment, copy the TOML file and set `TEAM_WTM_CONFIG` to
+its path. For a wheel installation, deploy this file with the project data and
+point `TEAM_WTM_CONFIG` to it. Set `project_root` to the intended project directory. Choose a fresh
+`report_dir` and `split_plan` when changing training inputs or settings.
+Run `uv run python -m team_wtm.baseline` to create the matching split plan
+and baseline results, then run the comparison commands in the order above.
+The quantity and location checks use the two Random Forest variants from the
+preceding comparisons. The approved Sprint 2 model and its holdout result
+belong to the original settings.
+
+
 ---
 
 # Git and GitHub Workflow

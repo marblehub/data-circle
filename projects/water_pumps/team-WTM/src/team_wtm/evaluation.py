@@ -6,9 +6,10 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 from sklearn.model_selection import StratifiedGroupKFold
 
 from team_wtm.cleaning import clean_data
+from team_wtm.config import SETTINGS
 
-RANDOM_SEED = 42
-N_FOLDS = 5
+RANDOM_SEED = SETTINGS.random_seed
+N_FOLDS = SETTINGS.folds
 TARGET_CLASSES = ("functional", "functional needs repair", "non functional")
 
 # Short names keep the CSV column headings readable.

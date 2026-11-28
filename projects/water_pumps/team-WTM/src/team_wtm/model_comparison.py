@@ -13,9 +13,9 @@ Reuses team code instead of rewriting it:
 Only the development folds are used here. The labelled holdout is not scored.
 """
 
-import argparse
 import json
 import platform
+import sys
 
 import numpy as np
 import pandas as pd
@@ -25,7 +25,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer
 
-from team_wtm.cleaning import PROJECT_DIR, clean_data, load_data, merge_data
+from team_wtm.cleaning import clean_data, load_data, merge_data
+from team_wtm.config import SETTINGS
 from team_wtm.evaluation import (
     RANDOM_SEED,
     RESULT_COLUMNS,
@@ -36,8 +37,8 @@ from team_wtm.evaluation import (
 from team_wtm.features import FEATURE_OPTIONS, add_feature_columns, select_features
 from team_wtm.model_data_preparation import build_preprocessor
 
-SPLIT_PATH = PROJECT_DIR / "data" / "processed" / "sprint2_splits.csv"
-REPORT_DIR = PROJECT_DIR / "reports" / "sprint2"
+SPLIT_PATH = SETTINGS.split_plan
+REPORT_DIR = SETTINGS.report_dir
 
 # Scores summarised over folds for the comparison table.
 SUMMARY_METRICS = [
@@ -54,19 +55,23 @@ SUMMARY_METRICS = [
 # Each entry makes a fresh, unfitted model. A new model is made for every fold.
 MODELS = {
     "logistic_regression": lambda: LogisticRegression(
-        max_iter=2000, random_state=RANDOM_SEED
+        max_iter=SETTINGS.logistic_max_iter, random_state=RANDOM_SEED
     ),
     "logistic_regression_balanced": lambda: LogisticRegression(
-        max_iter=2000, class_weight="balanced", random_state=RANDOM_SEED
-    ),
-    "random_forest": lambda: RandomForestClassifier(
-        n_estimators=300, random_state=RANDOM_SEED, n_jobs=-1
-    ),
-    "random_forest_balanced": lambda: RandomForestClassifier(
-        n_estimators=300,
+        max_iter=SETTINGS.logistic_max_iter,
         class_weight="balanced",
         random_state=RANDOM_SEED,
-        n_jobs=-1,
+    ),
+    "random_forest": lambda: RandomForestClassifier(
+        n_estimators=SETTINGS.forest_trees,
+        random_state=RANDOM_SEED,
+        n_jobs=SETTINGS.forest_jobs,
+    ),
+    "random_forest_balanced": lambda: RandomForestClassifier(
+        n_estimators=SETTINGS.forest_trees,
+        class_weight="balanced",
+        random_state=RANDOM_SEED,
+        n_jobs=SETTINGS.forest_jobs,
     ),
 }
 
@@ -243,8 +248,8 @@ def run_models(training, plan):
     baseline_summary = json.loads((REPORT_DIR / "baseline_summary.json").read_text())
     matrices = {"majority_baseline / none": baseline_summary["fold_details"]}
 
-    for model_name in MODELS:
-        print(f"Training {model_name} on 5 folds ...")
+    for model_name in SETTINGS.candidates:
+        print(f"Training {model_name} on the shared folds ...")
         rows, model_matrices = run_cross_validation(training, plan, model_name)
         all_rows.append(rows)
         matrices[f"{model_name} / base"] = model_matrices
@@ -268,6 +273,12 @@ def run_quantity_check(training, plan):
         (REPORT_DIR / "model_comparison_summary.json").read_text()
     )
     all_rows = [base_rows]
+    missing = set(QUANTITY_MODELS) - set(base_rows["model"])
+    if missing:
+        raise ValueError(
+            f"Missing base comparison for {sorted(missing)}. Include both Random Forest "
+            "variants in comparison.candidates and run 'team-wtm compare' first."
+        )
     matrices = {
         f"{model} / base": base_summary["confusion_matrices"][f"{model} / base"]
         for model in QUANTITY_MODELS
@@ -275,7 +286,7 @@ def run_quantity_check(training, plan):
 
     for option in QUANTITY_OPTIONS:
         for model_name in QUANTITY_MODELS:
-            print(f"Training {model_name} with '{option}' on 5 folds ...")
+            print(f"Training {model_name} with '{option}' on the shared folds ...")
             rows, model_matrices = run_cross_validation(
                 training, plan, model_name, feature_option=option
             )
@@ -305,7 +316,7 @@ def run_location_check(training, plan):
         for option in ["base", "full"]
     }
 
-    print(f"Training {model_name} with 'base_age_missing' on 5 folds ...")
+    print(f"Training {model_name} with 'base_age_missing' on the shared folds ...")
     rows, model_matrices = run_cross_validation(
         training, plan, model_name, feature_option="base_age_missing"
     )
@@ -321,21 +332,21 @@ EXPERIMENTS = {
 }
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Issue #17 model comparisons.")
-    parser.add_argument(
-        "experiment",
-        nargs="?",
-        default="models",
-        choices=list(EXPERIMENTS),
-        help="models: four models on 'base'. quantity / location: RF feature checks.",
-    )
-    experiment = parser.parse_args().experiment
-
+def run_comparison(experiment="models"):
+    """Run a named comparison using the shared split plan and configured paths."""
+    unknown = set(SETTINGS.candidates).difference(MODELS)
+    if unknown:
+        raise ValueError(f"Unknown comparison candidates: {sorted(unknown)}")
     training = load_training()
     # Reuse PM-1's saved split plan so every model sees the same folds.
     plan = pd.read_csv(SPLIT_PATH)
     EXPERIMENTS[experiment](training, plan)
+
+
+def main(argv=None):
+    from team_wtm.cli import main as run_cli
+
+    run_cli(["compare", *(sys.argv[1:] if argv is None else argv)])
 
 
 if __name__ == "__main__":

@@ -8,7 +8,8 @@ import pandas as pd
 import sklearn
 from sklearn.dummy import DummyClassifier
 
-from team_wtm.cleaning import PROJECT_DIR, load_data, merge_data
+from team_wtm.cleaning import load_data, merge_data
+from team_wtm.config import SETTINGS
 from team_wtm.evaluation import (
     CLASS_NAMES,
     N_FOLDS,
@@ -20,8 +21,8 @@ from team_wtm.evaluation import (
     score_predictions,
 )
 
-REPORT_DIR = PROJECT_DIR / "reports" / "sprint2"
-SPLIT_PATH = PROJECT_DIR / "data" / "processed" / "sprint2_splits.csv"
+REPORT_DIR = SETTINGS.report_dir
+SPLIT_PATH = SETTINGS.split_plan
 
 
 def run_baseline(training, plan):

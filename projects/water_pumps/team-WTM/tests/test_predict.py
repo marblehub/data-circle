@@ -212,22 +212,27 @@ def test_save_predictions_as_csv_and_json(records, model, tmp_path):
         pr.save_predictions(predictions, tmp_path / "p.txt", "txt")
 
 
-def test_command_line_with_records(records, model_file, tmp_path):
+@pytest.mark.parametrize("project_cli", [False, True])
+def test_command_line_with_records(records, model_file, tmp_path, project_cli):
+    from team_wtm import cli
+
     records_path = tmp_path / "records.csv"
     records.to_csv(records_path, index=False)
     output = tmp_path / "predictions.json"
-    pr.main(
-        [
-            "--records",
-            str(records_path),
-            "--model",
-            str(model_file),
-            "--output",
-            str(output),
-            "--format",
-            "json",
-        ]
-    )
+    args = [
+        "--records",
+        str(records_path),
+        "--model",
+        str(model_file),
+        "--output",
+        str(output),
+        "--format",
+        "json",
+    ]
+    if project_cli:
+        cli.main(["predict", *args])
+    else:
+        pr.main(args)
     saved = pd.read_json(output)
     assert list(saved.columns) == ["id", "status_group"]
     assert saved["id"].tolist() == records["id"].tolist()

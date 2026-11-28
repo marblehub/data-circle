@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 import sklearn
 
-from team_wtm.cleaning import PROJECT_DIR
+from team_wtm.config import SETTINGS
 from team_wtm.evaluation import RANDOM_SEED, TARGET_CLASSES, score_predictions
 from team_wtm.features import FEATURE_OPTIONS, select_features
 from team_wtm.model_comparison import (
@@ -34,7 +34,7 @@ FINAL_FEATURES = "full"
 HOLDOUT_PATH = REPORT_DIR / "holdout_result.json"
 FINAL_MODEL_REPORT = REPORT_DIR / "final_model.json"
 # models/**/*.joblib is ignored by Git, so the model file is never committed.
-MODEL_PATH = PROJECT_DIR / "models" / "final_pipeline.joblib"
+MODEL_PATH = SETTINGS.model_file
 
 
 def split_positions(training, plan):
@@ -134,7 +134,11 @@ def main():
     report = {
         "settings": settings,
         "fit_rows": len(training),
-        "model_file": MODEL_PATH.relative_to(PROJECT_DIR).as_posix(),
+        "model_file": (
+            MODEL_PATH.relative_to(SETTINGS.project_root)
+            if MODEL_PATH.is_relative_to(SETTINGS.project_root)
+            else MODEL_PATH
+        ).as_posix(),
         "model_file_committed": False,
         "reload_check": reload_check,
         "versions": versions(),
