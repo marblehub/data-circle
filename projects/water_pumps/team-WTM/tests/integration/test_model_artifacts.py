@@ -1,4 +1,4 @@
-"""Check model identity, linked dashboard evidence, and one-time holdout reuse."""
+"""Integration tests for model artifacts."""
 
 import os
 import subprocess
@@ -12,7 +12,6 @@ from team_wtm import predict
 from team_wtm.artifacts import (
     read_json,
     read_prediction_check,
-    report_ref,
     sha256_file,
     verified_report,
     write_json,
@@ -20,20 +19,6 @@ from team_wtm.artifacts import (
 from team_wtm.config import DEFAULT_CONFIG
 from team_wtm.features import select_features
 from team_wtm.model_comparison import MODELS, add_model_columns, build_pipeline
-
-
-@pytest.mark.parametrize("name", ["scores.csv", "comparisons/scores.csv"])
-def test_verified_report_rejects_drift_and_accepts_windows_line_endings(tmp_path, name):
-    table = tmp_path / name
-    table.parent.mkdir(parents=True, exist_ok=True)
-    table.write_bytes(b"score\n0.5\n")
-    manifest = tmp_path / "model.json"
-    write_json(manifest, {"reports": {"scores": report_ref(table, relative_to=tmp_path)}})
-    table.write_bytes(b"score\r\n0.5\r\n")
-    assert verified_report(manifest, "scores") == table.read_bytes()
-    table.write_text("score\n0.7\n")
-    with pytest.raises(ValueError, match="checksum"):
-        verified_report(manifest, "scores")
 
 
 def test_custom_model_identity_and_corrupt_manifest(training, tmp_path):
@@ -180,11 +165,3 @@ def test_final_run_archive_and_holdout_guards(training, tmp_path):
     assert holdout.read_bytes() == original_holdout
     assert read_json(public) == second
     assert sha256_file(root / second["model_file"]) == second["model_sha256"]
-
-
-@pytest.mark.parametrize("name", ["../outside.csv", "/tmp/outside.csv"])
-def test_verified_report_rejects_paths_outside_manifest(tmp_path, name):
-    manifest = tmp_path / "model.json"
-    write_json(manifest, {"reports": {"scores": {"file": name, "sha256": "unused"}}})
-    with pytest.raises(ValueError, match="within the manifest directory"):
-        verified_report(manifest, "scores")

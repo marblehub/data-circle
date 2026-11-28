@@ -157,7 +157,7 @@ folds without reviewing the duplicate policy.
 - Git ignore checks confirmed that the Parquet and its local metadata are excluded.
 - The existing EDA tests cover the shared age derivation and retain their results.
 
-See [test_export_cleaned.py](../tests/test_export_cleaned.py) for synthetic checks
+See [snapshot export tests](../tests/integration/test_snapshot_export.py) for synthetic checks
 covering ID/label preservation, placeholder handling, age zero, negative ages,
 coordinate screening, nullable Booleans, explicit regeneration, unmatched IDs,
 invalid targets, failed writes and inputs that change during export.

@@ -296,7 +296,9 @@ team-WTM/
 │       └── evaluation.py
 │
 ├── tests/
-│   └── ...
+│   ├── conftest.py
+│   ├── unit/
+│   └── integration/
 │
 ├── .gitignore
 ├── .python-version
@@ -721,6 +723,18 @@ Existing `model_comparison.load_training`, `add_model_columns`,
 `categories_as_text` and `build_pipeline` imports remain available. This also
 supports loading saved pipelines that refer to the earlier module path.
 
+
+### Running the tests
+
+The test suite groups individual component checks under `tests/unit/` and
+connected workflow checks under `tests/integration/`. Shared fixtures live
+in `tests/conftest.py`. See the [test guide](tests/README.md).
+
+```bash
+uv run pytest -q
+uv run pytest tests/unit -q
+uv run pytest tests/integration -q
+```
 
 # Git and GitHub Workflow
 

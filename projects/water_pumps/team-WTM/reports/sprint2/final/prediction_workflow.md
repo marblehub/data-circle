@@ -1,6 +1,6 @@
 # Prediction workflow (Issue #17)
 
-Code: `src/team_wtm/predict.py` · Tests: `tests/test_predict.py` ·
+Code: `src/team_wtm/predict.py` · Tests: `tests/unit/test_predict.py` and `tests/integration/test_prediction_workflow.py` ·
 Check report: `reports/sprint2/final/prediction_check.json`
 
 This workflow predicts the pump status of new records using the saved
@@ -118,12 +118,12 @@ gives no score; the model's score is in `holdout_result.json`.
 ## Automated checks
 
 ```powershell
-.venv\Scripts\python.exe -m ruff check src/team_wtm/predict.py tests/test_predict.py
-.venv\Scripts\python.exe -m ruff format --check src/team_wtm/predict.py tests/test_predict.py
-.venv\Scripts\python.exe -m pytest tests/test_predict.py
+.venv\Scripts\python.exe -m ruff check src/team_wtm/predict.py tests/unit/test_predict.py tests/integration/test_prediction_workflow.py
+.venv\Scripts\python.exe -m ruff format --check src/team_wtm/predict.py tests/unit/test_predict.py tests/integration/test_prediction_workflow.py
+.venv\Scripts\python.exe -m pytest tests/unit/test_predict.py tests/integration/test_prediction_workflow.py
 ```
 
-`tests/test_predict.py` uses made-up records (no real data) and checks:
+`tests/unit/test_predict.py` and `tests/integration/test_prediction_workflow.py` use made-up records (no real data) and checks:
 one prediction per record with ids in order, allowed labels, no fitting
 (a wrapped model fails if `fit` is called), no holdout code in the module,
 every rejected-record case, column order and refusals, reload gives the same

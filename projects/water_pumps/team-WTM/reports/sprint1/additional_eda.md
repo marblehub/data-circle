@@ -203,7 +203,7 @@ uv sync
 uv run python -m team_wtm.additional_eda
 uv run jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.timeout=300 notebooks/04_additional_numeric_missingness_age_eda.ipynb
 uv run pytest
-uv run ruff check src/team_wtm/additional_eda.py tests/test_additional_eda.py notebooks/04_additional_numeric_missingness_age_eda.ipynb
+uv run ruff check src/team_wtm/additional_eda.py tests/unit/test_additional_eda.py tests/integration/test_eda_reports.py notebooks/04_additional_numeric_missingness_age_eda.ipynb
 ```
 
 The CLI supports --values, --labels, --output-dir, --figures-dir and --min-cell-n.

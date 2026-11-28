@@ -1,6 +1,5 @@
-"""Checks for EDA denominators, placeholder treatment, and confounding."""
+"""Unit tests for additional EDA."""
 
-import json
 from io import StringIO
 
 import numpy as np
@@ -10,7 +9,6 @@ from pandas.testing import assert_frame_equal
 
 from team_wtm.additional_eda import (
     AGE_GROUPS,
-    MISSING_FEATURES,
     NUMERIC,
     STATUS,
     age_availability_summary,
@@ -21,33 +19,11 @@ from team_wtm.additional_eda import (
     numeric_outliers,
     numeric_summary,
     prepare_eda,
-    run_analysis,
     standardized_extremes,
 )
 
 
-def sample_raw(ages):
-    count = len(ages)
-    data = pd.DataFrame(
-        {
-            "id": range(count),
-            "construction_year": [2013 - age for age in ages],
-            "date_recorded": ["2013-06-01"] * count,
-            "population": np.arange(count) + 1,
-            "amount_tsh": np.arange(count),
-            "gps_height": np.arange(count) - 2,
-            "status_group": [STATUS[i % 3] for i in range(count)],
-            "region": ["A"] * count,
-            "extraction_type_class": ["gravity"] * count,
-        }
-    )
-    for column in MISSING_FEATURES:
-        if column not in data:
-            data[column] = "recorded"
-    return data
-
-
-def test_age_boundaries_and_unknowns_do_not_mutate_source():
+def test_age_boundaries_and_unknowns_do_not_mutate_source(sample_raw):
     raw = sample_raw([0, 5, 6, 10, 11, 20, 21, 30, 31, 53, 0, -1, 2])
     raw.loc[10, "construction_year"] = 0
     raw.loc[12, "date_recorded"] = "bad"
@@ -84,7 +60,7 @@ def test_age_boundaries_and_unknowns_do_not_mutate_source():
     "string_columns",
     [("population",), ("construction_year",), ("population", "construction_year")],
 )
-def test_mixed_csv_numeric_columns_keep_placeholder_and_age_rules(string_columns):
+def test_mixed_csv_numeric_columns_keep_placeholder_and_age_rules(sample_raw, string_columns):
     control = sample_raw([1, 0, -1, 5, 10, 35])
     control["population"] = [0.0, 120.0, 150.0, np.nan, 250.0, 0.0]
     control["construction_year"] = [0.0, 2013.0, 2014.0, np.nan, 2003.0, 0.0]
@@ -113,7 +89,7 @@ def test_mixed_csv_numeric_columns_keep_placeholder_and_age_rules(string_columns
 
 
 @pytest.mark.parametrize("problem", ["missing_column", "missing_target", "bad_target"])
-def test_analysis_rejects_incomplete_inputs(problem):
+def test_analysis_rejects_incomplete_inputs(sample_raw, problem):
     raw = sample_raw([1, 2, 3])
     if problem == "missing_column":
         raw = raw.drop(columns="region")
@@ -147,7 +123,7 @@ def test_correlation_excludes_codes_and_uses_pairwise_counts():
     assert_frame_equal(data, original)
 
 
-def test_missingness_rates_condition_on_each_class_not_whole_dataset():
+def test_missingness_rates_condition_on_each_class_not_whole_dataset(sample_raw):
     raw = sample_raw([1] * 6)
     raw["status_group"] = [STATUS[0]] * 3 + [STATUS[2]] * 2 + [STATUS[1]]
     raw["population"] = [0, 0, 5, 0, 9, 1]
@@ -168,7 +144,7 @@ def test_missingness_rates_condition_on_each_class_not_whole_dataset():
     }
 
 
-def test_age_tables_keep_regions_with_no_usable_ages_and_absent_classes():
+def test_age_tables_keep_regions_with_no_usable_ages_and_absent_classes(sample_raw):
     raw = sample_raw([1, 35, 10])
     raw["region"] = ["A", "A", "B"]
     raw["status_group"] = [STATUS[0], STATUS[2], STATUS[1]]
@@ -267,40 +243,6 @@ def test_empty_common_support_and_invalid_threshold_are_explicit():
     assert age_contrasts(rates, "region", 29).iloc[0]["eligible"]
     with pytest.raises(ValueError, match="positive"):
         age_contrasts(rates, "region", 0)
-
-
-def test_analysis_writes_summary_and_figures_to_separate_directories(tmp_path):
-    raw = sample_raw([0, 3, 8, 15, 25, 35] * 5)
-    values_path = tmp_path / "values.csv"
-    labels_path = tmp_path / "labels.csv"
-    raw.drop(columns="status_group").to_csv(values_path, index=False)
-    raw[["id", "status_group"]].to_csv(labels_path, index=False)
-    output_dir = tmp_path / "reports" / "sprint1" / "additional_eda"
-    figures_dir = tmp_path / "reports" / "figures" / "additional_eda"
-
-    result = run_analysis(
-        values_path, labels_path, output_dir, min_n=1, figures_dir=figures_dir
-    )
-
-    summary = json.loads((output_dir / "summary.json").read_text())
-    assert summary["numeric_outliers"] == result["numeric_outliers"]
-    assert len(summary["numeric_outliers"]) == len(NUMERIC)
-    assert summary["counts"] == result["counts"]
-    assert summary["counts"]["all_rows"] == len(raw)
-    assert {p.name for p in output_dir.iterdir()} == {"summary.json"}
-    assert {p.name for p in figures_dir.iterdir()} == {
-        "numeric_distributions.png",
-        "numeric_boxplots.png",
-        "numeric_outlier_distributions.png",
-        "numeric_spearman_heatmaps.png",
-        "missingness_by_status.png",
-        "missingness_by_region.png",
-        "age_by_region.png",
-        "age_by_extraction_type_class.png",
-    }
-    assert all(
-        p.read_bytes().startswith(b"\x89PNG\r\n\x1a\n") for p in figures_dir.iterdir()
-    )
 
 
 def test_outliers_use_pooled_fences_strict_boundaries_and_valid_denominators():

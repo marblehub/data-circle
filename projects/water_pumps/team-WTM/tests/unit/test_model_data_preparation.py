@@ -1,56 +1,15 @@
-import joblib
+"""Unit tests for model data preparation."""
+
 import numpy as np
 import pandas as pd
 import pytest
 from sklearn.compose import ColumnTransformer
-from sklearn.linear_model import LogisticRegression
 
-from team_wtm.features import FEATURE_OPTIONS
 from team_wtm.model_data_preparation import (
-    build_pipeline,
     build_preprocessor,
     merge_training_data,
     prepare_model_inputs,
 )
-
-
-def _feature_data(include_target=True):
-    data = {
-        "id": [11, 12, 13],
-        "extraction_type_class": ["gravity", "handpump", "gravity"],
-        "waterpoint_type_group": ["communal", "communal", "other"],
-        "source_type": ["spring", "borehole", "spring"],
-        "management_group": ["user-group", "commercial", "user-group"],
-        "payment_type": ["never pay", "pay monthly", "never pay"],
-        "scheme_management": ["VWC", "Water Board", "VWC"],
-        "permit": [True, False, True],
-        "public_meeting": [True, None, False],
-        "water_quality": ["soft", "salty", "soft"],
-        "population": [100, 0, 50],
-        "gps_height": [120, None, 140],
-        "construction_year": [2000, 0, 1990],
-        "date_recorded": ["2010-01-01", "2012-01-01", "2010-01-01"],
-        "longitude": [35.0, 0.0, 36.0],
-        "latitude": [-6.0, 0.0, -7.0],
-        "quantity": ["enough", "dry", "enough"],
-        "quantity_group": ["enough", "dry", "enough"],
-        "pump_age": [10, None, 20],
-        "pump_age_missing": [False, True, False],
-        "population_missing": [False, True, False],
-        "gps_height_zero": [False, False, False],
-        "coordinate_unusable": [False, False, False],
-        "region": ["A", "B", "A"],
-        "basin": ["X", "Y", "X"],
-        "longitude_screened": [35.0, None, 36.0],
-        "latitude_screened": [-6.0, None, -7.0],
-    }
-    if include_target:
-        data["status_group"] = [
-            "functional",
-            "non functional",
-            "functional needs repair",
-        ]
-    return pd.DataFrame(data)
 
 
 def test_merge_rejects_duplicate_ids():
@@ -72,8 +31,8 @@ def test_merge_rejects_unmatched_ids_and_can_report_them():
     assert result["status_group"].isna().sum() == 1
 
 
-def test_prepare_inputs_excludes_id_and_target_and_preserves_alignment():
-    data = _feature_data()
+def test_prepare_inputs_excludes_id_and_target_and_preserves_alignment(feature_data):
+    data = feature_data()
     X, y, ids = prepare_model_inputs(data, option="full")
     assert "id" not in X.columns
     assert "status_group" not in X.columns
@@ -82,15 +41,15 @@ def test_prepare_inputs_excludes_id_and_target_and_preserves_alignment():
     assert y.tolist() == data["status_group"].tolist()
 
 
-def test_prepare_inputs_fails_when_required_feature_is_missing():
-    data = _feature_data().drop(columns=["source_type"])
+def test_prepare_inputs_fails_when_required_feature_is_missing(feature_data):
+    data = feature_data().drop(columns=["source_type"])
     with pytest.raises(KeyError, match="Columns missing for 'full'"):
         prepare_model_inputs(data, option="full")
 
 
-def test_prepare_inputs_supports_unlabelled_test_data():
+def test_prepare_inputs_supports_unlabelled_test_data(feature_data):
     X, y, ids = prepare_model_inputs(
-        _feature_data(include_target=False), option="full", require_target=False
+        feature_data(include_target=False), option="full", require_target=False
     )
     assert y is None
     assert ids.tolist() == [11, 12, 13]
@@ -134,12 +93,12 @@ def test_preprocessor_handles_missing_values_and_unseen_categories_consistently(
 @pytest.mark.parametrize(
     "missing_value", [np.nan, None, pd.NA], ids=["nan", "none", "pd_na"]
 )
-def test_full_preparation_handles_missing_boolean_categories(missing_value):
-    training = _feature_data()
+def test_full_preparation_handles_missing_boolean_categories(feature_data, missing_value):
+    training = feature_data()
     training["permit"] = pd.Series([True, missing_value, False], dtype=object)
     X_train, _, _ = prepare_model_inputs(training, option="full")
 
-    supplied_test = _feature_data(include_target=False)
+    supplied_test = feature_data(include_target=False)
     supplied_test["permit"] = pd.Series([False, True, missing_value], dtype=object)
     supplied_test.loc[0, "source_type"] = "unseen_source"
     X_test, target, ids = prepare_model_inputs(
@@ -165,22 +124,6 @@ def test_full_preparation_handles_missing_boolean_categories(missing_value):
     permit_position = categorical.feature_names_in_.tolist().index("permit")
     categories = categorical.named_steps["encoder"].categories_[permit_position]
     assert set(categories) == {"False", "True", "__MISSING__"}
-
-
-def test_preprocessor_with_boolean_categories_can_be_saved_and_reloaded(tmp_path):
-    training = _feature_data()
-    training["permit"] = pd.Series([True, np.nan, False], dtype=object)
-    X, _, _ = prepare_model_inputs(training, option="full")
-    preprocessor = build_preprocessor(X).fit(X)
-
-    path = tmp_path / "preprocessor.joblib"
-    joblib.dump(preprocessor, path)
-    reloaded = joblib.load(path)
-
-    np.testing.assert_allclose(reloaded.transform(X), preprocessor.transform(X))
-    np.testing.assert_array_equal(
-        reloaded.get_feature_names_out(), preprocessor.get_feature_names_out()
-    )
 
 
 def test_load_training_uses_complete_id_join_and_keeps_alignment(tmp_path):
@@ -226,45 +169,3 @@ def test_load_training_rejects_invalid_id_relationships(tmp_path, ids, message):
     labels.to_csv(tmp_path / "labels.csv", index=False)
     with pytest.raises(ValueError, match=message):
         load_training_data(tmp_path / "values.csv", tmp_path / "labels.csv")
-
-
-@pytest.mark.parametrize("option", FEATURE_OPTIONS)
-def test_training_and_prediction_preparation_match(training, option):
-    from team_wtm.predict import prepare_features as prepare_prediction_features
-
-    # Preserve a non-default index and row order through both entry points.
-    records = training.iloc[::-1].drop(columns="status_group")
-    before = records.copy(deep=True)
-    expected, target, ids = prepare_model_inputs(
-        records, option=option, require_target=False
-    )
-    actual = prepare_prediction_features(records, FEATURE_OPTIONS[option], option)
-    pd.testing.assert_frame_equal(actual, expected)
-    pd.testing.assert_frame_equal(records, before)
-    assert target is None
-    pd.testing.assert_series_equal(ids, records["id"])
-
-
-@pytest.mark.parametrize("missing_value", [np.nan, None, pd.NA])
-def test_pipeline_handles_missing_categories_and_reload(tmp_path, missing_value):
-    training = _feature_data()
-    training["permit"] = pd.Series([True, missing_value, False], dtype=object)
-    columns, target, _ = prepare_model_inputs(training, option="full")
-    supplied = _feature_data(include_target=False)
-    supplied.loc[0, "source_type"] = "new_source"
-    supplied["permit"] = pd.Series([False, True, missing_value], dtype=object)
-    validation, _, _ = prepare_model_inputs(
-        supplied, option="full", require_target=False
-    )
-
-    pipeline = build_pipeline(columns, LogisticRegression(random_state=42))
-    pipeline.fit(columns, target)
-    predictions = pipeline.predict(validation)
-    probabilities = pipeline.predict_proba(validation)
-    assert len(predictions) == len(validation)
-    assert np.isfinite(probabilities).all()
-    path = tmp_path / "pipeline.joblib"
-    joblib.dump(pipeline, path)
-    reloaded = joblib.load(path)
-    np.testing.assert_array_equal(reloaded.predict(validation), predictions)
-    np.testing.assert_allclose(reloaded.predict_proba(validation), probabilities)

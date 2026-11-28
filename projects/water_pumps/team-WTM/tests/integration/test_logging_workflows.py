@@ -1,4 +1,4 @@
-"""Verify consistent project logs and routing from ordinary module loggers."""
+"""Integration tests for logging workflows."""
 
 import logging
 from dataclasses import replace
@@ -7,7 +7,7 @@ import pandas as pd
 
 from team_wtm import cleaning
 from team_wtm.config import SETTINGS
-from team_wtm.logging_config import configure_logging, shutdown_logging
+from team_wtm.logging_config import configure_logging
 from team_wtm.runtime import track_workflow
 
 
@@ -58,26 +58,6 @@ def test_log_level_applies_to_console_and_files(tmp_path, capsys):
         assert "Review input" in text
         assert "Quiet detail" not in text
     assert "Review input" in capsys.readouterr().err
-
-
-def test_project_log_rotation_keeps_configured_backups(tmp_path):
-    config = replace(
-        SETTINGS,
-        log_file=tmp_path / "project.log",
-        log_max_bytes=256,
-        log_backup_count=2,
-    )
-    configure_logging(config, console=False)
-    logger = logging.getLogger("team_wtm.rotation")
-    for index in range(30):
-        logger.info("marker-%02d %s", index, "x" * 40)
-    shutdown_logging()
-    assert {path.name for path in tmp_path.glob("project.log*")} == {
-        "project.log",
-        "project.log.1",
-        "project.log.2",
-    }
-    assert "marker-29" in config.log_file.read_text()
 
 
 def test_audit_logs_aggregate_diagnostics_without_record_values(training, tmp_path):

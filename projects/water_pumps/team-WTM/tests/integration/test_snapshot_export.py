@@ -1,4 +1,4 @@
-"""Checks for local snapshot integrity and reproducible provenance."""
+"""Integration tests for snapshot export."""
 
 import json
 
@@ -6,54 +6,14 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from team_wtm.cleaning import clean_data, load_data, merge_data
 from team_wtm.export_cleaned import (
-    QUALITY_FLAGS,
-    add_quality_features,
     export_cleaned_dataset,
     sha256_file,
 )
 
 
-@pytest.fixture
-def inputs(tmp_path):
-    values = pd.DataFrame(
-        {
-            "id": [8, 2, 5, 1, 7, 9],
-            "construction_year": [2000, 0, 2015, 2013, 2001, 2000],
-            "date_recorded": ["2013-01-01"] * 4 + ["bad-date", "2013-01-01"],
-            "population": [0, 5, 10, 1, 20, 0],
-            "gps_height": [0, -3, 100, 50, 60, 0],
-            "amount_tsh": [0, 0, 25, 0, 50, 0],
-            "longitude": [0, 35, 35, 35, 35, 0],
-            "latitude": [-2e-8, -6, -6, -0.95, None, -2e-8],
-            "installer": ["0", "DWE", "DWE", "DWE", "unknown", "0"],
-            "public_meeting": [True, False, None, True, False, True],
-            "permit": [None, True, False, True, True, None],
-            "num_private": [0] * 6,
-        }
-    )
-    labels = pd.DataFrame(
-        {
-            "id": [1, 2, 5, 7, 8, 9],
-            "status_group": [
-                "functional",
-                "functional needs repair",
-                "non functional",
-                "functional",
-                "functional",
-                "functional",
-            ],
-        }
-    )
-    values_path, labels_path = tmp_path / "values.csv", tmp_path / "labels.csv"
-    values.to_csv(values_path, index=False)
-    labels.to_csv(labels_path, index=False)
-    return values_path, labels_path, tmp_path / "processed" / "cleaned.parquet"
-
-
-def test_snapshot_round_trip_and_metadata_preserve_all_training_records(inputs):
-    values_path, labels_path, output = inputs
+def test_snapshot_round_trip_and_metadata_preserve_all_training_records(snapshot_inputs):
+    values_path, labels_path, output = snapshot_inputs
     hashes = [sha256_file(values_path), sha256_file(labels_path)]
     metadata = export_cleaned_dataset(values_path, labels_path, output)
     frame = pd.read_parquet(output).set_index("id")
@@ -105,19 +65,8 @@ def test_snapshot_round_trip_and_metadata_preserve_all_training_records(inputs):
     assert json.loads(output.with_suffix(".metadata.json").read_text()) == metadata
 
 
-def test_quality_features_are_additive_and_leave_source_values_unchanged(inputs):
-    values_path, labels_path, _ = inputs
-    values, labels = load_data(values_path, labels_path)
-    cleaned = clean_data(merge_data(values, labels))
-    original = cleaned.copy(deep=True)
-    flagged = add_quality_features(cleaned)
-    assert_frame_equal(cleaned, original)
-    assert_frame_equal(flagged[cleaned.columns], cleaned)
-    assert set(QUALITY_FLAGS).issubset(flagged.columns)
-
-
-def test_regeneration_requires_explicit_overwrite(inputs):
-    values_path, labels_path, output = inputs
+def test_regeneration_requires_explicit_overwrite(snapshot_inputs):
+    values_path, labels_path, output = snapshot_inputs
     export_cleaned_dataset(values_path, labels_path, output)
     parquet_bytes = output.read_bytes()
     metadata_bytes = output.with_suffix(".metadata.json").read_bytes()
@@ -132,8 +81,8 @@ def test_regeneration_requires_explicit_overwrite(inputs):
 
 
 @pytest.mark.parametrize("problem", ["unmatched_ids", "missing_target", "bad_target"])
-def test_invalid_training_inputs_do_not_create_outputs(inputs, problem):
-    values_path, labels_path, output = inputs
+def test_invalid_training_inputs_do_not_create_outputs(snapshot_inputs, problem):
+    values_path, labels_path, output = snapshot_inputs
     labels = pd.read_csv(labels_path)
     if problem == "unmatched_ids":
         labels = labels.iloc[:-1]
@@ -148,8 +97,8 @@ def test_invalid_training_inputs_do_not_create_outputs(inputs, problem):
     assert not output.with_suffix(".metadata.json").exists()
 
 
-def test_failed_parquet_write_keeps_existing_snapshot_and_metadata(inputs, monkeypatch):
-    values_path, labels_path, output = inputs
+def test_failed_parquet_write_keeps_existing_snapshot_and_metadata(snapshot_inputs, monkeypatch):
+    values_path, labels_path, output = snapshot_inputs
     export_cleaned_dataset(values_path, labels_path, output)
     original = (output.read_bytes(), output.with_suffix(".metadata.json").read_bytes())
 
@@ -167,11 +116,11 @@ def test_failed_parquet_write_keeps_existing_snapshot_and_metadata(inputs, monke
 
 
 def test_source_change_during_export_cannot_get_incorrect_provenance(
-    inputs, monkeypatch
+    snapshot_inputs, monkeypatch
 ):
     import team_wtm.export_cleaned as module
 
-    values_path, labels_path, output = inputs
+    values_path, labels_path, output = snapshot_inputs
     original_load = module.load_data
 
     def changed_load(*args):
@@ -187,7 +136,7 @@ def test_source_change_during_export_cannot_get_incorrect_provenance(
     assert not output.exists()
 
 
-def test_output_extension_is_checked_before_loading(inputs):
-    values_path, labels_path, output = inputs
+def test_output_extension_is_checked_before_loading(snapshot_inputs):
+    values_path, labels_path, output = snapshot_inputs
     with pytest.raises(ValueError, match="parquet extension"):
         export_cleaned_dataset(values_path, labels_path, output.with_suffix(".csv"))
