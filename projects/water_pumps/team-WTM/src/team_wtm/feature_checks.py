@@ -86,12 +86,12 @@ def run_options(training, plan, new_options, reused_file, reused_options, name):
         all_rows.append(option_rows)
         matrices[f"{MODEL_NAME} / {option}"] = option_matrices
     results = pd.concat(all_rows, ignore_index=True)[RESULT_COLUMNS]
-    save_reports(results, matrices, name, [*reused_options, *new_options])
+    return save_reports(results, matrices, name, [*reused_options, *new_options])
 
 
 def run_ladder(training, plan):
     """Card 13: split the age and missing-flag step into two steps."""
-    run_options(
+    return run_options(
         training, plan,
         new_options=["base_age"],
         reused_file="location",
@@ -102,7 +102,7 @@ def run_ladder(training, plan):
 
 def run_h6(training, plan):
     """Card 15 (H6): one field alone against the combined feature groups."""
-    run_options(
+    return run_options(
         training, plan,
         new_options=["single_quantity", "single_waterpoint_type"],
         reused_file="quantity",
@@ -326,7 +326,11 @@ def main():
         return
     training = load_training()
     plan = pd.read_csv(SPLIT_PATH)  # PM-1's saved plan: same folds for every check
-    EXPERIMENTS[experiment](training, plan)
+    result = EXPERIMENTS[experiment](training, plan)
+    if result is not None:
+        from team_wtm.cli import print_comparison
+
+        print_comparison(result, REPORT_DIR)
 
 
 if __name__ == "__main__":

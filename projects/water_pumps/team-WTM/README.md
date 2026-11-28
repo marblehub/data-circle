@@ -536,6 +536,15 @@ order. `--model`, `--output` and `--format` still work. The original
 `python -m team_wtm.predict` and `python -m team_wtm.model_comparison`
 commands use the same workflows.
 
+For a notebook or dashboard, pass a DataFrame of pump records directly to
+`predict_records(records, load_model())` from `team_wtm.predict`. It returns
+the predictions in memory. For a batch file, `run_prediction(...)` saves the
+output and returns its row count and any completion checks. A caller can
+inspect `all_checks_passed` when those checks are requested.
+`run_comparison("models")` from `team_wtm.model_comparison` runs the experiment,
+writes its reports, and returns the ranked table. To display past results,
+read the saved comparison table.
+
 Edit [configs/project.toml](configs/project.toml) to set input/output paths,
 the split seed and fold count, the candidate list for `compare models`, and
 the Logistic Regression and Random Forest settings. Each command reads the

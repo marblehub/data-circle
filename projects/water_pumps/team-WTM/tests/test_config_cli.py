@@ -55,12 +55,14 @@ def test_configured_comparison_from_outside_the_project(training, tmp_path):
     cli = python.with_name("team-wtm.exe" if os.name == "nt" else "team-wtm")
 
     def run(*args):
-        subprocess.run(
+        return subprocess.run(
             args, cwd=tmp_path, env=env, check=True, capture_output=True, text=True
         )
 
     run(python, "-m", "team_wtm.baseline")
-    run(cli, "compare")
+    output = run(cli, "compare").stdout
+    assert "Training random_forest" in output
+    assert "macro_f1_mean" in output
     scores_path = settings.report_dir / "model_cv_scores.csv"
     scores = pd.read_csv(scores_path)
     assert set(scores["model"]) == {"majority_baseline", "random_forest"}
@@ -73,3 +75,15 @@ def test_configured_comparison_from_outside_the_project(training, tmp_path):
 
     run(python, "-m", "team_wtm.model_comparison", "models")
     pd.testing.assert_frame_equal(scores, pd.read_csv(scores_path))
+
+    direct = run(
+        python,
+        "-c",
+        "from team_wtm.model_comparison import run_comparison; "
+        "run_comparison().to_csv('returned_table.csv')",
+    )
+    assert direct.stdout == ""
+    pd.testing.assert_frame_equal(
+        pd.read_csv(tmp_path / "returned_table.csv"),
+        pd.read_csv(settings.report_dir / "model_comparison_table.csv"),
+    )

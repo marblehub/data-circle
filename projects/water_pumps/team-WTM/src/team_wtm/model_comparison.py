@@ -14,6 +14,7 @@ Only the development folds are used here. The labelled holdout is not scored.
 """
 
 import json
+import logging
 import platform
 import sys
 
@@ -36,6 +37,8 @@ from team_wtm.evaluation import (
 )
 from team_wtm.features import FEATURE_OPTIONS, add_feature_columns, select_features
 from team_wtm.model_data_preparation import build_preprocessor
+
+logger = logging.getLogger(__name__)
 
 SPLIT_PATH = SETTINGS.split_plan
 REPORT_DIR = SETTINGS.report_dir
@@ -227,21 +230,10 @@ def save_reports(results, matrices, name, feature_options):
     summary_path = REPORT_DIR / f"{name}_comparison_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n")
 
-    shown = [
-        "macro_f1_mean",
-        "macro_f1_std",
-        "accuracy_mean",
-        "repair_recall_mean",
-        "repair_precision_mean",
-        "missed_repairs_mean",
-        "false_repair_alarms_mean",
-    ]
-    print(table[shown].round(4).to_string())
-    print(f"Saved results to {REPORT_DIR}")
-    print("The labelled holdout was not scored.")
+    return table
 
 
-def run_models(training, plan):
+def run_models(training, plan, *, on_progress=logger.info):
     """All four models on the 'base' option, next to PM-1's baseline."""
     # Start with PM-1's baseline rows so the table includes the baseline.
     all_rows = [pd.read_csv(REPORT_DIR / "baseline_cv_scores.csv")]
@@ -249,19 +241,19 @@ def run_models(training, plan):
     matrices = {"majority_baseline / none": baseline_summary["fold_details"]}
 
     for model_name in SETTINGS.candidates:
-        print(f"Training {model_name} on the shared folds ...")
+        on_progress(f"Training {model_name} on the shared folds ...")
         rows, model_matrices = run_cross_validation(training, plan, model_name)
         all_rows.append(rows)
         matrices[f"{model_name} / base"] = model_matrices
     results = pd.concat(all_rows, ignore_index=True)[RESULT_COLUMNS]
-    save_reports(results, matrices, "model", ["base"])
+    return save_reports(results, matrices, "model", ["base"])
 
 
 QUANTITY_MODELS = ["random_forest", "random_forest_balanced"]
 QUANTITY_OPTIONS = ["full", "full_no_quantity"]
 
 
-def run_quantity_check(training, plan):
+def run_quantity_check(training, plan, *, on_progress=logger.info):
     """Random Forests on PM-3's 'full' and 'full_no_quantity' options.
 
     'full' vs 'full_no_quantity' differ only in quantity/quantity_group.
@@ -286,17 +278,19 @@ def run_quantity_check(training, plan):
 
     for option in QUANTITY_OPTIONS:
         for model_name in QUANTITY_MODELS:
-            print(f"Training {model_name} with '{option}' on the shared folds ...")
+            on_progress(
+                f"Training {model_name} with '{option}' on the shared folds ..."
+            )
             rows, model_matrices = run_cross_validation(
                 training, plan, model_name, feature_option=option
             )
             all_rows.append(rows)
             matrices[f"{model_name} / {option}"] = model_matrices
     results = pd.concat(all_rows, ignore_index=True)[RESULT_COLUMNS]
-    save_reports(results, matrices, "quantity", ["base", *QUANTITY_OPTIONS])
+    return save_reports(results, matrices, "quantity", ["base", *QUANTITY_OPTIONS])
 
 
-def run_location_check(training, plan):
+def run_location_check(training, plan, *, on_progress=logger.info):
     """RF balanced on 'base_age_missing' ('full' without the location group).
 
     The 'base' and 'full' rows are reused from the quantity check, same folds.
@@ -316,13 +310,17 @@ def run_location_check(training, plan):
         for option in ["base", "full"]
     }
 
-    print(f"Training {model_name} with 'base_age_missing' on the shared folds ...")
+    on_progress(
+        f"Training {model_name} with 'base_age_missing' on the shared folds ..."
+    )
     rows, model_matrices = run_cross_validation(
         training, plan, model_name, feature_option="base_age_missing"
     )
     matrices[f"{model_name} / base_age_missing"] = model_matrices
     results = pd.concat([earlier, rows], ignore_index=True)[RESULT_COLUMNS]
-    save_reports(results, matrices, "location", ["base", "base_age_missing", "full"])
+    return save_reports(
+        results, matrices, "location", ["base", "base_age_missing", "full"]
+    )
 
 
 EXPERIMENTS = {
@@ -332,15 +330,15 @@ EXPERIMENTS = {
 }
 
 
-def run_comparison(experiment="models"):
-    """Run a named comparison using the shared split plan and configured paths."""
+def run_comparison(experiment="models", *, on_progress=logger.info):
+    """Write development-fold reports and return the ranked comparison table."""
     unknown = set(SETTINGS.candidates).difference(MODELS)
     if unknown:
         raise ValueError(f"Unknown comparison candidates: {sorted(unknown)}")
     training = load_training()
     # Reuse PM-1's saved split plan so every model sees the same folds.
     plan = pd.read_csv(SPLIT_PATH)
-    EXPERIMENTS[experiment](training, plan)
+    return EXPERIMENTS[experiment](training, plan, on_progress=on_progress)
 
 
 def main(argv=None):

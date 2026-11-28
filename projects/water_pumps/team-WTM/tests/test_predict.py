@@ -267,7 +267,13 @@ def test_completion_check_report_has_totals_only(records, model_file, tmp_path):
     )
 
 
-def test_completion_check_fails_when_ids_differ(records, model_file, tmp_path):
+def test_completion_check_fails_when_ids_differ(
+    records, model_file, tmp_path, monkeypatch, capsys
+):
+    from functools import partial
+
+    from team_wtm import cli
+
     records_path = tmp_path / "records.csv"
     records.to_csv(records_path, index=False)
     submission_path = tmp_path / "SubmissionFormat.csv"
@@ -276,17 +282,25 @@ def test_completion_check_fails_when_ids_differ(records, model_file, tmp_path):
         submission_path, index=False
     )
 
-    report = pr.run_completion_check(
-        records_path,
-        model_file,
-        tmp_path / "p.csv",
-        "csv",
-        submission_path,
-        tmp_path / "check.json",
+    monkeypatch.setattr(pr, "find_records_path", lambda: records_path)
+    monkeypatch.setattr(
+        pr,
+        "run_completion_check",
+        partial(
+            pr.run_completion_check,
+            submission_path=submission_path,
+            report_path=tmp_path / "check.json",
+        ),
     )
-
+    output = tmp_path / "p.csv"
+    report = pr.run_prediction(model_path=model_file, output_path=output)
     assert not report["checks"]["ids_match_in_order"]
     assert not report["all_checks_passed"]
+    assert capsys.readouterr().out == ""
+
+    with pytest.raises(SystemExit, match="Completion check failed"):
+        cli.main(["predict", "--model", str(model_file), "--output", str(output)])
+    assert "ids_match_in_order: FAIL" in capsys.readouterr().out
 
 
 def test_predict_module_does_not_import_streamlit():

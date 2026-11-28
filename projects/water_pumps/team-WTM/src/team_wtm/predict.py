@@ -290,25 +290,16 @@ def run_prediction(
     output_path=PREDICTIONS_PATH,
     file_format="csv",
 ):
-    """Run the supplied-test check or predict a user-provided records file."""
+    """Write predictions and return their count, plus checks for supplied records."""
     if records_path is None:
-        report = run_completion_check(
+        return run_completion_check(
             find_records_path(), model_path, output_path, file_format
         )
-        print(f"Predicted {report['prediction_rows']} records.")
-        for name, passed in report["checks"].items():
-            print(f"  {name}: {'PASS' if passed else 'FAIL'}")
-        print(f"Label counts: {report['label_counts']}")
-        print(f"Saved predictions to {relative(output_path)}")
-        print(f"Saved totals-only report to {relative(CHECK_REPORT_PATH)}")
-        if not report["all_checks_passed"]:
-            raise SystemExit("Completion check failed.")
-        return
 
     records = pd.read_csv(records_path)
     predictions = predict_records(records, load_model(model_path))
     save_predictions(predictions, output_path, file_format)
-    print(f"Predicted {len(predictions)} records; saved to {output_path}")
+    return {"prediction_rows": len(predictions)}
 
 
 def main(argv=None):

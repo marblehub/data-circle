@@ -6,6 +6,40 @@ from pathlib import Path
 from team_wtm.config import SETTINGS
 
 
+def print_comparison(table, report_dir):
+    """Display the saved comparison in the terminal."""
+    shown = [
+        "macro_f1_mean",
+        "macro_f1_std",
+        "accuracy_mean",
+        "repair_recall_mean",
+        "repair_precision_mean",
+        "missed_repairs_mean",
+        "false_repair_alarms_mean",
+    ]
+    print(table[shown].round(4).to_string())
+    print(f"Saved results to {report_dir}")
+    print("The labelled holdout was not scored.")
+
+
+def _predict(args):
+    from team_wtm.predict import CHECK_REPORT_PATH, relative, run_prediction
+
+    result = run_prediction(args.records, args.model, args.output, args.format)
+    rows = result["prediction_rows"]
+    if "checks" not in result:
+        print(f"Predicted {rows} records; saved to {args.output}")
+        return
+    print(f"Predicted {rows} records.")
+    for name, passed in result["checks"].items():
+        print(f"  {name}: {'PASS' if passed else 'FAIL'}")
+    print(f"Label counts: {result['label_counts']}")
+    print(f"Saved predictions to {relative(args.output)}")
+    print(f"Saved totals-only report to {relative(CHECK_REPORT_PATH)}")
+    if not result["all_checks_passed"]:
+        raise SystemExit("Completion check failed.")
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         prog="team-wtm", description="Water pump workflows"
@@ -50,8 +84,7 @@ def main(argv=None):
     if args.command == "compare":
         from team_wtm.model_comparison import run_comparison
 
-        run_comparison(args.experiment)
+        table = run_comparison(args.experiment, on_progress=print)
+        print_comparison(table, SETTINGS.report_dir)
     else:
-        from team_wtm.predict import run_prediction
-
-        run_prediction(args.records, args.model, args.output, args.format)
+        _predict(args)
