@@ -142,7 +142,9 @@ def run_cross_validation(training, plan, model_name, feature_option="base"):
         predictions = pipeline.predict(validation_features)
 
         scores = score_predictions(target.iloc[validation_rows], predictions)
-        matrices.append({"fold": fold, "confusion_matrix": scores.pop("confusion_matrix")})
+        matrices.append(
+            {"fold": fold, "confusion_matrix": scores.pop("confusion_matrix")}
+        )
         row = {
             "model": model_name,
             "features": feature_option,
@@ -220,8 +222,15 @@ def save_reports(results, matrices, name, feature_options):
     summary_path = REPORT_DIR / f"{name}_comparison_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n")
 
-    shown = ["macro_f1_mean", "macro_f1_std", "accuracy_mean", "repair_recall_mean",
-             "repair_precision_mean", "missed_repairs_mean", "false_repair_alarms_mean"]
+    shown = [
+        "macro_f1_mean",
+        "macro_f1_std",
+        "accuracy_mean",
+        "repair_recall_mean",
+        "repair_precision_mean",
+        "missed_repairs_mean",
+        "false_repair_alarms_mean",
+    ]
     print(table[shown].round(4).to_string())
     print(f"Saved results to {REPORT_DIR}")
     print("The labelled holdout was not scored.")
@@ -255,7 +264,9 @@ def run_quantity_check(training, plan):
     """
     base_rows = pd.read_csv(REPORT_DIR / "model_cv_scores.csv")
     base_rows = base_rows[base_rows["model"].isin(QUANTITY_MODELS)]
-    base_summary = json.loads((REPORT_DIR / "model_comparison_summary.json").read_text())
+    base_summary = json.loads(
+        (REPORT_DIR / "model_comparison_summary.json").read_text()
+    )
     all_rows = [base_rows]
     matrices = {
         f"{model} / base": base_summary["confusion_matrices"][f"{model} / base"]
@@ -281,14 +292,16 @@ def run_location_check(training, plan):
     """
     model_name = "random_forest_balanced"
     earlier = pd.read_csv(REPORT_DIR / "quantity_cv_scores.csv")
-    earlier = earlier[earlier["model"].eq(model_name)
-                      & earlier["features"].isin(["base", "full"])]
+    earlier = earlier[
+        earlier["model"].eq(model_name) & earlier["features"].isin(["base", "full"])
+    ]
     earlier_summary = json.loads(
         (REPORT_DIR / "quantity_comparison_summary.json").read_text()
     )
     matrices = {
-        f"{model_name} / {option}":
-            earlier_summary["confusion_matrices"][f"{model_name} / {option}"]
+        f"{model_name} / {option}": earlier_summary["confusion_matrices"][
+            f"{model_name} / {option}"
+        ]
         for option in ["base", "full"]
     }
 
@@ -311,7 +324,10 @@ EXPERIMENTS = {
 def main():
     parser = argparse.ArgumentParser(description="Issue #17 model comparisons.")
     parser.add_argument(
-        "experiment", nargs="?", default="models", choices=list(EXPERIMENTS),
+        "experiment",
+        nargs="?",
+        default="models",
+        choices=list(EXPERIMENTS),
         help="models: four models on 'base'. quantity / location: RF feature checks.",
     )
     experiment = parser.parse_args().experiment
