@@ -282,15 +282,21 @@ team-WTM/
 │
 ├── src/
 │   └── team_wtm/
-│       ├── __init__.py
-│       ├── cleaning.py
-│       ├── data.py
-│       ├── features.py
-│       ├── modeling.py
-│       └── evaluation.py
+│       ├── data/           # loading, cleaning, record preparation and export
+│       ├── modeling/       # columns, preprocessing, estimators, fitting and prediction
+│       ├── evaluation/     # shared splits, baseline, comparisons and scores
+│       ├── analysis/       # EDA, feature investigations and charts
+│       ├── config.py       # central configuration
+│       ├── cli.py          # terminal arguments and presentation
+│       ├── artifacts.py    # model/report identity and checksums
+│       ├── runtime.py      # workflow history
+│       ├── logging_config.py
+│       └── ...             # small compatibility modules for previous imports
 │
 ├── tests/
-│   └── ...
+│   ├── conftest.py
+│   ├── unit/
+│   └── integration/
 │
 ├── .gitignore
 ├── .python-version
@@ -298,7 +304,6 @@ team-WTM/
 ├── README.md
 ├── workflow.md
 ├── pyproject.toml
-├── requirements.txt
 └── uv.lock
 ```
 
@@ -325,14 +330,13 @@ Exploratory notebooks should not become the permanent home of reusable project l
 
 ### `src/team_wtm/`
 
-Contains reusable Python code for:
+Contains reusable workflows grouped by responsibility. The CLI, notebooks and
+dashboard call the same functions. See the [source and deployment guide](src/team_wtm/README.md)
+for the module map, reading order and application examples.
 
-- loading data;
-- cleaning;
-- feature engineering;
-- preprocessing;
-- modelling;
-- evaluation.
+Small modules at the package root preserve earlier imports and module commands.
+They forward to the grouped implementation. Keep them when deploying: existing
+saved pipelines also contain references to these earlier import paths.
 
 ### `reports/`
 
@@ -370,7 +374,7 @@ results at pinned revisions, including work from separate PRs.
 
 [`notebooks/data_audit.ipynb`](notebooks/data_audit.ipynb) presents the audit and
 explains cleaning decisions. It imports its reusable logic from
-[`src/team_wtm/cleaning.py`](src/team_wtm/cleaning.py), which also provides a standalone
+[`src/team_wtm/data/cleaning.py`](src/team_wtm/data/cleaning.py), which also provides a standalone
 pipeline. Update shared rules in the script so both entry points stay consistent.
 
 | Function | Responsibility |
@@ -424,7 +428,7 @@ The expected filenames are `Training_set_values.csv` and
 uv run jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.timeout=300 notebooks/data_audit.ipynb
 ```
 
-For a quieter programmatic inspection, import from `team_wtm.cleaning` and use
+For a quieter programmatic inspection, import from `team_wtm.data.cleaning` and use
 `run_pipeline(run_inspection=False)`. Notebook displays use `verbose=False` on
 the audit functions to avoid duplicating their console output. The notebook can
 run with either the project root or `notebooks/` as its working directory.
@@ -433,7 +437,7 @@ Run the regression checks with:
 
 ```bash
 uv run pytest
-uv run ruff check src/team_wtm/cleaning.py tests notebooks/data_audit.ipynb
+uv run ruff check src/team_wtm/data/cleaning.py tests notebooks/data_audit.ipynb
 ```
 
 ---
@@ -491,6 +495,13 @@ Install the project environment:
 uv sync
 ```
 
+Dependency versions are declared in `pyproject.toml` and locked in `uv.lock`.
+To generate a requirements file for a tool that needs one, run
+
+```bash
+uv export --locked --all-groups --format requirements-txt --no-hashes --no-annotate -o /tmp/team-wtm-requirements.txt
+```
+
 Check the Python version:
 
 ```bash
@@ -515,177 +526,215 @@ Run Jupyter using:
 uv run jupyter lab
 ```
 
+### Run the model workflows
+
+From the team-WTM directory:
+
+```bash
+uv run team-wtm --help
+uv run team-wtm baseline
+uv run team-wtm predict
+uv run team-wtm predict --records pumps.csv --output predictions.csv
+uv run team-wtm compare
+uv run team-wtm compare quantity
+uv run team-wtm compare location
+uv run team-wtm scores
+uv run team-wtm features ladder
+uv run team-wtm features h6
+uv run team-wtm features groups
+uv run team-wtm features regions
+uv run team-wtm features charts
+uv run team-wtm export-cleaned
+uv run team-wtm final-model
+```
+
+`predict` loads the saved pipeline. With no arguments it checks all supplied
+test records against the submission template and saves predictions and a
+totals report. With `--records`, the input CSV must include `id` and the
+required pump columns. The output contains `id` and `status_group` in input
+order. `--model`, `--output` and `--format` still work. The original
+`python -m team_wtm.predict` and `python -m team_wtm.model_comparison`
+commands use the same workflows.
+
+For the approved model, report definitions, and a dashboard loading example,
+see the [Sprint 2 results index](reports/sprint2/README.md). Reports are grouped
+under `baseline/`, `comparisons/`, `feature_checks/` and `final/`.
+The approved manifest stays at the report root. The model travels
+with its manifest. Use `--model-report FILE` when supplying a manifest
+at a different location.
+
+For a notebook or dashboard, pass a DataFrame of pump records directly to
+`predict_records(records, load_model())` from `team_wtm.modeling.predict`. It returns
+the predictions in memory. For a batch file, `run_prediction(...)` saves the
+output and returns its row count and any completion checks. A caller can
+inspect `all_checks_passed` when those checks are requested.
+`run_comparison("models")` from `team_wtm.evaluation.comparison` runs the experiment,
+writes its reports, and returns the ranked table. To display past results,
+read the saved comparison table.
+
+Edit [configs/project.toml](configs/project.toml) to set input/output paths,
+the split seed and fold count, the candidate list for `compare models`, and
+the Logistic Regression and Random Forest settings. It also controls regional
+folds, the minimum repair count for group reporting, EDA paths and minimum
+cell counts, categorical frequency, the final model/column set and log level.
+Each command reads the
+file at startup. Paths are relative to `project_root`, which is resolved from
+the TOML file. Raw filenames are relative to `raw_dir`. Command-line path
+overrides are relative to your current directory.
+
+For a separate experiment, copy the TOML file and set `TEAM_WTM_CONFIG` to
+its path. For a wheel installation, deploy this file with the project data and
+point `TEAM_WTM_CONFIG` to it. Set `project_root` to the intended project directory. Choose a fresh
+`report_dir` and `split_plan` when changing training inputs or settings.
+Run `uv run python -m team_wtm.baseline` to create the matching split plan
+and baseline results, then run the comparison commands in the order above.
+The quantity and location checks use the two Random Forest variants from the
+preceding comparisons. The approved Sprint 2 model and its holdout result
+belong to the original settings.
+
+
 ---
+
+### Workflow history and logs
+
+Each baseline, comparison, feature check, score report, prediction batch and
+cleaned export creates a unique directory under `paths.workflow_runs_dir`,
+which defaults to `artifacts/workflows/`.
+
+```text
+artifacts/workflows/<timestamp-and-run-id>/
+├── run.json
+├── config_snapshot.json
+├── run.log
+└── reports/
+```
+
+`run.json` records the workflow name, timestamps, status, installed library
+versions, source-code hashes, input paths/hashes and output identities. Aggregate
+reports are copied into the run directory. Prediction runs retain their
+completion checks and output checksum in `run.json`. An earlier run remains
+available after the next invocation replaces the current report tables.
+
+`run.log` records process messages, aggregate results and exceptions. `logging.level` sets its minimum
+severity. Reusable Python workflows are quiet by default; supply an
+`on_progress` callback for a dashboard progress display. The CLI displays progress.
+
+Successful final fits also create deployable model bundles under
+`paths.runs_dir`. Their model run ID is linked from the workflow record.
+Workflow records describe invocations, including failures; model bundles contain
+the saved pipeline and its reviewed evidence.
+
+Workflows publishing the shared report directory hold `.workflow.lock` there.
+An overlapping publisher receives an error recorded in its own run directory.
+Use separate report directories for independent experiments. After a forcibly
+terminated process, confirm it has stopped before removing a leftover lock.
+A forcibly terminated invocation can retain a `running` status in its record.
+
+For Python callers, the reusable workflow functions are
+
+- `evaluation.baseline.run_baseline_workflow()`, returning the baseline summary.
+- `evaluation.comparison.run_comparison(experiment)`, returning the comparison table.
+- `modeling.training.run_final_model()`, returning the model manifest and holdout scores.
+- `analysis.feature_checks.run_feature_checks(experiment)`, returning tables or chart paths.
+- `evaluation.per_condition.run_per_class_report()`, returning the per-condition table.
+- `modeling.predict.run_prediction(...)`, returning prediction totals and requested checks.
+- `data.export.export_cleaned_dataset(...)`, returning snapshot metadata.
+
+`predict_records(records, model)` remains the in-memory prediction function for
+an interactive dashboard. Use the workflow wrapper when a saved batch and a
+persistent invocation record are needed.
+
+For a temporary supplied-test completion check, specify both output destinations.
+
+```bash
+uv run team-wtm predict --output /tmp/pump-predictions.csv --check-report /tmp/pump-check.json
+```
+
+Changing final-model or preprocessing settings triggers the existing holdout
+reuse checks. Historical Sprint 2 results used a category-frequency threshold of
+0.01. A different setup needs its own configured report directory and evaluation.
+
+### Standard project logging
+
+Application entry points call `logging_config.configure_logging()`. Named
+`team_wtm` module loggers then write timestamped messages with severity,
+module name, workflow name and run ID.
+
+- The rotating project log is configured by `paths.log_file`, normally
+  `artifacts/logs/project.log`.
+- Each workflow also captures its module messages in
+  `artifacts/workflows/<run-id>/run.log`.
+- CLI process logs use stderr. Result tables and export JSON use stdout.
+- `logging.level` controls severity. `logging.max_bytes` and
+  `logging.backup_count` control project-log rotation.
+
+For a notebook or dashboard, configure logging at application startup.
+
+```python
+import logging
+from team_wtm.logging_config import configure_logging
+
+configure_logging(console=False)
+logger = logging.getLogger("team_wtm.dashboard")
+logger.info("Preparing dashboard inputs")
+```
+
+Use `INFO` for process milestones and totals, `WARNING` for issues requiring
+review, `ERROR` for failed checks, and `DEBUG` for detailed aggregate
+diagnostics. Inside an exception handler, `logger.exception(...)` records
+the traceback. Workflow failures already record their exception.
+
+Module log messages inside a workflow receive that workflow's run ID.
+Simultaneous thread-based workflows use separate log routing. Cleaning
+diagnostics record counts and summaries. Inspection functions return their cardinality and numeric summaries for display.
+
+### Shared preparation for Python callers
+
+Use the preparation module from notebooks, scripts or a dashboard.
+
+```python
+from team_wtm.data.preparation import load_training_data, prepare_model_inputs
+from team_wtm.modeling.preprocessing import build_pipeline
+
+training = load_training_data()
+columns, target, record_ids = prepare_model_inputs(training, option="full")
+```
+
+`load_training_data()` reads the configured training CSVs, validates IDs and
+requires every ID to occur in both files. It sorts the joined records by ID,
+matching the training commands. Explicit CSV paths can be passed to load another
+dataset. The lower-level `cleaning.merge_data()` supports outer joins for audits.
+
+`prepare_model_inputs()` applies the cleaning and column-engineering rules,
+selects a named column set, and returns the columns, target and IDs with matching
+row indexes. Pass `require_target=False` for supplied test records.
+`build_pipeline(fitting_columns, estimator)` creates an unfitted preprocessing
+and model pipeline. Fit it on fitting records inside each development fold.
+The imputation, scaling and category encoding are learned during that fit.
+
+The training commands and prediction workflow use these preparation functions.
+Existing `model_comparison.load_training`, `add_model_columns`,
+`categories_as_text` and `build_pipeline` imports remain available. This also
+supports loading saved pipelines that refer to the earlier module path.
+
+
+### Running the tests
+
+The test suite groups individual component checks under `tests/unit/` and
+connected workflow checks under `tests/integration/`. Shared fixtures live
+in `tests/conftest.py`. See the [test guide](tests/README.md).
+
+```bash
+uv run pytest -q
+uv run pytest tests/unit -q
+uv run pytest tests/integration -q
+```
 
 # Git and GitHub Workflow
 
-The team uses a **feature-branch workflow**.
-
-The `main` branch represents the stable integrated version of the project.
-
-Team members should normally **not develop directly on `main`**.
-
----
-
-## 1. Start From an Updated `main`
-
-Before starting new work:
-
-```bash
-git switch main
-git pull origin main
-```
-
----
-
-## 2. Work From a GitHub Issue
-
-Each meaningful task should first exist as a GitHub Issue.
-
-Example:
-
-```text
-Issue #5
-Analyse pump age versus functionality
-```
-
----
-
-## 3. Create a Branch for the Issue
-
-Use:
-
-```text
-feature/<issue-number>-<description>
-```
-
-Example:
-
-```bash
-git switch -c feature/5-pump-age-analysis
-```
-
-Other examples:
-
-```text
-feature/7-geospatial-analysis
-feature/10-data-cleaning
-docs/12-update-data-dictionary
-fix/15-construction-year-handling
-```
-
-Note:
-Branches should describe the work, not the person performing it.
-
----
-
-## 4. Make Small Commits
-
-Example:
-
-```bash
-git add .
-git commit -m "feat: analyse pump age and functionality"
-```
-
-Recommended prefixes include:
-
-```text
-feat:     new functionality or analysis
-fix:      bug or data-handling correction
-docs:     documentation
-test:     tests
-refactor: code restructuring
-chore:    project maintenance
-```
-
----
-
-## 5. Push the Branch
-
-```bash
-git push -u origin feature/5-pump-age-analysis
-```
-
----
-
-## 6. Create a Pull Request
-
-The Pull Request should target:
-
-```text
-marblehub/data-circle:main
-```
-
-not the original:
-
-```text
-ReDI-School/data-circle:main
-```
-
-unless the ReDI instructors explicitly request a submission to their repository.
-
-Each Pull Request should:
-
-- explain what changed;
-- reference the corresponding Issue;
-- describe how the work was validated;
-- be reviewed by at least one other team member.
-
-Example:
-
-```text
-Closes #5
-```
-
-can be added to the PR description so the Issue closes automatically after merging.
-
----
-
-## 7. Peer Review
-
-Every meaningful Pull Request should be reviewed by another team member.
-
-Suggested review rotation:
-
-```text
-PM-1 -> PM-2
-PM-2 -> PM-3
-PM-3 -> PM-4
-PM-4 -> PM-1 or PM-2
-```
-
-Reviewers should check:
-
-- correctness;
-- clarity;
-- reproducibility;
-- documentation;
-- unnecessary duplication;
-- whether acceptance criteria are satisfied.
-
----
-
-## 8. Merge
-
-Prefer:
-
-```text
-Squash and merge
-```
-
-for feature branches.
-
-After merging:
-
-```bash
-git switch main
-git pull origin main
-git branch -d feature/5-pump-age-analysis
-git fetch --prune
-```
-
----
+Follow the team workflow for issue-based branches, commits, pull requests,
+peer review, squash merges and project-board updates. The full instructions
+are maintained in the [team workflow guide](workflow.md).
 
 # Upstream Synchronisation
 

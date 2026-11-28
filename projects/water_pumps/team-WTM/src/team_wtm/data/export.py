@@ -1,0 +1,251 @@
+"""Export a reproducible local cleaned training snapshot and provenance.
+
+Run python -m team_wtm.export_cleaned. Raw inputs and unresolved records are
+preserved. Learned imputation, encoding and scaling belong in training folds.
+"""
+
+import importlib.metadata
+import json
+import logging
+import os
+import platform
+import subprocess
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+import pandas as pd
+from pandas.testing import assert_frame_equal
+
+from team_wtm.artifacts import sha256_file
+from team_wtm.config import PACKAGE_DIR, SETTINGS
+from team_wtm.data.cleaning import (
+    DEFAULT_LABELS_PATH,
+    DEFAULT_VALUES_PATH,
+    add_quality_features,
+    clean_data,
+    load_data,
+    merge_data,
+)
+from team_wtm.runtime import track_workflow
+
+logger = logging.getLogger(__name__)
+
+DEFAULT_OUTPUT = SETTINGS.cleaned_snapshot
+TARGET_CLASSES = ("functional", "functional needs repair", "non functional")
+QUALITY_FLAGS = (
+    "construction_year_missing",
+    "population_missing",
+    "pump_age_missing",
+    "pump_age_invalid",
+    "coordinate_placeholder",
+    "coordinate_screen_failed",
+)
+RULES_VERSION = "sprint1-cleaned-snapshot-v1"
+
+
+def _code_provenance() -> dict:
+    """Record exact source hashes as well as the current repository revision."""
+    files = [Path(__file__), Path(__file__).with_name("cleaning.py")]
+    relative = ["src/team_wtm/" + p.relative_to(PACKAGE_DIR).as_posix() for p in files]
+    try:
+        revision = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=PACKAGE_DIR,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        status = subprocess.run(
+            ["git", "status", "--porcelain", "--", *[str(p.resolve()) for p in files]],
+            cwd=PACKAGE_DIR,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except FileNotFoundError:
+        git_commit = None
+        source_files_dirty = None
+    else:
+        git_commit = revision.stdout.strip() if revision.returncode == 0 else None
+        source_files_dirty = (
+            bool(status.stdout.strip()) if status.returncode == 0 else None
+        )
+    lock_path = SETTINGS.project_root / "uv.lock"
+    return {
+        "git_commit": git_commit,
+        "source_files_dirty": source_files_dirty,
+        "source_sha256": {
+            name: sha256_file(p) for name, p in zip(relative, files, strict=True)
+        },
+        "uv_lock_sha256": sha256_file(lock_path) if lock_path.is_file() else None,
+    }
+
+
+def _export_cleaned_dataset(
+    values_path=DEFAULT_VALUES_PATH,
+    labels_path=DEFAULT_LABELS_PATH,
+    output_path=DEFAULT_OUTPUT,
+    *,
+    overwrite=False,
+) -> dict:
+    """Export all matched, labelled training records plus additive quality flags.
+
+    A missing/extra ID or unexpected target stops the export. Files are staged
+    and round-trip checked before replacement. Existing outputs require an
+    explicit overwrite; metadata is installed last and contains the data hash.
+    """
+    values_path, labels_path, output_path = (
+        Path(p).resolve() for p in (values_path, labels_path, output_path)
+    )
+    if output_path.suffix.lower() != ".parquet":
+        raise ValueError("The cleaned output must have a .parquet extension.")
+    metadata_path = output_path.with_suffix(".metadata.json")
+    if {output_path, metadata_path} & {values_path, labels_path}:
+        raise ValueError("Outputs must not overwrite source inputs.")
+    if not overwrite and (output_path.exists() or metadata_path.exists()):
+        raise FileExistsError(
+            "A snapshot or metadata file exists; use --overwrite to regenerate."
+        )
+    hashes = {"values": sha256_file(values_path), "labels": sha256_file(labels_path)}
+    values, labels = load_data(values_path, labels_path)
+    merged = merge_data(values, labels, keep_merge_indicator=True)
+    if not merged["_merge"].eq("both").all():
+        raise ValueError("Features and labels must contain exactly the same IDs.")
+    raw = merged.drop(columns="_merge")
+    if "status_group" not in raw or not raw["status_group"].isin(TARGET_CLASSES).all():
+        raise ValueError("Every row needs a valid training target label.")
+    cleaned = add_quality_features(clean_data(raw))
+    # Nullable Boolean preserves true/false/null through Arrow without changing values.
+    for column in ("public_meeting", "permit"):
+        if column in cleaned:
+            cleaned[column] = cleaned[column].astype("boolean")
+    for role, path in (("values", values_path), ("labels", labels_path)):
+        if sha256_file(path) != hashes[role]:
+            raise RuntimeError(
+                "An input file changed during the export; rerun on stable inputs."
+            )
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(
+        prefix=".clean-export-", dir=output_path.parent
+    ) as temporary:
+        staged = Path(temporary) / output_path.name
+        cleaned.to_parquet(staged, engine="pyarrow", compression="zstd", index=False)
+        reloaded = pd.read_parquet(staged, engine="pyarrow")
+        assert_frame_equal(cleaned, reloaded, check_exact=True)
+        metadata = {
+            "metadata_version": 1,
+            "rules_version": RULES_VERSION,
+            "generated_at_utc": datetime.now(UTC).isoformat(),
+            "inputs": {
+                role: {
+                    "filename": path.name,
+                    "sha256": hashes[role],
+                    "rows": len(frame),
+                    "columns": len(frame.columns),
+                }
+                for role, path, frame in (
+                    ("values", values_path, values),
+                    ("labels", labels_path, labels),
+                )
+            },
+            "code": _code_provenance(),
+            "environment": {
+                "python": platform.python_version(),
+                "pandas": pd.__version__,
+                "pyarrow": importlib.metadata.version("pyarrow"),
+            },
+            "output": {
+                "filename": output_path.name,
+                "sha256": sha256_file(staged),
+                "rows": len(cleaned),
+                "columns": len(cleaned.columns),
+                "schema": [
+                    {"column": col, "dtype": str(dtype)}
+                    for col, dtype in cleaned.dtypes.items()
+                ],
+            },
+            "rules": {
+                "zero_to_missing": ["population", "construction_year"],
+                "parse_date": "date_recorded; invalid dates become NaT",
+                "nullable_boolean_columns": [
+                    col for col in ("public_meeting", "permit") if col in cleaned
+                ],
+                "dropped_columns": ["num_private"] if "num_private" in raw else [],
+                "age": "recording year minus construction year; requires positive year and nonnegative age",
+                "coordinate_envelope": {
+                    "longitude": [29, 41],
+                    "latitude": [-12.5, -0.9],
+                },
+                "coordinate_placeholder": "longitude == 0 and abs(latitude) <= 1e-6",
+                "rows": "all matched training records retained, including duplicates",
+                "uncertain_values": "retain elevation/amount zeros, nonzero source years, coordinates and raw categories",
+                "learned_preprocessing": "none; fit imputation, grouping, encoding and scaling on training folds",
+            },
+            "quality": {
+                "flag_counts": {
+                    name: int(cleaned[name].sum()) for name in QUALITY_FLAGS
+                },
+                "missing_counts": {
+                    col: int(count) for col, count in cleaned.isna().sum().items()
+                },
+                "target_counts": {
+                    status: int(cleaned["status_group"].eq(status).sum())
+                    for status in TARGET_CLASSES
+                },
+                "repeated_rows_excluding_id": int(
+                    raw.drop(columns="id").duplicated().sum()
+                ),
+                "round_trip_verified": True,
+            },
+        }
+        staged_metadata = Path(temporary) / metadata_path.name
+        staged_metadata.write_text(
+            json.dumps(metadata, indent=2, sort_keys=True) + "\n"
+        )
+        os.replace(staged, output_path)
+        os.replace(staged_metadata, metadata_path)
+    return metadata
+
+
+def export_cleaned_dataset(
+    values_path=DEFAULT_VALUES_PATH,
+    labels_path=DEFAULT_LABELS_PATH,
+    output_path=DEFAULT_OUTPUT,
+    *,
+    overwrite=False,
+    on_progress=None,
+):
+    """Export a cleaned snapshot and record the invocation and provenance."""
+    with track_workflow(
+        "export-cleaned", config=SETTINGS, on_progress=on_progress
+    ) as run:
+        run.record_inputs(
+            {"training_values": values_path, "training_labels": labels_path}
+        )
+        run.progress("Preparing and verifying the cleaned snapshot")
+        metadata = _export_cleaned_dataset(
+            values_path, labels_path, output_path, overwrite=overwrite
+        )
+        metadata_path = Path(output_path).with_suffix(".metadata.json").resolve()
+        run.archive([metadata_path], metadata_path.parent)
+        run.details["snapshot"] = metadata["output"]
+        logger.info(
+            "Exported %s records and %s columns to %s",
+            metadata["output"]["rows"],
+            metadata["output"]["columns"],
+            Path(output_path).resolve(),
+        )
+        return metadata
+
+
+def main(argv=None):
+    from team_wtm.cli import main as run_cli
+
+    run_cli(["export-cleaned", *(sys.argv[1:] if argv is None else argv)])
+
+
+if __name__ == "__main__":
+    main()

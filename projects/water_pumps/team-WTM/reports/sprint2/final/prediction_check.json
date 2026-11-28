@@ -1,0 +1,37 @@
+{
+  "scope": "Predictions on unlabelled test records only; no fitting, no holdout scoring. Totals only, no individual records.",
+  "run_id": "sprint2-rf-419c9f7abddd",
+  "model": "random_forest_balanced",
+  "features": "full",
+  "model_sha256": "419c9f7abdddd5fe5fb55313ebc8054bd038332078c48eda99ec26779f506f8f",
+  "model_file": "models/final_pipeline.joblib",
+  "records_file": "data/raw/Test_set_values.csv",
+  "submission_file": "data/raw/Submission_format.csv",
+  "records_rows": 14850,
+  "records_columns": 40,
+  "prediction_rows": 14850,
+  "checks": {
+    "rows_match": true,
+    "ids_match_in_order": true,
+    "columns_match": true,
+    "labels_valid": true,
+    "no_missing_values": true,
+    "same_predictions_after_reload": true
+  },
+  "all_checks_passed": true,
+  "label_counts": {
+    "functional": 7848,
+    "functional needs repair": 1377,
+    "non functional": 5625
+  },
+  "version_warnings": [],
+  "versions": {
+    "python": "3.12.14",
+    "pandas": "3.0.6",
+    "numpy": "2.5.3",
+    "scikit_learn": "1.9.1",
+    "joblib": "1.6.0"
+  },
+  "predictions_sha256": "31c608ccddedd5581ef8ecacc7165fcb6cbfcad8d2f57dfc41cd90a3b19fcdfd",
+  "report_file": "reports/sprint2/final/prediction_check.json"
+}

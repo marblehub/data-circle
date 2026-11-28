@@ -3,7 +3,7 @@
 This audit supports [issue #4](https://github.com/marblehub/data-circle/issues/4).
 Counts were verified against the local training CSVs on 14 October 2026.
 The [audit notebook](../../notebooks/data_audit.ipynb) shows the checks and imports
-shared logic from [cleaning.py](../../src/team_wtm/cleaning.py). The
+shared logic from [cleaning.py](../../src/team_wtm/data/cleaning.py). The
 [data dictionary](../../data/raw/data_dictionary.md) describes every column and the target.
 
 ## Dataset Structure and Target
@@ -237,7 +237,7 @@ Run the notebook from a fresh kernel, the shared pipeline, and the checks:
 uv run jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.timeout=300 notebooks/data_audit.ipynb
 uv run python -m team_wtm.cleaning
 uv run pytest
-uv run ruff check src/team_wtm/cleaning.py tests notebooks/data_audit.ipynb
+uv run ruff check src/team_wtm/data/cleaning.py tests notebooks/data_audit.ipynb
 ```
 
 The notebook can also run interactively with the project root or `notebooks/`

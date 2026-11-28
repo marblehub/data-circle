@@ -1,0 +1,293 @@
+"""Unit tests for additional EDA."""
+
+from io import StringIO
+
+import numpy as np
+import pandas as pd
+import pytest
+from pandas.testing import assert_frame_equal
+
+from team_wtm.analysis.numeric import (
+    AGE_GROUPS,
+    NUMERIC,
+    STATUS,
+    age_availability_summary,
+    age_contrasts,
+    age_rates,
+    missingness_by,
+    numeric_correlations,
+    numeric_outliers,
+    numeric_summary,
+    prepare_eda,
+    standardized_extremes,
+)
+
+
+def test_age_boundaries_and_unknowns_do_not_mutate_source(sample_raw):
+    raw = sample_raw([0, 5, 6, 10, 11, 20, 21, 30, 31, 53, 0, -1, 2])
+    raw.loc[10, "construction_year"] = 0
+    raw.loc[12, "date_recorded"] = "bad"
+    raw.loc[0, "population"] = 0
+    original = raw.copy(deep=True)
+    data = prepare_eda(raw)
+    assert_frame_equal(raw, original)
+    assert data["age_group"].astype("string").iloc[:10].tolist() == [
+        "0-5",
+        "0-5",
+        "6-10",
+        "6-10",
+        "11-20",
+        "11-20",
+        "21-30",
+        "21-30",
+        "31+",
+        "31+",
+    ]
+    assert data["pump_age"].iloc[10:].isna().all()
+    assert data.loc[0, "pump_age"] == 0
+    assert pd.isna(data.loc[0, "population"])
+    assert data.loc[0, "amount_tsh"] == 0
+    assert data.loc[0, "gps_height"] == -2
+    assert data.loc[2, "gps_height"] == 0
+    assert data["age_availability"].value_counts().to_dict() == {
+        "Usable age": 10,
+        "Invalid year/date/age": 2,
+        "Unknown construction year": 1,
+    }
+
+
+@pytest.mark.parametrize(
+    "string_columns",
+    [("population",), ("construction_year",), ("population", "construction_year")],
+)
+def test_mixed_csv_numeric_columns_keep_placeholder_and_age_rules(sample_raw, string_columns):
+    control = sample_raw([1, 0, -1, 5, 10, 35])
+    control["population"] = [0.0, 120.0, 150.0, np.nan, 250.0, 0.0]
+    control["construction_year"] = [0.0, 2013.0, 2014.0, np.nan, 2003.0, 0.0]
+    csv_input = control.copy(deep=True)
+    for column in string_columns:
+        csv_input[column] = csv_input[column].astype("string")
+        csv_input.loc[0, column] = "0"
+        csv_input.loc[3, column] = "not recorded"
+        csv_input.loc[5, column] = " 0 "
+    raw = pd.read_csv(StringIO(csv_input.to_csv(index=False)))
+    original = raw.copy(deep=True)
+
+    actual = prepare_eda(raw)
+    expected = prepare_eda(control)
+
+    assert_frame_equal(raw, original)
+    assert_frame_equal(actual, expected)
+    assert actual.loc[[0, 5], ["population", "construction_year"]].isna().all().all()
+    assert actual.loc[0, "age_availability"] == "Unknown construction year"
+    assert actual.loc[3, "age_availability"] == "Unknown construction year"
+    assert actual.loc[1, "pump_age"] == 0
+    assert actual.loc[2, "age_availability"] == "Invalid year/date/age"
+    assert actual.loc[0, "amount_tsh"] == 0
+    assert actual.loc[2, "gps_height"] == 0
+    assert actual.loc[0, "gps_height"] == -2
+
+
+@pytest.mark.parametrize("problem", ["missing_column", "missing_target", "bad_target"])
+def test_analysis_rejects_incomplete_inputs(sample_raw, problem):
+    raw = sample_raw([1, 2, 3])
+    if problem == "missing_column":
+        raw = raw.drop(columns="region")
+    else:
+        raw.loc[0, "status_group"] = None if problem == "missing_target" else "unknown"
+    with pytest.raises(ValueError):
+        prepare_eda(raw)
+
+
+def test_correlation_excludes_codes_and_uses_pairwise_counts():
+    data = pd.DataFrame(
+        {
+            "pump_age": [0, 1, 2, 3],
+            "population": [1, 2, 4, 8],
+            "amount_tsh": [0, 0, 0, 0],
+            "gps_height": [-1, 0, 1, np.nan],
+            "id": [1, 2, 3, 4],
+            "region_code": [1, 2, 3, 4],
+            "status_group": [STATUS[0]] * 4,
+        }
+    )
+    original = data.copy(deep=True)
+    result = numeric_correlations(data)
+    sensitivity = numeric_correlations(data, mask_elevation_zero=True)
+    assert result["spearman"].columns.tolist() == list(NUMERIC)
+    assert result["spearman"].loc["pump_age", "population"] == pytest.approx(1)
+    assert result["pearson"].loc["pump_age", "population"] < 1
+    assert pd.isna(result["spearman"].loc["amount_tsh", "population"])
+    assert result["pairwise_n"].loc["pump_age", "gps_height"] == 3
+    assert sensitivity["pairwise_n"].loc["pump_age", "gps_height"] == 2
+    assert_frame_equal(data, original)
+
+
+def test_missingness_rates_condition_on_each_class_not_whole_dataset(sample_raw):
+    raw = sample_raw([1] * 6)
+    raw["status_group"] = [STATUS[0]] * 3 + [STATUS[2]] * 2 + [STATUS[1]]
+    raw["population"] = [0, 0, 5, 0, 9, 1]
+    raw.loc[0, "construction_year"] = 0
+    data = prepare_eda(raw)
+    table = missingness_by(data, "status_group").set_index(["group", "feature"])
+    assert table.loc[(STATUS[0], "population"), "missing_pct"] == pytest.approx(200 / 3)
+    assert table.loc[(STATUS[2], "population"), "missing_pct"] == 50
+    assert table.loc[(STATUS[1], "population"), "missing_pct"] == 0
+    assert table.loc[(STATUS[0], "population"), "n"] == 3
+    summary = numeric_summary(data).set_index(["feature", "status"])
+    assert summary.loc[("population", STATUS[0]), "valid_n"] == 1
+    assert summary.loc[("population", STATUS[0]), "median"] == 5
+    availability = age_availability_summary(data)
+    assert availability.groupby("availability")["status_n"].sum().to_dict() == {
+        "Unknown construction year": 1,
+        "Usable age": 5,
+    }
+
+
+def test_age_tables_keep_regions_with_no_usable_ages_and_absent_classes(sample_raw):
+    raw = sample_raw([1, 35, 10])
+    raw["region"] = ["A", "A", "B"]
+    raw["status_group"] = [STATUS[0], STATUS[2], STATUS[1]]
+    raw.loc[2, "construction_year"] = 0
+    rates = age_rates(prepare_eda(raw), "region")
+    a = rates.loc[rates["region"].eq("A")].set_index("age_group")
+    b = rates.loc[rates["region"].eq("B")]
+    assert rates["n"].sum() == 2
+    assert len(rates) == 2 * len(AGE_GROUPS)
+    assert a.loc["0-5", "functional_pct"] == 100
+    assert a.loc["0-5", "functional needs repair"] == 0
+    assert b["n"].sum() == 0
+    assert b["functional_pct"].isna().all()
+    comparisons = age_contrasts(rates, "region", min_n=1).set_index("region")
+    assert comparisons.loc["A", "eligible"]
+    assert not comparisons.loc["B", "eligible"]
+    assert comparisons.loc["B", "young_n"] == 0
+
+
+def test_standardization_uses_same_strata_and_weights_for_both_ages():
+    # A Simpson reversal: younger does better in both strata but worse when pooled.
+    rates = pd.DataFrame(
+        [
+            {
+                "region": "A",
+                "age_group": "0-5",
+                "n": 10,
+                "functional": 9,
+                "functional_pct": 90,
+            },
+            {
+                "region": "A",
+                "age_group": "31+",
+                "n": 100,
+                "functional": 80,
+                "functional_pct": 80,
+            },
+            {
+                "region": "B",
+                "age_group": "0-5",
+                "n": 100,
+                "functional": 20,
+                "functional_pct": 20,
+            },
+            {
+                "region": "B",
+                "age_group": "31+",
+                "n": 10,
+                "functional": 1,
+                "functional_pct": 10,
+            },
+            {
+                "region": "C",
+                "age_group": "0-5",
+                "n": 1000,
+                "functional": 1000,
+                "functional_pct": 100,
+            },
+        ]
+    )
+    contrasts = age_contrasts(rates, "region", min_n=10)
+    summary = standardized_extremes(contrasts)
+    assert summary["eligible_strata"] == 2
+    assert summary["common_n"] == 220
+    assert summary["young_n"] == summary["old_n"] == 110
+    assert summary["young_standardized_pct"] == 55
+    assert summary["old_standardized_pct"] == 45
+    assert summary["standardized_gap_pp"] == 10
+    assert summary["pooled_gap_pp"] == pytest.approx(100 * (29 - 81) / 110)
+    assert not contrasts.set_index("region").loc["C", "eligible"]
+
+
+def test_empty_common_support_and_invalid_threshold_are_explicit():
+    rates = pd.DataFrame(
+        [
+            {
+                "region": "A",
+                "age_group": "0-5",
+                "n": 29,
+                "functional": 20,
+                "functional_pct": 100 * 20 / 29,
+            },
+            {
+                "region": "A",
+                "age_group": "31+",
+                "n": 30,
+                "functional": 15,
+                "functional_pct": 50,
+            },
+        ]
+    )
+    assert standardized_extremes(age_contrasts(rates, "region")) == {
+        "eligible_strata": 0,
+        "common_n": 0,
+    }
+    assert age_contrasts(rates, "region", 29).iloc[0]["eligible"]
+    with pytest.raises(ValueError, match="positive"):
+        age_contrasts(rates, "region", 0)
+
+
+def test_outliers_use_pooled_fences_strict_boundaries_and_valid_denominators():
+    # Q1=2, Q3=4, fences=-1 and 7. Boundary values themselves are not outliers.
+    values = [-2, -1, 2, 2, 3, 4, 4, 7, 8, np.nan, np.inf, -np.inf]
+    data = pd.DataFrame({feature: values for feature in NUMERIC})
+    original = data.copy(deep=True)
+    result = numeric_outliers(data).set_index("feature")
+    for feature in NUMERIC:
+        row = result.loc[feature]
+        assert row["q1"] == 2
+        assert row["q3"] == 4
+        assert row["lower_fence"] == -1
+        assert row["upper_fence"] == 7
+        assert row["below_n"] == row["above_n"] == 1
+        assert row["valid_n"] == 9
+        assert row["missing_n"] == 1
+        assert row["nonfinite_n"] == 2
+        assert row["outlier_pct"] == pytest.approx(200 / 9)
+    assert_frame_equal(data, original)
+    # Changing labels cannot change the feature-only pooled screen.
+    data["status_group"] = [STATUS[0]] * len(data)
+    assert_frame_equal(numeric_outliers(data).set_index("feature"), result)
+
+
+def test_outliers_explain_zero_iqr_constant_and_missing_features():
+    data = pd.DataFrame(
+        {
+            "pump_age": [5.0] * 10,
+            "population": [np.nan] * 10,
+            "amount_tsh": [0.0] * 9 + [100.0],
+            "gps_height": [np.inf] * 10,
+        }
+    )
+    result = numeric_outliers(data).set_index("feature")
+    assert result.loc["pump_age", "zero_iqr"]
+    assert result.loc["pump_age", "outlier_n"] == 0
+    amount = result.loc["amount_tsh"]
+    assert amount["zero_iqr"]
+    assert amount["lower_fence"] == amount["upper_fence"] == 0
+    assert amount["zero_n"] == 9
+    assert amount["above_n"] == 1
+    assert amount["outlier_pct"] == 10
+    for feature in ("population", "gps_height"):
+        assert result.loc[feature, "valid_n"] == 0
+        assert pd.isna(result.loc[feature, "lower_fence"])
+        assert pd.isna(result.loc[feature, "outlier_pct"])
+        assert result.loc[feature, "outlier_n"] == 0
