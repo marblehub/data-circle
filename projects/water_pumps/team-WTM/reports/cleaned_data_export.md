@@ -21,7 +21,7 @@ and documentation are version controlled.
 
 ## Preparation rules
 
-The exporter imports the existing shared cleaner and applies its defaults:
+The exporter imports the shared cleaning and quality-column functions from cleaning.py and applies their defaults:
 
 - Convert zero population and construction year to missing values.
 - Parse date_recorded, with unparseable values becoming NaT.
@@ -93,7 +93,7 @@ Regenerate an existing snapshot explicitly:
 uv run python -m team_wtm.export_cleaned --overwrite
 ```
 
-The module resolves its default paths from the project source location. It
+The module reads default paths from configs/project.toml through the shared settings. It
 also runs from notebooks/ after installing the project package. Optional
 --values, --labels and --output arguments select alternate inputs and output.
 
@@ -161,3 +161,14 @@ See [test_export_cleaned.py](../tests/test_export_cleaned.py) for synthetic chec
 covering ID/label preservation, placeholder handling, age zero, negative ages,
 coordinate screening, nullable Booleans, explicit regeneration, unmatched IDs,
 invalid targets, failed writes and inputs that change during export.
+
+## Shared workflow
+
+`uv run team-wtm export-cleaned` calls the same exporter as the module command.
+Each invocation saves a workflow record and log under the configured
+`paths.workflow_runs_dir`, with the metadata retained alongside the record.
+The Parquet snapshot stays at `paths.cleaned_snapshot`.
+
+Quality-column engineering is defined in `cleaning.add_quality_features()`.
+Model preparation and export import that same implementation. The existing
+`export_cleaned.add_quality_features` import remains available to callers.

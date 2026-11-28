@@ -4,12 +4,12 @@ Run python -m team_wtm.export_cleaned. Raw inputs and unresolved records are
 preserved. Learned imputation, encoding and scaling belong in training folds.
 """
 
-import argparse
 import importlib.metadata
 import json
 import os
 import platform
 import subprocess
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -22,13 +22,15 @@ from team_wtm.cleaning import (
     DEFAULT_LABELS_PATH,
     DEFAULT_VALUES_PATH,
     PROJECT_DIR,
+    add_quality_features,
     clean_data,
-    derive_pump_age,
     load_data,
     merge_data,
 )
+from team_wtm.config import SETTINGS
+from team_wtm.runtime import track_workflow
 
-DEFAULT_OUTPUT = PROJECT_DIR / "data" / "processed" / "training_cleaned.parquet"
+DEFAULT_OUTPUT = SETTINGS.cleaned_snapshot
 TARGET_CLASSES = ("functional", "functional needs repair", "non functional")
 QUALITY_FLAGS = (
     "construction_year_missing",
@@ -40,39 +42,6 @@ QUALITY_FLAGS = (
 )
 RULES_VERSION = "sprint1-cleaned-snapshot-v1"
 
-
-def add_quality_features(cleaned: pd.DataFrame) -> pd.DataFrame:
-    """Add deterministic flags and usable age while retaining source columns.
-
-    The broad audit coordinate envelope is a screening rule, not an exact
-    Tanzania boundary. Original coordinates and nonzero construction years
-    stay available for review.
-    """
-    required = {
-        "population",
-        "construction_year",
-        "date_recorded",
-        "longitude",
-        "latitude",
-    }
-    missing = required - set(cleaned.columns)
-    if missing:
-        raise ValueError(f"Missing quality-feature columns: {sorted(missing)}")
-    output = cleaned.copy()
-    year = pd.to_numeric(output["construction_year"], errors="coerce")
-    population = pd.to_numeric(output["population"], errors="coerce")
-    longitude = pd.to_numeric(output["longitude"], errors="coerce")
-    latitude = pd.to_numeric(output["latitude"], errors="coerce")
-    output["construction_year_missing"] = year.isna()
-    output["population_missing"] = population.isna()
-    output["pump_age"] = derive_pump_age(output)
-    output["pump_age_missing"] = output["pump_age"].isna()
-    output["pump_age_invalid"] = output["pump_age_missing"] & year.notna()
-    output["coordinate_placeholder"] = longitude.eq(0) & latitude.abs().le(1e-6)
-    output["coordinate_screen_failed"] = ~(
-        longitude.between(29, 41) & latitude.between(-12.5, -0.9)
-    )
-    return output
 
 
 def _code_provenance() -> dict:
@@ -93,6 +62,7 @@ def _code_provenance() -> dict:
         text=True,
         check=False,
     )
+    lock_path = SETTINGS.project_root / "uv.lock"
     return {
         "git_commit": revision.stdout.strip() if revision.returncode == 0 else None,
         "source_files_dirty": bool(status.stdout.strip())
@@ -101,11 +71,11 @@ def _code_provenance() -> dict:
         "source_sha256": {
             name: sha256_file(p) for name, p in zip(relative, files, strict=True)
         },
-        "uv_lock_sha256": sha256_file(PROJECT_DIR / "uv.lock"),
+        "uv_lock_sha256": sha256_file(lock_path) if lock_path.is_file() else None,
     }
 
 
-def export_cleaned_dataset(
+def _export_cleaned_dataset(
     values_path=DEFAULT_VALUES_PATH,
     labels_path=DEFAULT_LABELS_PATH,
     output_path=DEFAULT_OUTPUT,
@@ -232,34 +202,27 @@ def export_cleaned_dataset(
     return metadata
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--values", type=Path, default=DEFAULT_VALUES_PATH)
-    parser.add_argument("--labels", type=Path, default=DEFAULT_LABELS_PATH)
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument(
-        "--overwrite",
-        action="store_true",
-        help="Regenerate an existing local snapshot and metadata.",
-    )
-    args = parser.parse_args()
-    metadata = export_cleaned_dataset(
-        args.values, args.labels, args.output, overwrite=args.overwrite
-    )
-    print(
-        json.dumps(
-            {
-                "output": str(args.output.resolve()),
-                "metadata": str(args.output.resolve().with_suffix(".metadata.json")),
-                "rows": metadata["output"]["rows"],
-                "columns": metadata["output"]["columns"],
-                "flag_counts": metadata["quality"]["flag_counts"],
-                "git_commit": metadata["code"]["git_commit"],
-                "source_files_dirty": metadata["code"]["source_files_dirty"],
-            },
-            indent=2,
+def export_cleaned_dataset(
+    values_path=DEFAULT_VALUES_PATH, labels_path=DEFAULT_LABELS_PATH,
+    output_path=DEFAULT_OUTPUT, *, overwrite=False, on_progress=None,
+):
+    """Export a cleaned snapshot and record the invocation and provenance."""
+    with track_workflow("export-cleaned", config=SETTINGS, on_progress=on_progress) as run:
+        run.record_inputs({"training_values": values_path, "training_labels": labels_path})
+        run.progress("Preparing and verifying the cleaned snapshot")
+        metadata = _export_cleaned_dataset(
+            values_path, labels_path, output_path, overwrite=overwrite
         )
-    )
+        metadata_path = Path(output_path).with_suffix(".metadata.json").resolve()
+        run.archive([metadata_path], metadata_path.parent)
+        run.details["snapshot"] = metadata["output"]
+        return metadata
+
+
+def main(argv=None):
+    from team_wtm.cli import main as run_cli
+
+    run_cli(["export-cleaned", *(sys.argv[1:] if argv is None else argv)])
 
 
 if __name__ == "__main__":

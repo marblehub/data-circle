@@ -1,12 +1,12 @@
 """Feature options for Sprint 2 comparisons (Issue #16).
 
 Reuses the shared Sprint 1 rules (pump age and quality flags) from
-export_cleaned.add_quality_features. Nothing here re-implements them.
+cleaning.add_quality_features. Nothing here re-implements them.
 """
 
 import pandas as pd
 
-from team_wtm.export_cleaned import add_quality_features
+from team_wtm.cleaning import add_quality_features
 
 # Groups of related columns. Each group is switched on or off as one unit.
 FEATURE_GROUPS = {

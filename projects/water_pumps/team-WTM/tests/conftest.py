@@ -44,3 +44,21 @@ def training():
             }
         )
     return pd.DataFrame(rows)
+
+
+@pytest.fixture(autouse=True)
+def isolate_default_workflow_history(tmp_path, monkeypatch):
+    """Keep default test runs in temporary experiment directories."""
+    from dataclasses import replace
+
+    from team_wtm import runtime
+
+    original = runtime.WorkflowRun
+    default_directory = runtime.SETTINGS.workflow_runs_dir
+
+    def create_run(name, config, on_progress):
+        if config.workflow_runs_dir == default_directory:
+            config = replace(config, workflow_runs_dir=tmp_path / "workflows")
+        return original(name, config, on_progress)
+
+    monkeypatch.setattr(runtime, "WorkflowRun", create_run)

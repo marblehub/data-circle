@@ -27,6 +27,20 @@ class Settings:
     logistic_max_iter: int
     forest_trees: int
     forest_jobs: int
+    workflow_runs_dir: Path
+    processed_dir: Path
+    figures_dir: Path
+    cleaned_snapshot: Path
+    out_of_fold_predictions: Path
+    region_predictions: Path
+    eda_report_dir: Path
+    min_repairs: int
+    region_folds: int
+    final_model: str
+    final_features: str
+    minimum_category_frequency: float
+    log_level: str
+    eda_min_cell_records: int
 
 
 def _text(table, key):
@@ -86,6 +100,32 @@ def load_settings(path=None):
         jobs = _integer(comparison, "forest_jobs")
         if jobs == 0:
             raise ValueError("forest_jobs must be nonzero")
+        checks = {
+            "min_repairs": 30,
+            "region_folds": 5,
+            **data.get("feature_checks", {}),
+        }
+        final = {
+            "model": "random_forest_balanced",
+            "features": "full",
+            **data.get("final_model", {}),
+        }
+        frequency = data.get("preprocessing", {}).get(
+            "minimum_category_frequency", 0.01
+        )
+        if type(frequency) not in (int, float) or not 0 < frequency <= 1:
+            raise ValueError("minimum_category_frequency must be between 0 and 1")
+        level = data.get("logging", {}).get("level", "INFO")
+        if level not in ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"):
+            raise ValueError(
+                "logging level must be DEBUG, INFO, WARNING, ERROR or CRITICAL"
+            )
+        processed = root / _text(
+            {"processed_dir": "data/processed", **paths}, "processed_dir"
+        )
+        figures = root / _text(
+            {"figures_dir": "reports/figures", **paths}, "figures_dir"
+        )
         return Settings(
             project_root=root,
             raw_dir=raw,
@@ -104,6 +144,55 @@ def load_settings(path=None):
             logistic_max_iter=_integer(comparison, "logistic_max_iter", 1),
             forest_trees=_integer(comparison, "forest_trees", 1),
             forest_jobs=jobs,
+            workflow_runs_dir=root
+            / _text(
+                {"workflow_runs_dir": "artifacts/workflows", **paths},
+                "workflow_runs_dir",
+            ),
+            processed_dir=processed,
+            figures_dir=figures,
+            cleaned_snapshot=root
+            / _text(
+                {
+                    "cleaned_snapshot": str(processed / "training_cleaned.parquet"),
+                    **paths,
+                },
+                "cleaned_snapshot",
+            ),
+            out_of_fold_predictions=root
+            / _text(
+                {
+                    "out_of_fold_predictions": str(
+                        processed / "pm3_out_of_fold_predictions.csv"
+                    ),
+                    **paths,
+                },
+                "out_of_fold_predictions",
+            ),
+            region_predictions=root
+            / _text(
+                {
+                    "region_predictions": str(
+                        processed / "pm3_region_fold_predictions.csv"
+                    ),
+                    **paths,
+                },
+                "region_predictions",
+            ),
+            eda_report_dir=root
+            / _text(
+                {"eda_report_dir": "reports/sprint1/additional_eda", **paths},
+                "eda_report_dir",
+            ),
+            min_repairs=_integer(checks, "min_repairs", 1),
+            region_folds=_integer(checks, "region_folds", 2),
+            final_model=_text(final, "model"),
+            final_features=_text(final, "features"),
+            minimum_category_frequency=float(frequency),
+            log_level=level,
+            eda_min_cell_records=_integer(
+                {"min_cell_records": 30, **data.get("eda", {})}, "min_cell_records", 1
+            ),
         )
     except (KeyError, TypeError, ValueError) as error:
         raise ValueError(f"Invalid settings in {path}: {error}") from error

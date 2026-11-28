@@ -10,6 +10,7 @@ already exists, it is read back and the holdout is not scored again.
 """
 
 import platform
+import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -38,9 +39,10 @@ from team_wtm.model_comparison import (
 from team_wtm.model_data_preparation import build_pipeline
 from team_wtm.model_data_preparation import load_training_data as load_training
 from team_wtm.model_data_preparation import prepare_features as add_model_columns
+from team_wtm.runtime import track_workflow
 
-FINAL_MODEL = "random_forest_balanced"
-FINAL_FEATURES = "full"
+FINAL_MODEL = SETTINGS.final_model
+FINAL_FEATURES = SETTINGS.final_features
 HOLDOUT_PATH = REPORT_DIR / "final/holdout_result.json"
 FINAL_MODEL_REPORT = REPORT_DIR / "final_model.json"
 # models/**/*.joblib is ignored by Git, so the model file is never committed.
@@ -109,22 +111,51 @@ def versions():
     }
 
 
-def main():
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
-    lock = REPORT_DIR / ".final_model.lock"
-    try:
-        lock.mkdir()
-    except FileExistsError:
-        raise RuntimeError(
-            f"Final-model publication already in progress: {lock}"
-        ) from None
-    try:
-        _publish_final_model()
-    finally:
-        lock.rmdir()
+
+def same_setup(saved, current):
+    """Legacy Sprint 2 runs used the fixed 0.01 category-frequency threshold."""
+    if not isinstance(saved, dict):
+        return False
+    normalized = {
+        "preprocessing": {"minimum_category_frequency": 0.01},
+        **saved,
+    }
+    return normalized == current
 
 
-def _publish_final_model():
+def run_final_model(*, on_progress=None):
+    """Validate the reserved evaluation, refit and publish a model bundle."""
+    with track_workflow(
+        "final-model", config=SETTINGS, on_progress=on_progress, report_dir=REPORT_DIR
+    ) as run:
+        run.record_inputs({
+            "training_values": SETTINGS.training_values,
+            "training_labels": SETTINGS.training_labels,
+            "split_plan": SPLIT_PATH,
+        })
+        lock = REPORT_DIR / ".final_model.lock"
+        try:
+            lock.mkdir()
+        except FileExistsError:
+            raise RuntimeError(f"Final-model publication already in progress: {lock}") from None
+        try:
+            result = _publish_final_model(on_progress=run.progress)
+        finally:
+            lock.rmdir()
+        run.details["model_run_id"] = result["manifest"]["run_id"]
+        run.details["model_sha256"] = result["manifest"]["model_sha256"]
+        run.details["metrics"] = result["holdout"]
+        run.archive([FINAL_MODEL_REPORT, HOLDOUT_PATH], REPORT_DIR)
+        return result
+
+
+def main(argv=None):
+    from team_wtm.cli import main as run_cli
+
+    run_cli(["final-model", *([] if argv is None else argv)])
+
+
+def _publish_final_model(*, on_progress):
     training = load_training()
     plan = pd.read_csv(SPLIT_PATH)
     features = select_features(add_model_columns(training), FINAL_FEATURES)
@@ -135,6 +166,7 @@ def _publish_final_model():
         "feature_columns": FEATURE_OPTIONS[FINAL_FEATURES],
         "random_seed": RANDOM_SEED,
         "model_settings": MODELS[FINAL_MODEL]().get_params(),
+        "preprocessing": {"minimum_category_frequency": SETTINGS.minimum_category_frequency},
     }
 
     inputs = evaluation_inputs(
@@ -155,7 +187,7 @@ def _publish_final_model():
     reused_holdout = HOLDOUT_PATH.exists()
     if reused_holdout:
         holdout = read_json(HOLDOUT_PATH)
-        if holdout.get("settings") != settings:
+        if not same_setup(holdout.get("settings"), settings):
             raise ValueError(
                 "Saved holdout settings differ; the score cannot be reused."
             )
@@ -169,9 +201,9 @@ def _publish_final_model():
             raise ValueError(
                 "Saved holdout inputs differ or are unverified; keep the original result."
             )
-        print(f"Reusing the matching holdout result at {HOLDOUT_PATH}")
+        on_progress(f"Reusing the matching holdout result at {HOLDOUT_PATH}")
     else:
-        print("Scoring the fixed setup on the labelled holdout (once) ...")
+        on_progress("Scoring the fixed setup on the labelled holdout (once) ...")
         scores = score_holdout(features, target, split_positions(training, plan))
         holdout = {
             "scope": "LABELLED FINAL HOLDOUT - scored once, after model selection.",
@@ -188,14 +220,14 @@ def _publish_final_model():
     reports = {"holdout": report_ref(HOLDOUT_PATH, relative_to=REPORT_DIR)}
     if (
         previous.get("evaluation_inputs") == inputs
-        and previous.get("settings") == settings
+        and same_setup(previous.get("settings"), settings)
     ):
         for name, entry in previous.get("reports", {}).items():
             verified_report(FINAL_MODEL_REPORT, name)
             reports[name] = entry
 
     # 2. Refit the same setup on all labelled records.
-    print(f"Refitting on all {len(training)} labelled records ...")
+    on_progress(f"Refitting on all {len(training)} labelled records ...")
     pipeline = fit_final_pipeline(features, target)
 
     # 3. Save, reload and check that predictions are identical.
@@ -222,16 +254,8 @@ def _publish_final_model():
         candidate.replace(MODEL_PATH)
     write_json(FINAL_MODEL_REPORT, manifest)
 
-    scores = holdout["scores"]
-    print(
-        f"Holdout macro F1: {scores['macro_f1']:.4f}  accuracy: {scores['accuracy']:.4f}"
-    )
-    print(
-        f"Holdout repair recall: {scores['repair_recall']:.4f}  "
-        f"precision: {scores['repair_precision']:.4f}"
-    )
-    print(f"Reload check: {reload_check}")
+    return {"manifest": manifest, "holdout": holdout["scores"]}
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

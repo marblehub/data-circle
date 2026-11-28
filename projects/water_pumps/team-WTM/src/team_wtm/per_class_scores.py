@@ -7,10 +7,13 @@ Reads the fold results already saved by model_comparison.py. No model is
 fitted and the labelled holdout is not used.
 """
 
+import sys
+
 import pandas as pd
 
 from team_wtm.config import SETTINGS
 from team_wtm.evaluation import CLASS_NAMES
+from team_wtm.runtime import track_workflow
 
 REPORT_DIR = SETTINGS.report_dir / "comparisons"
 SCORE_FILES = [
@@ -23,8 +26,8 @@ OUTPUT_PATH = REPORT_DIR / "per_class_scores.csv"
 KEY_COLUMNS = ["model", "features", "fold"]
 METRICS = ["precision", "recall", "f1"]
 METRIC_LABELS = {"precision": "Precision", "recall": "Recall", "f1": "F1"}
-FINAL_MODEL = "random_forest_balanced"
-FINAL_FEATURES = "full"
+FINAL_MODEL = SETTINGS.final_model
+FINAL_FEATURES = SETTINGS.final_features
 
 
 def load_fold_scores(report_dir=REPORT_DIR, file_names=SCORE_FILES):
@@ -89,25 +92,33 @@ def markdown_table(summary, model=FINAL_MODEL, features=FINAL_FEATURES, digits=3
     return "\n".join(lines)
 
 
-def main():
-    scores = load_fold_scores()
-    summary = per_class_summary(scores)
-    summary.to_csv(OUTPUT_PATH, index=False)
+def run_per_class_report(*, on_progress=None):
+    """Summarize the saved fold scores without fitting a model."""
+    with track_workflow(
+        "per-condition-scores", config=SETTINGS,
+        on_progress=on_progress, report_dir=SETTINGS.report_dir,
+    ) as run:
+        run.record_inputs({name: REPORT_DIR / name for name in SCORE_FILES})
+        scores = load_fold_scores()
+        summary = per_class_summary(scores)
+        selected = scores[
+            scores["model"].eq(FINAL_MODEL) & scores["features"].eq(FINAL_FEATURES)
+        ]["macro_f1"]
+        summary.attrs["macro_f1"] = {
+            "mean": float(selected.mean()),
+            "std": float(selected.std(ddof=1)),
+            "folds": len(selected),
+        }
+        summary.to_csv(OUTPUT_PATH, index=False)
+        run.archive([OUTPUT_PATH], SETTINGS.report_dir)
+        return summary
 
-    final = scores[
-        scores["model"].eq(FINAL_MODEL) & scores["features"].eq(FINAL_FEATURES)
-    ]
-    macro_f1 = final["macro_f1"]
-    print(
-        f"Final setup: {FINAL_MODEL}, features '{FINAL_FEATURES}', {len(final)} folds"
-    )
-    print(f"Macro F1: {macro_f1.mean():.4f} ± {macro_f1.std(ddof=1):.4f}")
-    print()
-    print(markdown_table(summary))
-    print()
-    print(f"Saved {OUTPUT_PATH}")
-    print("From saved fold scores only; no model was fitted, the holdout was not used.")
+
+def main(argv=None):
+    from team_wtm.cli import main as run_cli
+
+    run_cli(["scores", *([] if argv is None else argv)])
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

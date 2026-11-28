@@ -52,6 +52,7 @@ data/**/*.xls
 models/**/*.pkl
 models/**/*.pickle
 artifacts/runs/
+artifacts/workflows/
 models/**/*.joblib
 models/**/*.onnx
 

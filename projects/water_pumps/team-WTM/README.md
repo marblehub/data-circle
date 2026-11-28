@@ -292,6 +292,7 @@ team-WTM/
 │       ├── final_model.py
 │       ├── predict.py
 │       ├── artifacts.py
+│       ├── runtime.py
 │       └── evaluation.py
 │
 ├── tests/
@@ -532,11 +533,20 @@ From the team-WTM directory:
 
 ```bash
 uv run team-wtm --help
+uv run team-wtm baseline
 uv run team-wtm predict
 uv run team-wtm predict --records pumps.csv --output predictions.csv
 uv run team-wtm compare
 uv run team-wtm compare quantity
 uv run team-wtm compare location
+uv run team-wtm scores
+uv run team-wtm features ladder
+uv run team-wtm features h6
+uv run team-wtm features groups
+uv run team-wtm features regions
+uv run team-wtm features charts
+uv run team-wtm export-cleaned
+uv run team-wtm final-model
 ```
 
 `predict` loads the saved pipeline. With no arguments it checks all supplied
@@ -565,7 +575,10 @@ read the saved comparison table.
 
 Edit [configs/project.toml](configs/project.toml) to set input/output paths,
 the split seed and fold count, the candidate list for `compare models`, and
-the Logistic Regression and Random Forest settings. Each command reads the
+the Logistic Regression and Random Forest settings. It also controls regional
+folds, the minimum repair count for group reporting, EDA paths and minimum
+cell counts, categorical frequency, the final model/column set and log level.
+Each command reads the
 file at startup. Paths are relative to `project_root`, which is resolved from
 the TOML file. Raw filenames are relative to `raw_dir`. Command-line path
 overrides are relative to your current directory.
@@ -582,6 +595,65 @@ belong to the original settings.
 
 
 ---
+
+### Workflow history and logs
+
+Each baseline, comparison, feature check, score report, prediction batch and
+cleaned export creates a unique directory under `paths.workflow_runs_dir`,
+which defaults to `artifacts/workflows/`.
+
+```text
+artifacts/workflows/<timestamp-and-run-id>/
+├── run.json
+├── config_snapshot.json
+├── run.log
+└── reports/
+```
+
+`run.json` records the workflow name, timestamps, status, installed library
+versions, source-code hashes, input paths/hashes and output identities. Aggregate
+reports are copied into the run directory. Prediction runs retain their
+completion checks and output checksum in `run.json`. An earlier run remains
+available after the next invocation replaces the current report tables.
+
+`run.log` records progress and exceptions. `logging.level` sets its minimum
+severity. Reusable Python workflows are quiet by default; supply an
+`on_progress` callback for a dashboard progress display. The CLI displays progress.
+
+Successful final fits also create deployable model bundles under
+`paths.runs_dir`. Their model run ID is linked from the workflow record.
+Workflow records describe invocations, including failures; model bundles contain
+the saved pipeline and its reviewed evidence.
+
+Workflows publishing the shared report directory hold `.workflow.lock` there.
+An overlapping publisher receives an error recorded in its own run directory.
+Use separate report directories for independent experiments. After a forcibly
+terminated process, confirm it has stopped before removing a leftover lock.
+A forcibly terminated invocation can retain a `running` status in its record.
+
+For Python callers, the reusable workflow functions are
+
+- `baseline.run_baseline_workflow()`, returning the baseline summary.
+- `model_comparison.run_comparison(experiment)`, returning the comparison table.
+- `final_model.run_final_model()`, returning the model manifest and holdout scores.
+- `feature_checks.run_feature_checks(experiment)`, returning tables or chart paths.
+- `per_class_scores.run_per_class_report()`, returning the per-condition table.
+- `predict.run_prediction(...)`, returning prediction totals and requested checks.
+- `export_cleaned.export_cleaned_dataset(...)`, returning snapshot metadata.
+
+`predict_records(records, model)` remains the in-memory prediction function for
+an interactive dashboard. Use the workflow wrapper when a saved batch and a
+persistent invocation record are needed.
+
+For a temporary supplied-test completion check, specify both output destinations.
+
+```bash
+uv run team-wtm predict --output /tmp/pump-predictions.csv --check-report /tmp/pump-check.json
+```
+
+Changing final-model or preprocessing settings triggers the existing holdout
+reuse checks. Historical Sprint 2 results used a category-frequency threshold of
+0.01. A different setup needs its own configured report directory and evaluation.
 
 ### Shared preparation for Python callers
 

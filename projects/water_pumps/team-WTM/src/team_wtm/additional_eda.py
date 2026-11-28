@@ -20,12 +20,12 @@ import seaborn as sns
 from team_wtm.cleaning import (
     DEFAULT_LABELS_PATH,
     DEFAULT_VALUES_PATH,
-    PROJECT_DIR,
     clean_data,
     derive_pump_age,
     load_data,
     merge_data,
 )
+from team_wtm.config import SETTINGS
 
 STATUS = ("functional", "functional needs repair", "non functional")
 AGE_GROUPS = ("0-5", "6-10", "11-20", "21-30", "31+")
@@ -54,8 +54,8 @@ LABELS = {
     "permit": "Permit",
 }
 COLORS = ("#008F78", "#E69F00", "#C6283E")
-DEFAULT_OUTPUT = PROJECT_DIR / "reports" / "sprint1" / "additional_eda"
-DEFAULT_FIGURES = PROJECT_DIR / "reports" / "figures" / "additional_eda"
+DEFAULT_OUTPUT = SETTINGS.eda_report_dir
+DEFAULT_FIGURES = SETTINGS.figures_dir / "additional_eda"
 
 
 def prepare_eda(raw: pd.DataFrame) -> pd.DataFrame:
@@ -245,7 +245,7 @@ def age_rates(data: pd.DataFrame, stratum: str) -> pd.DataFrame:
     return result
 
 
-def age_contrasts(rates: pd.DataFrame, stratum: str, min_n: int = 30):
+def age_contrasts(rates: pd.DataFrame, stratum: str, min_n: int = SETTINGS.eda_min_cell_records):
     """Compare youngest with oldest only when both denominators meet min_n."""
     if min_n < 1:
         raise ValueError("min_n must be positive.")
@@ -573,7 +573,7 @@ def run_analysis(
     values_path=DEFAULT_VALUES_PATH,
     labels_path=DEFAULT_LABELS_PATH,
     output_dir=DEFAULT_OUTPUT,
-    min_n=30,
+    min_n=SETTINGS.eda_min_cell_records,
     *,
     figures_dir=DEFAULT_FIGURES,
 ):
@@ -666,7 +666,7 @@ def main():
         default=DEFAULT_FIGURES,
         help="Directory for generated PNG figures",
     )
-    parser.add_argument("--min-cell-n", type=int, default=30)
+    parser.add_argument("--min-cell-n", type=int, default=SETTINGS.eda_min_cell_records)
     args = parser.parse_args()
     result = run_analysis(
         args.values,

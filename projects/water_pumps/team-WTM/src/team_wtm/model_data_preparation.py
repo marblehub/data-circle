@@ -22,6 +22,7 @@ from team_wtm.cleaning import (
     load_data,
     merge_data,
 )
+from team_wtm.config import SETTINGS
 from team_wtm.features import add_feature_columns, select_features
 
 ID_COLUMN = "id"
@@ -61,7 +62,7 @@ def prepare_features(data: pd.DataFrame) -> pd.DataFrame:
     """
     prepared = clean_data(data)
     # add_feature_columns delegates age and quality flags to the shared
-    # export_cleaned.add_quality_features implementation.
+    # cleaning.add_quality_features implementation.
     return add_feature_columns(prepared)
 
 
@@ -159,7 +160,7 @@ def build_preprocessor(X_train: pd.DataFrame) -> ColumnTransformer:
                     "encoder",
                     OneHotEncoder(
                         handle_unknown="infrequent_if_exist",
-                        min_frequency=0.01,
+                        min_frequency=SETTINGS.minimum_category_frequency,
                     ),
                 ),
             ]

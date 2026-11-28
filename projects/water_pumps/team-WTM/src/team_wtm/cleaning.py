@@ -384,6 +384,40 @@ def derive_pump_age(data: pd.DataFrame) -> pd.Series:
     return age.where(year.gt(0) & age.ge(0)).rename("pump_age")
 
 
+def add_quality_features(cleaned: pd.DataFrame) -> pd.DataFrame:
+    """Add deterministic flags and usable age while retaining source columns.
+
+    The broad audit coordinate envelope is a screening rule, not an exact
+    Tanzania boundary. Original coordinates and nonzero construction years
+    stay available for review.
+    """
+    required = {
+        "population",
+        "construction_year",
+        "date_recorded",
+        "longitude",
+        "latitude",
+    }
+    missing = required - set(cleaned.columns)
+    if missing:
+        raise ValueError(f"Missing quality-feature columns: {sorted(missing)}")
+    output = cleaned.copy()
+    year = pd.to_numeric(output["construction_year"], errors="coerce")
+    population = pd.to_numeric(output["population"], errors="coerce")
+    longitude = pd.to_numeric(output["longitude"], errors="coerce")
+    latitude = pd.to_numeric(output["latitude"], errors="coerce")
+    output["construction_year_missing"] = year.isna()
+    output["population_missing"] = population.isna()
+    output["pump_age"] = derive_pump_age(output)
+    output["pump_age_missing"] = output["pump_age"].isna()
+    output["pump_age_invalid"] = output["pump_age_missing"] & year.notna()
+    output["coordinate_placeholder"] = longitude.eq(0) & latitude.abs().le(1e-6)
+    output["coordinate_screen_failed"] = ~(
+        longitude.between(29, 41) & latitude.between(-12.5, -0.9)
+    )
+    return output
+
+
 def run_pipeline(
     values_path: str | Path = DEFAULT_VALUES_PATH,
     labels_path: str | Path = DEFAULT_LABELS_PATH,

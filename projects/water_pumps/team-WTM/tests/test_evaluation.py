@@ -142,6 +142,16 @@ def test_baseline_command_saves_results_without_git_and_keeps_existing_template(
     template.parent.mkdir()
     template.write_text("team_note\nKeep this template edit\n")
     split_path = tmp_path / "data" / "splits.csv"
+    from dataclasses import replace
+
+    values_path = tmp_path / "values.csv"
+    labels_path = tmp_path / "labels.csv"
+    training.drop(columns="status_group").to_csv(values_path, index=False)
+    training[["id", "status_group"]].to_csv(labels_path, index=False)
+    monkeypatch.setattr(baseline, "SETTINGS", replace(
+        baseline.SETTINGS, training_values=values_path, training_labels=labels_path,
+        workflow_runs_dir=tmp_path / "workflows",
+    ))
     monkeypatch.setattr(baseline, "load_training_data", lambda: training.copy())
     monkeypatch.setattr(baseline, "REPORT_DIR", report_dir)
     monkeypatch.setattr(baseline, "SPLIT_PATH", split_path)

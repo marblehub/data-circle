@@ -18,14 +18,15 @@ Individual predictions are saved under data/processed/ (ignored by Git);
 only aggregate tables are written to reports/sprint2/.
 """
 
-import argparse
 import json
+import logging
+import sys
 
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import GroupKFold
 
-from team_wtm.cleaning import PROJECT_DIR
+from team_wtm.config import SETTINGS
 from team_wtm.evaluation import (
     RANDOM_SEED,
     RESULT_COLUMNS,
@@ -43,19 +44,22 @@ from team_wtm.model_comparison import (
 from team_wtm.model_data_preparation import build_pipeline
 from team_wtm.model_data_preparation import load_training_data as load_training
 from team_wtm.model_data_preparation import prepare_features as add_model_columns
+from team_wtm.runtime import track_workflow
+
+logger = logging.getLogger(__name__)
 
 # The final setup chosen in #17. All PM-3 checks use it, so results are comparable.
-MODEL_NAME = "random_forest_balanced"
-FINAL_OPTION = "full"
+MODEL_NAME = SETTINGS.final_model
+FINAL_OPTION = SETTINGS.final_features
 REPAIR = "functional needs repair"
 
 # D20: groups with fewer than 30 records of the class of interest are flagged.
-MIN_REPAIRS = 30
-N_REGION_FOLDS = 5
+MIN_REPAIRS = SETTINGS.min_repairs
+N_REGION_FOLDS = SETTINGS.region_folds
 
-PREDICTION_PATH = PROJECT_DIR / "data" / "processed" / "pm3_out_of_fold_predictions.csv"
-REGION_PREDICTION_PATH = PROJECT_DIR / "data" / "processed" / "pm3_region_fold_predictions.csv"
-FIGURE_DIR = PROJECT_DIR / "reports" / "figures" / "sprint2"
+PREDICTION_PATH = SETTINGS.out_of_fold_predictions
+REGION_PREDICTION_PATH = SETTINGS.region_predictions
+FIGURE_DIR = SETTINGS.figures_dir / "sprint2"
 
 
 # ---------------------------------------------------------------------------
@@ -74,14 +78,14 @@ def reuse_rows(file_name, options):
     return rows, matrices
 
 
-def run_options(training, plan, new_options, reused_file, reused_options, name):
+def run_options(training, plan, new_options, reused_file, reused_options, name, *, on_progress=logger.info):
     """Train the final model on new options; put them next to reused #17 rows."""
     rows, matrices = reuse_rows(reused_file, reused_options)
     all_rows = [rows]
     for option in new_options:
-        print(f"Training {MODEL_NAME} with '{option}' on 5 folds ...")
+        on_progress(f"Training {MODEL_NAME} with '{option}' on the development folds ...")
         option_rows, option_matrices = run_cross_validation(
-            training, plan, MODEL_NAME, feature_option=option
+            training, plan, MODEL_NAME, feature_option=option, on_progress=on_progress
         )
         all_rows.append(option_rows)
         matrices[f"{MODEL_NAME} / {option}"] = option_matrices
@@ -92,7 +96,7 @@ def run_options(training, plan, new_options, reused_file, reused_options, name):
     )
 
 
-def run_ladder(training, plan):
+def run_ladder(training, plan, *, on_progress=logger.info):
     """Card 13: split the age and missing-flag step into two steps."""
     return run_options(
         training, plan,
@@ -100,10 +104,11 @@ def run_ladder(training, plan):
         reused_file="location",
         reused_options=["base", "base_age_missing", "full"],
         name="pm3_ladder",
+        on_progress=on_progress,
     )
 
 
-def run_h6(training, plan):
+def run_h6(training, plan, *, on_progress=logger.info):
     """Card 15 (H6): one field alone against the combined feature groups."""
     return run_options(
         training, plan,
@@ -111,6 +116,7 @@ def run_h6(training, plan):
         reused_file="quantity",
         reused_options=["full"],
         name="pm3_h6",
+        on_progress=on_progress,
     )
 
 
@@ -118,7 +124,7 @@ def run_h6(training, plan):
 # Card 16: results by region and by known / unknown age
 # ---------------------------------------------------------------------------
 
-def out_of_fold_predictions(training, plan, model_name=MODEL_NAME, option=FINAL_OPTION):
+def out_of_fold_predictions(training, plan, model_name=MODEL_NAME, option=FINAL_OPTION, *, on_progress=logger.info):
     """Predict each development record once, from the fold where it is validated.
 
     The same fitting as model_comparison.run_cross_validation, but the
@@ -129,7 +135,7 @@ def out_of_fold_predictions(training, plan, model_name=MODEL_NAME, option=FINAL_
     target = training["status_group"]
     parts = []
     for fold, fit_rows, validation_rows in development_folds(training, plan):
-        print(f"  fold {fold}: fitting on {len(fit_rows)} records ...")
+        on_progress(f"  fold {fold}: fitting on {len(fit_rows)} records ...")
         pipeline = build_pipeline(features.iloc[fit_rows], MODELS[model_name]())
         pipeline.fit(features.iloc[fit_rows], target.iloc[fit_rows])
         parts.append(pd.DataFrame({
@@ -183,10 +189,10 @@ def overall_fold_scores(predictions):
     return pd.DataFrame(rows)
 
 
-def run_groups(training, plan):
+def run_groups(training, plan, *, on_progress=logger.info):
     """Card 16: final model results by region, by age availability, and both."""
-    print(f"Training {MODEL_NAME} with '{FINAL_OPTION}' and keeping predictions ...")
-    predictions = out_of_fold_predictions(training, plan)
+    on_progress(f"Training {MODEL_NAME} with '{FINAL_OPTION}' and keeping predictions ...")
+    predictions = out_of_fold_predictions(training, plan, on_progress=on_progress)
     PREDICTION_PATH.parent.mkdir(parents=True, exist_ok=True)
     predictions.to_csv(PREDICTION_PATH, index=False)  # local only, ignored by Git
 
@@ -210,8 +216,7 @@ def run_groups(training, plan):
         "fold_scores": folds.to_dict(orient="records"),
     }
     (REPORT_DIR / "feature_checks/pm3_groups_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
-    print(tables["age"].round(3).to_string(index=False))
-    print(f"Mean macro F1 over folds: {folds['macro_f1'].mean():.4f} (should match #17)")
+    return tables
 
 
 # ---------------------------------------------------------------------------
@@ -240,14 +245,14 @@ def region_folds(training, plan, n_folds=N_REGION_FOLDS):
     return folds
 
 
-def run_regions(training, plan):
+def run_regions(training, plan, *, on_progress=logger.info):
     """Card 17: the final setup when the validation regions are unseen."""
     columns = add_model_columns(training)
     features = select_features(columns, FINAL_OPTION)
     target = training["status_group"]
     rows, parts, matrices = [], [], []
     for fold, fit_rows, validation_rows, regions in region_folds(training, plan):
-        print(f"Region fold {fold}: validating on {', '.join(regions)} ...")
+        on_progress(f"Region fold {fold}: validating on {', '.join(regions)} ...")
         pipeline = build_pipeline(features.iloc[fit_rows], MODELS[MODEL_NAME]())
         pipeline.fit(features.iloc[fit_rows], target.iloc[fit_rows])
         predicted = pipeline.predict(features.iloc[validation_rows])
@@ -273,6 +278,7 @@ def run_regions(training, plan):
     (REPORT_DIR / "feature_checks").mkdir(parents=True, exist_ok=True)
     results.to_csv(REPORT_DIR / "feature_checks/pm3_region_cv_scores.csv", index=False)
     predictions = pd.concat(parts, ignore_index=True)
+    REGION_PREDICTION_PATH.parent.mkdir(parents=True, exist_ok=True)
     predictions.to_csv(REGION_PREDICTION_PATH, index=False)  # local only
 
     # Per region: unseen-region scores next to the main-fold scores.
@@ -308,7 +314,7 @@ def run_regions(training, plan):
         "confusion_matrices": matrices,
     }
     (REPORT_DIR / "feature_checks/pm3_region_summary.json").write_text(json.dumps(summary, indent=2) + "\n")
-    print(comparison.round(3).to_string(index=False))
+    return comparison
 
 
 # ---------------------------------------------------------------------------
@@ -321,21 +327,51 @@ EXPERIMENTS = {
 }
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Issue #16 feature and location checks.")
-    parser.add_argument("experiment", choices=[*EXPERIMENTS, "charts"])
-    experiment = parser.parse_args().experiment
-    if experiment == "charts":
-        from team_wtm.feature_check_charts import make_charts
-        make_charts()
-        return
-    training = load_training()
-    plan = pd.read_csv(SPLIT_PATH)  # PM-1's saved plan: same folds for every check
-    result = EXPERIMENTS[experiment](training, plan)
-    if result is not None:
-        from team_wtm.cli import print_comparison
+def run_feature_checks(experiment, *, on_progress=None):
+    """Run one development-data check and return its tables or chart paths."""
+    with track_workflow(
+        f"features-{experiment}", config=SETTINGS,
+        on_progress=on_progress, report_dir=REPORT_DIR,
+    ) as run:
+        if experiment == "charts":
+            from team_wtm.feature_check_charts import make_charts
 
-        print_comparison(result, REPORT_DIR)
+            sources = [
+                REPORT_DIR / "feature_checks/pm3_h6_comparison_table.csv",
+                REPORT_DIR / "feature_checks/pm3_ladder_comparison_table.csv",
+                REPORT_DIR / "comparisons/quantity_comparison_table.csv",
+                REPORT_DIR / "feature_checks/pm3_region_transfer_by_region.csv",
+            ]
+            run.record_inputs({path.name: path for path in sources})
+            paths = make_charts()
+            run.archive(paths, SETTINGS.figures_dir)
+            return paths
+        run.record_inputs({
+            "training_values": SETTINGS.training_values,
+            "training_labels": SETTINGS.training_labels,
+            "split_plan": SPLIT_PATH,
+        })
+        dependencies = {
+            "ladder": ["comparisons/location_cv_scores.csv", "comparisons/location_comparison_summary.json"],
+            "h6": ["comparisons/quantity_cv_scores.csv", "comparisons/quantity_comparison_summary.json"],
+            "groups": [],
+            "regions": ["comparisons/quantity_cv_scores.csv", "feature_checks/pm3_groups_by_region.csv"],
+        }
+        run.record_inputs({name: REPORT_DIR / name for name in dependencies[experiment]})
+        training = load_training()
+        plan = pd.read_csv(SPLIT_PATH)
+        result = EXPERIMENTS[experiment](training, plan, on_progress=run.progress)
+        prefix = {"ladder": "pm3_ladder", "h6": "pm3_h6",
+                  "groups": "pm3_groups", "regions": "pm3_region"}[experiment]
+        paths = sorted((REPORT_DIR / "feature_checks").glob(f"{prefix}_*"))
+        run.archive(paths, REPORT_DIR)
+        return result
+
+
+def main(argv=None):
+    from team_wtm.cli import main as run_cli
+
+    run_cli(["features", *(sys.argv[1:] if argv is None else argv)])
 
 
 if __name__ == "__main__":

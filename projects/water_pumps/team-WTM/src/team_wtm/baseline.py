@@ -2,12 +2,14 @@
 
 import json
 import platform
+import sys
 
 import numpy as np
 import pandas as pd
 import sklearn
 from sklearn.dummy import DummyClassifier
 
+from team_wtm.artifacts import sha256_file
 from team_wtm.config import SETTINGS
 from team_wtm.evaluation import (
     CLASS_NAMES,
@@ -20,6 +22,7 @@ from team_wtm.evaluation import (
     score_predictions,
 )
 from team_wtm.model_data_preparation import load_training_data
+from team_wtm.runtime import track_workflow
 
 REPORT_DIR = SETTINGS.report_dir
 SPLIT_PATH = SETTINGS.split_plan
@@ -71,7 +74,7 @@ def run_baseline(training, plan):
     return results, fold_details
 
 
-def main():
+def _write_baseline_reports():
     # 1. Join training values and labels by ID. Stop if any IDs do not match.
     training = load_training_data()
 
@@ -136,12 +139,36 @@ def main():
     summary_path = REPORT_DIR / "baseline/baseline_summary.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n")
 
-    print(f"Saved {len(results)} development-fold results to {REPORT_DIR}")
-    print(f"Local split plan: {SPLIT_PATH}")
-    print(f"Accuracy: {mean_scores['accuracy']:.4f}")
-    print(f"Macro F1: {mean_scores['macro_f1']:.4f}")
-    print("The labelled holdout was not scored. The supplied test file was not loaded.")
+    return summary
+
+
+def run_baseline_workflow(*, on_progress=None):
+    """Create the split plan and baseline reports and return their summary."""
+    with track_workflow(
+        "baseline", config=SETTINGS, on_progress=on_progress, report_dir=REPORT_DIR
+    ) as run:
+        run.record_inputs({
+            "training_values": SETTINGS.training_values,
+            "training_labels": SETTINGS.training_labels,
+        })
+        run.progress("Creating the split plan and majority-class baseline")
+        summary = _write_baseline_reports()
+        run.details["metrics"] = summary["cv_mean"]
+        run.archive([
+            REPORT_DIR / "baseline/baseline_cv_scores.csv",
+            REPORT_DIR / "baseline/baseline_summary.json",
+        ], REPORT_DIR)
+        run.details["split_plan"] = {
+            "path": str(SPLIT_PATH), "sha256": sha256_file(SPLIT_PATH)
+        }
+        return summary
+
+
+def main(argv=None):
+    from team_wtm.cli import main as run_cli
+
+    run_cli(["baseline", *([] if argv is None else argv)])
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

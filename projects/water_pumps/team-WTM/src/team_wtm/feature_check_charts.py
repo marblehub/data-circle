@@ -10,7 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from team_wtm.feature_checks import FIGURE_DIR, MIN_REPAIRS, REPORT_DIR
+from team_wtm.feature_checks import FIGURE_DIR, MIN_REPAIRS, MODEL_NAME, REPORT_DIR
 
 # Reference palette (validated slots 1 and 2), recessive ink and grid.
 BLUE, ORANGE = "#2a78d6", "#eb6834"
@@ -48,7 +48,7 @@ def _feature_table():
         )
     ]
     table = pd.concat(frames)
-    table = table[table["model"].eq("random_forest_balanced")]
+    table = table[table["model"].eq(MODEL_NAME)]
     table = table.drop_duplicates("features").set_index("features")
     order = [o for o in OPTION_LABELS if o in table.index]
     return table.loc[order]
@@ -155,4 +155,4 @@ def make_charts():
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
     chart_feature_options(FIGURE_DIR / "pm3_feature_options.png")
     chart_region_transfer(FIGURE_DIR / "pm3_region_transfer.png")
-    print(f"Saved charts to {FIGURE_DIR}")
+    return [FIGURE_DIR / "pm3_feature_options.png", FIGURE_DIR / "pm3_region_transfer.png"]

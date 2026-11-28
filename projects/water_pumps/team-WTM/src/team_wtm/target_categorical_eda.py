@@ -13,16 +13,19 @@ import numpy as np
 import pandas as pd
 from scipy.stats import chi2_contingency
 
+from team_wtm.config import SETTINGS
+from team_wtm.model_data_preparation import load_training_data
+
 # --------------------------------------------------------------------------
 # Paths
 # --------------------------------------------------------------------------
-PROJECT_ROOT = Path(__file__).resolve().parents[2]  # .../team-WTM
-RAW_DIR = PROJECT_ROOT / "data" / "raw"
-FIG_DIR = PROJECT_ROOT / "reports" / "figures"
+PROJECT_ROOT = SETTINGS.project_root  # .../team-WTM
+RAW_DIR = SETTINGS.raw_dir
+FIG_DIR = SETTINGS.figures_dir
 
 # File names as downloaded from DrivenData
-VALUES_FILE = "Training_set_values.csv"
-LABELS_FILE = "Training_set_labels.csv"
+VALUES_FILE = SETTINGS.training_values.name
+LABELS_FILE = SETTINGS.training_labels.name
 
 # --------------------------------------------------------------------------
 # Status colours: fixed for every chart, so red always means "non functional"
@@ -35,12 +38,13 @@ STATUS_COLORS = {
 }
 
 
-def load_data(raw_dir: Path | str = RAW_DIR) -> pd.DataFrame:
+def load_data(raw_dir: Path | str | None = None) -> pd.DataFrame:
     """Read values + labels, join on `id`, add 0/1 flags for each status."""
-    raw_dir = Path(raw_dir)
-    values = pd.read_csv(raw_dir / VALUES_FILE)
-    labels = pd.read_csv(raw_dir / LABELS_FILE)
-    df = values.merge(labels, on="id", how="inner", validate="one_to_one")
+    if raw_dir is None:
+        df = load_training_data()
+    else:
+        raw_dir = Path(raw_dir)
+        df = load_training_data(raw_dir / VALUES_FILE, raw_dir / LABELS_FILE)
     df["is_functional"] = (df["status_group"] == "functional").astype(int)
     df["needs_repair"] = (df["status_group"] == "functional needs repair").astype(int)
     df["non_functional"] = (df["status_group"] == "non functional").astype(int)

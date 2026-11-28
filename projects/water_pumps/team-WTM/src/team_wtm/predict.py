@@ -37,6 +37,7 @@ from team_wtm.final_model import (
 )
 from team_wtm.model_comparison import MODELS, REPORT_DIR
 from team_wtm.model_data_preparation import prepare_features as add_model_columns
+from team_wtm.runtime import track_workflow
 
 ID_COLUMN = "id"
 TARGET_COLUMN = "status_group"
@@ -139,6 +140,11 @@ def _load_model_details(path, report_path=None):
         FEATURE_OPTIONS[option]
     ):
         raise ValueError("Manifest columns differ from the pipeline or feature option.")
+    if "preprocessing" in settings:
+        preprocessor = getattr(model, "named_steps", {}).get("preprocessor")
+        frequency = preprocessor.get_params().get("categorical__encoder__min_frequency") if preprocessor is not None else None
+        if settings["preprocessing"] != {"minimum_category_frequency": frequency}:
+            raise ValueError("Manifest preprocessing settings differ from the saved model.")
     registered = MODELS[model_name]()
     if (
         type(estimator) is not type(registered)
@@ -366,21 +372,57 @@ def run_prediction(
     file_format="csv",
     *,
     model_report=None,
+    check_report=None,
+    on_progress=None,
 ):
     """Write predictions and return their count, plus checks for supplied records."""
+    completion_path = None
     if records_path is None:
-        return run_completion_check(
-            find_records_path(),
-            model_path,
-            output_path,
-            file_format,
-            model_report=model_report,
-        )
-
-    records = pd.read_csv(records_path)
-    predictions = predict_records(records, load_model(model_path, model_report))
-    save_predictions(predictions, output_path, file_format)
-    return {"prediction_rows": len(predictions)}
+        completion_path = check_report
+        if completion_path is None:
+            completion_path = CHECK_REPORT_PATH if Path(model_path).resolve() == MODEL_PATH.resolve() else Path(str(output_path) + ".check.json")
+    publication_dir = None
+    if completion_path is not None and Path(completion_path).resolve().is_relative_to(REPORT_DIR.resolve()):
+        publication_dir = REPORT_DIR
+    with track_workflow(
+        "predict", config=SETTINGS, on_progress=on_progress, report_dir=publication_dir
+    ) as run:
+        completion = records_path is None
+        records_path = find_records_path() if completion else Path(records_path)
+        inputs = {"records": records_path, "model": model_path}
+        manifest = model_report
+        if manifest is None and Path(model_path).resolve() == MODEL_PATH.resolve():
+            manifest = FINAL_MODEL_REPORT
+        if manifest is None and Path(model_path).with_suffix(".json").is_file():
+            manifest = Path(model_path).with_suffix(".json")
+        if manifest is not None:
+            inputs["model_manifest"] = manifest
+        if completion:
+            inputs["submission"] = SUBMISSION_PATH
+        run.record_inputs(inputs)
+        run.progress("Loading the saved model and preparing records")
+        if completion:
+            options = {"model_report": model_report}
+            if check_report is not None:
+                options["report_path"] = check_report
+            result = run_completion_check(
+                records_path, model_path, output_path, file_format, **options
+            )
+            run.details["completion_check"] = result
+            run.details["model_run_id"] = result["run_id"]
+            if not result["all_checks_passed"]:
+                run.details["status"] = "failed"
+                run.logger.error("Prediction completion checks failed")
+        else:
+            records = pd.read_csv(records_path)
+            predictions = predict_records(records, load_model(model_path, model_report))
+            save_predictions(predictions, output_path, file_format)
+            result = {"prediction_rows": len(predictions)}
+        run.details["prediction_rows"] = result["prediction_rows"]
+        run.details["predictions"] = {
+            "path": str(Path(output_path).resolve()), "sha256": sha256_file(Path(output_path))
+        }
+        return result
 
 
 def main(argv=None):

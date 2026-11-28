@@ -128,3 +128,15 @@ after model selection, with reuse checks described in the evaluation plan.
 Prediction delivery checks confirm the output format, record count and model
 identity. The supplied test records have no known target, so their prediction
 file supplies no accuracy estimate.
+
+## Experiment history
+
+The folders above hold the current published report files. Each new workflow
+invocation also saves its own configuration, progress log, status and aggregate
+outputs under `paths.workflow_runs_dir`, normally `artifacts/workflows/`.
+Use the archived report copy to inspect a past experiment. Use the approved
+manifest to select the reviewed evidence for the dashboard.
+
+The CLI exposes `baseline`, `compare`, `features`, `scores`, `final-model`,
+`predict` and `export-cleaned`. Their existing Python module commands use the
+same workflows. See the [project usage guide](../../README.md#workflow-history-and-logs).

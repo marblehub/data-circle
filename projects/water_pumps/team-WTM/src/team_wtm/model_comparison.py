@@ -34,6 +34,7 @@ from team_wtm.evaluation import (
     score_predictions,
 )
 from team_wtm.features import FEATURE_OPTIONS, select_features
+from team_wtm.runtime import track_workflow
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +83,7 @@ MODELS = {
 }
 
 
-def run_cross_validation(training, plan, model_name, feature_option="base"):
+def run_cross_validation(training, plan, model_name, feature_option="base", *, on_progress=logger.info):
     """Fit and score one model on each development fold.
 
     Returns one result row per fold (shared CSV columns) and the confusion
@@ -94,6 +95,7 @@ def run_cross_validation(training, plan, model_name, feature_option="base"):
     rows = []
     matrices = []
     for fold, fit_rows, validation_rows in development_folds(training, plan):
+        on_progress(f"Fitting {model_name}, {feature_option}, development fold {fold}")
         fit_features = features.iloc[fit_rows]
         validation_features = features.iloc[validation_rows]
 
@@ -198,7 +200,7 @@ def run_models(training, plan, *, on_progress=logger.info):
 
     for model_name in SETTINGS.candidates:
         on_progress(f"Training {model_name} on the shared folds ...")
-        rows, model_matrices = run_cross_validation(training, plan, model_name)
+        rows, model_matrices = run_cross_validation(training, plan, model_name, on_progress=on_progress)
         all_rows.append(rows)
         matrices[f"{model_name} / base"] = model_matrices
     results = pd.concat(all_rows, ignore_index=True)[RESULT_COLUMNS]
@@ -238,7 +240,7 @@ def run_quantity_check(training, plan, *, on_progress=logger.info):
                 f"Training {model_name} with '{option}' on the shared folds ..."
             )
             rows, model_matrices = run_cross_validation(
-                training, plan, model_name, feature_option=option
+                training, plan, model_name, feature_option=option, on_progress=on_progress
             )
             all_rows.append(rows)
             matrices[f"{model_name} / {option}"] = model_matrices
@@ -270,7 +272,7 @@ def run_location_check(training, plan, *, on_progress=logger.info):
         f"Training {model_name} with 'base_age_missing' on the shared folds ..."
     )
     rows, model_matrices = run_cross_validation(
-        training, plan, model_name, feature_option="base_age_missing"
+        training, plan, model_name, feature_option="base_age_missing", on_progress=on_progress
     )
     matrices[f"{model_name} / base_age_missing"] = model_matrices
     results = pd.concat([earlier, rows], ignore_index=True)[RESULT_COLUMNS]
@@ -286,15 +288,37 @@ EXPERIMENTS = {
 }
 
 
-def run_comparison(experiment="models", *, on_progress=logger.info):
-    """Write development-fold reports and return the ranked comparison table."""
-    unknown = set(SETTINGS.candidates).difference(MODELS)
-    if unknown:
-        raise ValueError(f"Unknown comparison candidates: {sorted(unknown)}")
-    training = load_training()
-    # Reuse PM-1's saved split plan so every model sees the same folds.
-    plan = pd.read_csv(SPLIT_PATH)
-    return EXPERIMENTS[experiment](training, plan, on_progress=on_progress)
+def run_comparison(experiment="models", *, on_progress=None):
+    """Archive each development comparison and return its ranked table."""
+    with track_workflow(
+        f"compare-{experiment}", config=SETTINGS,
+        on_progress=on_progress, report_dir=REPORT_DIR,
+    ) as run:
+        unknown = set(SETTINGS.candidates).difference(MODELS)
+        if unknown:
+            raise ValueError(f"Unknown comparison candidates: {sorted(unknown)}")
+        dependencies = {
+            "models": ("baseline/baseline_cv_scores.csv", "baseline/baseline_summary.json"),
+            "quantity": ("comparisons/model_cv_scores.csv", "comparisons/model_comparison_summary.json"),
+            "location": ("comparisons/quantity_cv_scores.csv", "comparisons/quantity_comparison_summary.json"),
+        }
+        run.record_inputs({
+            "training_values": SETTINGS.training_values,
+            "training_labels": SETTINGS.training_labels,
+            "split_plan": SPLIT_PATH,
+            **{name: REPORT_DIR / name for name in dependencies[experiment]},
+        })
+        training = load_training()
+        plan = pd.read_csv(SPLIT_PATH)
+        table = EXPERIMENTS[experiment](training, plan, on_progress=run.progress)
+        prefix = {"models": "model", "quantity": "quantity", "location": "location"}[experiment]
+        run.archive([
+            REPORT_DIR / f"comparisons/{prefix}_cv_scores.csv",
+            REPORT_DIR / f"comparisons/{prefix}_comparison_table.csv",
+            REPORT_DIR / f"comparisons/{prefix}_comparison_summary.json",
+        ], REPORT_DIR)
+        run.details["comparison"] = table.reset_index().to_dict(orient="records")
+        return table
 
 
 def main(argv=None):

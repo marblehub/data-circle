@@ -9,6 +9,13 @@ submission_format = "Submission_format.csv"
 split_plan = "data/processed/sprint2_splits.csv"
 report_dir = "reports/sprint2"
 runs_dir = "artifacts/runs"
+workflow_runs_dir = "artifacts/workflows"
+processed_dir = "data/processed"
+figures_dir = "reports/figures"
+cleaned_snapshot = "data/processed/training_cleaned.parquet"
+out_of_fold_predictions = "data/processed/pm3_out_of_fold_predictions.csv"
+region_predictions = "data/processed/pm3_region_fold_predictions.csv"
+eda_report_dir = "reports/sprint1/additional_eda"
 model_file = "models/final_pipeline.joblib"
 predictions_file = "data/processed/test_predictions.csv"
 
@@ -21,3 +28,20 @@ candidates = ["logistic_regression", "logistic_regression_balanced", "random_for
 logistic_max_iter = 2000
 forest_trees = 300
 forest_jobs = -1
+
+[feature_checks]
+min_repairs = 30
+region_folds = 5
+
+[final_model]
+model = "random_forest_balanced"
+features = "full"
+
+[preprocessing]
+minimum_category_frequency = 0.01
+
+[logging]
+level = "INFO"
+
+[eda]
+min_cell_records = 30
